@@ -18,3 +18,20 @@ ThereMaxi.pid
 
 # Generated docs
 /docs/
+
+# Environment artifacts that appear in this checkout but are not the project:
+# leaked shell, editor and tool dotfiles. .claude/settings.json is ours (the
+# permission allowlist) and stays tracked.
+/.bash_profile
+/.bashrc
+/.profile
+/.zprofile
+/.zshrc
+/.gitconfig
+/.gitmodules
+/.ripgreprc
+/.mcp.json
+/.idea
+/.vscode
+/.claude/*
+!/.claude/settings.json
