@@ -200,6 +200,9 @@ sub _scalar_
 	my($v) = @_;
 	return JSON::PP::null unless defined $v;
 	return $v if $v =~ /[^0-9.eE+-]/;      # names and other strings
+	# NaN and Inf are not JSON, and a value that reaches this point is one the
+	# program would also have written into a library file. Fail loudly instead.
+	die "not a finite number: $v\n" unless $v == $v && abs($v) != 9**9**9;
 	$v + 0;
 }
 

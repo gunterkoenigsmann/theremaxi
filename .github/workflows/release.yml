@@ -15,8 +15,14 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Run the checks
+      - name: Run the perl checks
         run: t/check.sh
+
+      - name: Build and test the C libraries
+        run: |
+          cmake -S . -B build
+          cmake --build build
+          ctest --test-dir build --output-on-failure
 
       - name: Extract the release notes from NEWS.md
         run: |

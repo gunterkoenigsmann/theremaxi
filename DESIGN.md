@@ -99,7 +99,11 @@ reaches the device layer; a captured stream does.
 
 ## Decisions already forced by the data
 
-Generating the golden vectors surfaced three things a reimplementation has to take a position on.
+Generating the golden vectors turned up a bug before any C existed: a filter cutoff word below 15
+decoded to `NaN`, which no comparison rejects, so it reached the library file as invalid JSON and
+made that library permanently unloadable. Fixed in 1.0.1, with a regression test in `t/smoke.pl`
+and a guard in the generator that refuses to emit a non-finite number. Three further things a
+reimplementation has to take a position on:
 
 **`value_export` collapses at the ends of the range.** For a 14-bit parameter the sweep gives
 `{value: 810, wire: [124, 1]}` but `{value: 836, wire: [127]}` — at exactly the maximum,
@@ -126,9 +130,14 @@ rather than after.
 
 ## Build
 
-CMake is the assumption: wxWidgets ships CMake config files, LV2 plugins build fine with it, and
-both are well-trodden. Meson would also work and is pleasanter for the plugin alone; it is a
-weaker fit for wx.
+CMake, decided. wxWidgets ships CMake config files, LV2 plugins build fine with it, and CPack
+covers most of the packaging from the same tree.
+
+What CPack does and does not do is worth knowing before the packaging work starts: it generates
+`.deb`, `.rpm`, `.dmg` (DragNDrop), Windows installers (NSIS or WiX) and plain archives. It does
+*not* generate flatpaks or snaps — those need their own `flatpak-builder` manifest and
+`snapcraft.yaml`, both driven by the same CMake install rules. So one set of `install()` commands
+feeds every format; only the two sandboxed ones need a hand-written file each.
 
 ## Platforms
 

@@ -4,7 +4,16 @@ This file is the source for the release notes: the release workflow copies the s
 the pushed tag into the GitHub release. Versions follow [semantic versioning](https://semver.org);
 the releases from 2017/2018 predate that and are listed under their original dates.
 
-## Unreleased
+## 1.0.1 — 2026-07-23
+
+### Fixed
+
+* A filter cutoff word below 15 in an imported preset decoded to `NaN`: `**` cannot raise a
+  negative number to a fractional power. `NaN` compares false against everything, so it slipped
+  through the range check in `numeric::value_import`, was written into the library file — where it
+  is not valid JSON — and from then on that library could not be read back at all, taking the
+  program down on startup with *"malformed JSON string"*. The cube root is now taken by sign, and
+  a non-finite value is clamped to the parameter's minimum as a second line of defence.
 
 ### Added
 
@@ -13,8 +22,12 @@ the releases from 2017/2018 predate that and are listed under their original dat
   value-to-wire sweeps. `t/check.sh` fails if they drift from the code.
 * `DESIGN.md`: the plan for the split into a protocol library, a device library, a UI-less LV2
   plugin and a wxWidgets application, and how each step is tested against the perl implementation.
-* CI on every push and pull request.
-* A `.gitignore` for the files the program writes next to itself.
+* The beginning of `libtheremini-protocol`: a CMake build, the parameter table generated from
+  `protocol/tables.json`, and value-to-wire conversion, tested by replaying all 711 recorded
+  vectors plus a monotonicity sweep over the full range of every numeric parameter.
+* CI on every push and pull request, for both the perl code and the C library.
+* A `.gitignore` for the files the program writes next to itself, and `.dir-locals.el` so Emacs
+  keeps the tab indentation this code has always used.
 
 ### Changed
 

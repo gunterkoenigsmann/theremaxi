@@ -69,7 +69,21 @@ ok( $data->{_ps} eq 'TESTPRESET',  'preset name decoded: '.$data->{_ps} );
 ok( defined $data->{12},           'delay time decoded: '.($data->{12}//'undef') );
 ok( defined $data->{74},           'filter cutoff decoded: '.($data->{74}//'undef') );
 
-# 3. export every value back to MIDI wire format
+# 3. a filter cutoff word below 15 used to decode to NaN, which slipped through
+#    the range check, was written to the library file as invalid JSON, and made
+#    that library unloadable for good.
+{
+	my $low = $blob;
+	substr($low,0x56,2) = pack 'v', 3;
+	my $cutoff = ThereMaxi::Preset->import_data(0,$low)->{74};
+	ok( defined $cutoff && $cutoff == $cutoff, "cutoff word 3 decodes to a number: ".($cutoff//'undef') );
+
+	my $json = eval { ThereMaxi::Storage->save("$STATE{editor}->{library_path}/nan.json",{74=>$cutoff}); 1 };
+	ok( $json, 'and survives a trip through JSON' );
+	ok( eval { ThereMaxi::Storage->load("$STATE{editor}->{library_path}/nan.json"); 1 }, 'and can be read back' );
+}
+
+# 4. export every value back to MIDI wire format
 my $exported = 0;
 for my $c ( @C )
 {
@@ -79,7 +93,7 @@ for my $c ( @C )
 }
 ok( $exported == @C, "exported $exported of ".@C.' values' );
 
-# 4. library round-trip through JSON storage
+# 5. library round-trip through JSON storage
 ThereMaxi::Library->init;
 ThereMaxi::Library->new(1,'smoketest');
 ThereMaxi::Library->new_preset('smoketest','TESTPRESET');

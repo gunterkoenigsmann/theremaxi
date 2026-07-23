@@ -45,6 +45,9 @@ sub widget
 sub value_import
 {
 	my($self,$value) = @_;
+	# NaN compares false against everything, so it would slip past the range
+	# check below and end up in the library file, where it is invalid JSON.
+	$value = $self->{min} unless defined($value) && $value == $value;
 	$value = sprintf '%.'.$self->{dig}.'f', $value;
 	$value =~ tr/,/./; # no locale does'nt work !?
 	$value = $self->{min} if $value < $self->{min};

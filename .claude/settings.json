@@ -1,0 +1,23 @@
+{
+	"permissions": {
+		"allow": [
+			"Bash(nm *)",
+			"Bash(objdump *)",
+			"Bash(readelf *)",
+			"Bash(ldd *)",
+			"Bash(pkg-config *)",
+			"Bash(apt-cache *)",
+			"Bash(dpkg -l *)",
+			"Bash(dpkg -L *)",
+			"Bash(dpkg -s *)",
+			"Bash(lsb_release *)",
+			"Bash(cmake --version)",
+			"Bash(ctest -N *)",
+			"Bash(aconnect -l)",
+			"Bash(aconnect -i)",
+			"Bash(aconnect -o)",
+			"Bash(aplaymidi -l)",
+			"Bash(amidi -l)"
+		]
+	}
+}

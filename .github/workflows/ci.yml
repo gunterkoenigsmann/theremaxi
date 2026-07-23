@@ -6,9 +6,28 @@ on:
   pull_request:
 
 jobs:
-  checks:
+  perl:
+    name: perl reference implementation
     runs-on: ubuntu-latest
 
     steps:
       - uses: actions/checkout@v4
       - run: t/check.sh
+
+  c:
+    name: C libraries
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Configure
+        run: cmake -S . -B build -DCMAKE_BUILD_TYPE=Debug
+
+      - name: Build
+        run: cmake --build build
+
+      # The tests replay protocol/golden.json, which the perl implementation
+      # generated, so this is what proves the port has not changed behaviour.
+      - name: Test
+        run: ctest --test-dir build --output-on-failure

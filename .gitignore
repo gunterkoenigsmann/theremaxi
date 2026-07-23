@@ -12,3 +12,6 @@ ThereMaxi.pid
 *~
 *.bak
 .*.sw?
+
+# CMake
+/build/
