@@ -43,3 +43,10 @@ jobs:
         run: |
           cmake --build build-asan
           ctest --test-dir build-asan --output-on-failure
+
+      # Fails on a @param that names an argument the function does not have, or a
+      # broken reference - so the header comments cannot rot away from the code.
+      - name: Documentation
+        run: |
+          sudo apt-get update && sudo apt-get install -y doxygen
+          cmake --build build --target docs

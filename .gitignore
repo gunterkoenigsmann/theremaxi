@@ -15,3 +15,6 @@ ThereMaxi.pid
 
 # CMake
 /build/
+
+# Generated docs
+/docs/

@@ -59,3 +59,15 @@ if(THEREMINI_BUILD_TESTS)
 	enable_testing()
 	add_subdirectory(tests)
 endif()
+
+# Optional API docs: cmake --build build --target docs
+find_package(Doxygen)
+if(DOXYGEN_FOUND)
+	set(DOXYGEN_OUTPUT_DIR ${CMAKE_CURRENT_BINARY_DIR}/docs)
+	configure_file(Doxyfile.in ${CMAKE_CURRENT_BINARY_DIR}/Doxyfile @ONLY)
+	add_custom_target(docs
+		COMMAND Doxygen::doxygen ${CMAKE_CURRENT_BINARY_DIR}/Doxyfile
+		WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+		COMMENT "Generating API documentation with Doxygen"
+		VERBATIM)
+endif()

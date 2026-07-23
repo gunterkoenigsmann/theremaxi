@@ -1,0 +1,27 @@
+# Processed by CMake into the build tree. Build the docs with:
+#   cmake --build build --target docs
+# Output lands in <build>/docs/html.
+
+PROJECT_NAME           = "ThereMaxi protocol library"
+PROJECT_NUMBER         = @PROJECT_VERSION@
+PROJECT_BRIEF          = "Parameter, preset and wire format of the Moog Theremini"
+
+INPUT                  = @CMAKE_CURRENT_SOURCE_DIR@/src/protocol/include \
+                         @CMAKE_CURRENT_SOURCE_DIR@/DESIGN.md
+FILE_PATTERNS          = *.h
+RECURSIVE              = YES
+USE_MDFILE_AS_MAINPAGE = @CMAKE_CURRENT_SOURCE_DIR@/DESIGN.md
+
+OUTPUT_DIRECTORY       = @DOXYGEN_OUTPUT_DIR@
+GENERATE_LATEX         = NO
+GENERATE_HTML          = YES
+QUIET                  = YES
+# Self-evident members (a name, a min, a byte array) are left uncommented on
+# purpose, so do not treat that as a warning. Real mistakes - a @param naming an
+# argument that does not exist, a broken reference - still fail the build.
+WARN_IF_UNDOCUMENTED   = NO
+WARN_AS_ERROR          = FAIL_ON_WARNINGS
+
+OPTIMIZE_OUTPUT_FOR_C  = YES
+JAVADOC_AUTOBRIEF      = YES
+TYPEDEF_HIDES_STRUCT   = YES
