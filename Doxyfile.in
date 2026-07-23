@@ -25,3 +25,8 @@ WARN_AS_ERROR          = FAIL_ON_WARNINGS
 OPTIMIZE_OUTPUT_FOR_C  = YES
 JAVADOC_AUTOBRIEF      = YES
 TYPEDEF_HIDES_STRUCT   = YES
+
+# No Graphviz diagrams: they add a dependency on dot without earning their place
+# for a single header, and older doxygen tries to run dot regardless of whether
+# it is installed.
+HAVE_DOT               = NO
