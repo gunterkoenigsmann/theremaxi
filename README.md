@@ -104,6 +104,13 @@ aconnect -l
 If discovery finds nothing although the device is listed, disable **Preferences → Device →
 Automatic Discovery** and use the connect button in the toolbar.
 
+## Hacking
+
+`t/check.sh` runs everything that can be checked without a Theremini, a display or non-core perl
+modules — a smoke test that loads the whole non-GUI tree and exercises preset decoding, value
+export and the library round-trip, plus syntax checks. CI runs it on every push, and again before
+publishing a release. `CLAUDE.md` has an architecture overview.
+
 ## Troubleshooting
 
 **`Gtk-Message: Failed to load module "atk-bridge"` / `"appmenu-gtk-module"`** — harmless noise from

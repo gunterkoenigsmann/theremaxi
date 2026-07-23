@@ -5,8 +5,7 @@ ThereMaxi.pid
 # Default library directory (Preferences -> General): your presets, not the program
 /data/
 
-# Scratch from the syntax check in CLAUDE.md and the release workflow
-/stubs/
+# Scratch from the release workflow
 /release-notes.md
 
 # Editor leftovers

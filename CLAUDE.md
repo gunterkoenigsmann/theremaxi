@@ -22,23 +22,13 @@ Verified working on Ubuntu 26.10 / perl 5.40.1 / GTK 2.24.33. If the modules are
 
 **Per-file `perl -c` does not work on most modules** and is not a useful check here: the `Controller` subclasses `use base` on packages that live in files `@INC` cannot map to (`ThereMaxi::Controller::numeric` is `lib/Controller/numeric.pm`), so they die with *"Base class package … is empty"*. Only files whose base classes are already loaded, or which have no `use base`, pass standalone.
 
-Use the smoke test instead — it loads the whole non-GUI tree in order and exercises decode, export and the library round-trip, with nothing but core perl:
+Run `t/check.sh` instead — it is everything that works without a Theremini, a display or non-core modules, and it is exactly what CI runs on every push and before publishing a tag:
 
-```sh
-perl t/smoke.pl
-```
+* `t/smoke.pl` loads the whole non-GUI tree in order and exercises decode, export and the library round-trip.
+* `perl -c ThereMaxi.pl` against throwaway stubs for the three non-core modules its `BEGIN` block requires.
+* `perl -c` on the handful of modules that do stand alone.
 
-The main script can be checked with stubs for the three non-core modules its `BEGIN` block requires:
-
-```sh
-mkdir -p stubs/MIDI stubs/File
-printf 'package Gtk2;\nsub import {}\n1;\n' > stubs/Gtk2.pm
-printf 'package MIDI::ALSA;\n1;\n'          > stubs/MIDI/ALSA.pm
-printf 'package File::Pid;\n1;\n'           > stubs/File/Pid.pm
-PERL5LIB=stubs perl -c ThereMaxi.pl
-```
-
-Both are what `.github/workflows/release.yml` runs before publishing a tag.
+Add new non-GUI behaviour to `t/smoke.pl`; it is the only thing that compiles the `Controller` subclasses.
 
 Only one instance may run at a time (pidfile in `$XDG_RUNTIME_DIR`, else the source dir).
 

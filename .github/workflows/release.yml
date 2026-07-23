@@ -15,19 +15,8 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Load and exercise the non-GUI code
-        run: perl t/smoke.pl
-
-      - name: Syntax-check ThereMaxi.pl
-        # The dependency check in its BEGIN block runs during -c, and neither Gtk2
-        # nor MIDI::ALSA is available on the runner, so stub them out. This checks
-        # syntax only - it never calls into the stubs.
-        run: |
-          mkdir -p stubs/MIDI stubs/File
-          printf 'package Gtk2;\nsub import {}\n1;\n'     > stubs/Gtk2.pm
-          printf 'package MIDI::ALSA;\n1;\n'              > stubs/MIDI/ALSA.pm
-          printf 'package File::Pid;\n1;\n'               > stubs/File/Pid.pm
-          PERL5LIB=stubs perl -c ThereMaxi.pl
+      - name: Run the checks
+        run: t/check.sh
 
       - name: Extract the release notes from NEWS.md
         run: |
