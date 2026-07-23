@@ -16,10 +16,10 @@ OUTPUT_DIRECTORY       = @DOXYGEN_OUTPUT_DIR@
 GENERATE_LATEX         = NO
 GENERATE_HTML          = YES
 QUIET                  = YES
-# Self-evident members (a name, a min, a byte array) are left uncommented on
-# purpose, so do not treat that as a warning. Real mistakes - a @param naming an
-# argument that does not exist, a broken reference - still fail the build.
-WARN_IF_UNDOCUMENTED   = NO
+# The public interface is documented in full, members included, so an
+# undocumented one is a genuine omission and fails the build - as does a @param
+# naming an argument that does not exist, or a broken reference.
+WARN_IF_UNDOCUMENTED   = YES
 WARN_AS_ERROR          = FAIL_ON_WARNINGS
 
 OPTIMIZE_OUTPUT_FOR_C  = YES

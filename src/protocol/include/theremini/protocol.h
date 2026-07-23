@@ -52,23 +52,23 @@ typedef enum {
 /** One editable parameter. */
 typedef struct {
 	const char *id;    /**< "74", or "_ps" for the parameters that are not a CC */
-	const char *name;
-	theremini_kind kind;
+	const char *name;  /**< the parameter's full name */
+	theremini_kind kind; /**< what kind of value it holds */
 
 	int cc;            /**< controller number, or -1 when id is not one */
 	int lsb_cc;        /**< the CC carrying the low bits of a 14-bit value, or -1 */
 	int bits;          /**< 7 or 14 */
 
-	double min;
-	double max;
+	double min;        /**< smallest displayed value */
+	double max;        /**< largest displayed value */
 	int digits;        /**< decimals the value is displayed with */
 	const char *format; /**< printf format for the displayed value, may be NULL */
 
 	const char *const *values; /**< names, for THEREMINI_ENUM; NULL otherwise */
-	int value_count;
+	int value_count;   /**< number of entries in @c values */
 
 	bool in_preset;    /**< stored in a preset, as opposed to a global setting */
-	theremini_import import;
+	theremini_import import; /**< how a dumped value becomes the displayed one */
 } theremini_param;
 
 /**
@@ -98,9 +98,9 @@ typedef enum {
 
 /** One field of a preset dump: which parameter it feeds and how to read it. */
 typedef struct {
-	size_t offset;
-	const char *param_id;
-	theremini_pack pack;
+	size_t offset;        /**< byte position of the field within the dump */
+	const char *param_id; /**< id of the parameter this field feeds */
+	theremini_pack pack;  /**< how the bytes at @c offset are read */
 	double divisor; /**< raw value is divided by this; 0 means use it as it is */
 } theremini_offset;
 
@@ -121,7 +121,7 @@ typedef struct {
 /** A decoded preset. Its values are indexed like theremini_params(); reach one
  *  by name with theremini_preset_value(). */
 typedef struct {
-	theremini_value values[THEREMINI_PARAM_MAX];
+	theremini_value values[THEREMINI_PARAM_MAX]; /**< one per parameter, in table order */
 } theremini_preset;
 
 /**
@@ -146,8 +146,8 @@ const theremini_value *theremini_preset_value(const theremini_preset *preset,
  *  one with the high bits first. Send @c bytes[0] as the parameter's cc and, when
  *  @c count is 2, @c bytes[1] as its lsb_cc. */
 typedef struct {
-	uint8_t bytes[2];
-	uint8_t count;
+	uint8_t bytes[2]; /**< the bytes to send, high first */
+	uint8_t count;    /**< how many of @c bytes are used: 1 or 2 */
 } theremini_wire;
 
 /**

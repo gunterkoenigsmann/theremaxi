@@ -21,6 +21,11 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      # Before configuring, so find_package(Doxygen) sees it and the docs target
+      # exists.
+      - name: Install doxygen
+        run: sudo apt-get update && sudo apt-get install -y doxygen
+
       - name: Configure
         run: cmake -S . -B build -DCMAKE_BUILD_TYPE=Debug
 
@@ -44,9 +49,8 @@ jobs:
           cmake --build build-asan
           ctest --test-dir build-asan --output-on-failure
 
-      # Fails on a @param that names an argument the function does not have, or a
-      # broken reference - so the header comments cannot rot away from the code.
+      # Fails on an undocumented member, a @param that names an argument the
+      # function does not have, or a broken reference - so the header comments
+      # cannot rot away from the code.
       - name: Documentation
-        run: |
-          sudo apt-get update && sudo apt-get install -y doxygen
-          cmake --build build --target docs
+        run: cmake --build build --target docs
