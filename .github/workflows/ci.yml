@@ -31,3 +31,15 @@ jobs:
       # generated, so this is what proves the port has not changed behaviour.
       - name: Test
         run: ctest --test-dir build --output-on-failure
+
+      # Again with the sanitizers, so the truncated-input handling is checked
+      # for reading past the buffer, not just for its return value.
+      - name: Configure with sanitizers
+        run: >
+          cmake -S . -B build-asan -DCMAKE_BUILD_TYPE=Debug
+          -DCMAKE_C_FLAGS="-fsanitize=address,undefined -fno-sanitize-recover=all"
+
+      - name: Test with sanitizers
+        run: |
+          cmake --build build-asan
+          ctest --test-dir build-asan --output-on-failure

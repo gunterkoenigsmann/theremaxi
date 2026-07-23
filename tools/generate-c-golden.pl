@@ -9,6 +9,7 @@ use strict;
 use warnings;
 
 use JSON::PP;
+use MIME::Base64;
 
 my($in,$out) = @ARGV;
 die "usage: $0 <golden.json> <output.c>\n" unless $in && $out;
@@ -40,10 +41,57 @@ for my $id ( sort keys %{$golden->{export}} )
 }
 
 $c .= "};\n\n";
-$c .= "const size_t golden_export_count = $n;\n";
+$c .= "const size_t golden_export_count = $n;\n\n";
+
+# decoded preset dumps: the raw bytes, and what perl made of them
+my $presets = 0;
+my $values = 0;
+for my $p ( @{$golden->{presets}} )
+{
+	my $raw = decode_base64($p->{input});
+	$c .= sprintf "static const uint8_t preset_input_%d[] = {\n", $presets;
+	my @bytes = map { sprintf '0x%02x', $_ } unpack 'C*', $raw;
+	while ( @bytes )
+	{
+		$c .= "\t".join(', ', splice @bytes, 0, 12).",\n";
+	}
+	$c .= "};\n\n";
+
+	$c .= sprintf "static const golden_value preset_values_%d[] = {\n", $presets;
+	for my $id ( sort keys %{$p->{decoded}} )
+	{
+		my $v = $p->{decoded}->{$id};
+		if ( !defined $v )
+		{
+			$c .= sprintf "\t{ \"%s\", 0, NULL },\n", $id;
+		}
+		elsif ( $v =~ /^-?[0-9.]+(?:[eE][-+]?\d+)?$/ )
+		{
+			$c .= sprintf "\t{ \"%s\", %.17g, NULL },\n", $id, $v;
+		}
+		else
+		{
+			( my $esc = $v ) =~ s/(["\\])/\\$1/g;
+			$c .= sprintf "\t{ \"%s\", 0, \"%s\" },\n", $id, $esc;
+		}
+		$values++;
+	}
+	$c .= "};\n\n";
+	$presets++;
+}
+
+$c .= "const golden_preset golden_presets[] = {\n";
+for my $i ( 0 .. $presets-1 )
+{
+	my $p = $golden->{presets}->[$i];
+	$c .= sprintf "\t{ preset_input_%d, sizeof preset_input_%d, %d, preset_values_%d, sizeof preset_values_%d / sizeof preset_values_%d[0] },\n",
+		$i, $i, $i, $i, $i, $i;
+}
+$c .= "};\n\n";
+$c .= "const size_t golden_preset_count = $presets;\n";
 
 open my $O, '>', $out or die "$out: $!";
 print $O $c;
 close $O;
 
-printf "%s: %d export vectors\n", $out, $n;
+printf "%s: %d export vectors, %d presets with %d values\n", $out, $n, $presets, $values;

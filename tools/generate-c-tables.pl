@@ -67,8 +67,31 @@ for my $id ( @ids )
 	$c .= sprintf "\t\t.values = %s, .value_count = %d,\n",
 		( $e->{values} ? "values_$sym" : 'NULL' ),
 		( $e->{values} ? scalar @{$e->{values}} : 0 );
-	$c .= sprintf "\t\t.in_preset = %s,\n", ( $e->{in_preset} ? 'true' : 'false' );
+	$c .= sprintf "\t\t.in_preset = %s, .import = %s,\n",
+		( $e->{in_preset} ? 'true' : 'false' ),
+		'THEREMINI_IMPORT_'.uc($e->{import});
 	$c .= "\t},\n";
+}
+$c .= "};\n\n";
+
+# how a preset dump is taken apart
+my %PACK =
+(
+	'S'        => 'THEREMINI_PACK_U16',
+	'v'        => 'THEREMINI_PACK_U16',
+	's'        => 'THEREMINI_PACK_S16',
+	'(Zx)13'   => 'THEREMINI_PACK_TEXT_PADDED',
+	'Z13'      => 'THEREMINI_PACK_TEXT',
+);
+
+$c .= "static const theremini_offset offsets[] = {\n";
+for my $off ( sort { hex($a) <=> hex($b) } keys %{$tables->{sysex}->{offsets}} )
+{
+	my $o = $tables->{sysex}->{offsets}->{$off};
+	my $pack = $PACK{ $o->{pack} } or die "unknown pack template '$o->{pack}' at $off\n";
+	$c .= sprintf "\t{ %s, %s, %s, %.17g },\n",
+		$off, cstr($o->{cc}), $pack,
+		( defined $o->{divisor} ? $o->{divisor} : 0 );
 }
 $c .= "};\n\n";
 
@@ -102,6 +125,19 @@ const theremini_param *theremini_param_by_cc(int cc)
 		}
 	}
 	return NULL;
+}
+
+const theremini_offset *theremini_offsets(size_t *count)
+{
+	if (count) {
+		*count = sizeof offsets / sizeof offsets[0];
+	}
+	return offsets;
+}
+
+size_t theremini_param_index(const theremini_param *param)
+{
+	return (size_t)(param - params);
 }
 TAIL
 

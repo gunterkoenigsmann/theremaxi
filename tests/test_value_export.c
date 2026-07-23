@@ -94,8 +94,8 @@ static void check_table(void)
 	size_t count;
 	const theremini_param *params = theremini_params(&count);
 
-	if (count != 27) {
-		printf("FAIL: %zu parameters, expected 27\n", count);
+	if (count != 30) {
+		printf("FAIL: %zu parameters, expected 30\n", count);
 		failures++;
 	}
 

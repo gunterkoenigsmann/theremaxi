@@ -16,4 +16,21 @@ typedef struct {
 extern const golden_export golden_exports[];
 extern const size_t golden_export_count;
 
+typedef struct {
+	const char *id;
+	double number;    /* used when text is NULL */
+	const char *text;
+} golden_value;
+
+typedef struct {
+	const uint8_t *input;
+	size_t input_size;
+	int number;             /* the slot it was decoded as */
+	const golden_value *values;
+	size_t value_count;
+} golden_preset;
+
+extern const golden_preset golden_presets[];
+extern const size_t golden_preset_count;
+
 #endif

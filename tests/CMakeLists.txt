@@ -16,4 +16,12 @@ add_executable(test_value_export
 target_include_directories(test_value_export PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
 target_link_libraries(test_value_export PRIVATE theremini-protocol)
 
+add_executable(test_preset_decode
+	test_preset_decode.c
+	${GENERATED}/golden_data.c)
+
+target_include_directories(test_preset_decode PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
+target_link_libraries(test_preset_decode PRIVATE theremini-protocol)
+
 add_test(NAME value_export COMMAND test_value_export)
+add_test(NAME preset_decode COMMAND test_preset_decode)

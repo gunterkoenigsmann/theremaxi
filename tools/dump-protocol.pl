@@ -50,6 +50,15 @@ require "$LIB/Library.pm";
 }
 ThereMaxi::Preset->init;
 
+# list_tunables only reports controllers that have been instantiated, because
+# the "tunable" flag is set in Controller::new. Preset->init creates the ones
+# belonging to a preset; without this the global parameters - master volume and
+# the note range - would be missing from the generated table entirely.
+{
+	no warnings 'once';
+	ThereMaxi::Controller->new($_) for keys %ThereMaxi::Controller::CONTROLLER;
+}
+
 
 # ---------------------------------------------------------------- tables ---
 
@@ -94,6 +103,21 @@ for my $c ( ThereMaxi::Controller->list_tunables, ThereMaxi::Controller->list_in
 			label => $c->{show}->[3],
 		};
 	}
+
+	# Which value_import is actually in effect, resolved through the class
+	# hierarchy rather than guessed from the class name. An unknown one stops
+	# the generator instead of being silently ignored.
+	my %IMPORT_KIND =
+	(
+		\&ThereMaxi::Controller::value_import          => 'identity',
+		\&ThereMaxi::Controller::numeric::value_import => 'numeric',
+		\&ThereMaxi::Controller::name::value_import    => 'text',
+		\&ThereMaxi::Controller::_074::value_import    => 'cutoff',
+		\&ThereMaxi::Controller::_090::value_import    => 'sum',
+	);
+	my $import = $IMPORT_KIND{ $c->can('value_import') };
+	die "$CC: unknown value_import\n" unless $import;
+	$e{import} = $import;
 
 	$e{properties} = [ sort grep { $c->{props}->{$_} } keys %{$c->{props}||{}} ];
 	$e{values}     = [ $c->range ] if $c->can('range') && $class !~ /^(numeric|prozent|_074|_090dep)$/;
