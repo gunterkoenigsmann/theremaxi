@@ -6,6 +6,8 @@ use warnings;
 
 use MIDI::ALSA ':CONSTS';
 
+require "$main::LIB/Sysex.pm";
+
 my $MIDI;
 my $PEER;
 my $NAME;
@@ -94,7 +96,7 @@ sub info
 	eval
 	{
 		local $SIG{__DIE__};
-		&midi_sx(qw( 7E 7F 06 01 ));
+		&midi_sx_bytes(ThereMaxi::Sysex->payload('identity_request'));
 		my $read = &midi_read;
 		if ( $read =~ /^\xf0\x7e\x7f\x06\x02(.*)\xf7$/s )
 		{
@@ -142,7 +144,7 @@ sub load_presets
 	eval
 	{
 		local $SIG{__DIE__};
-		&midi_sx(qw( 04 0B 06 03 00 00 00 00 00 00 00 00 00 00 00 ));
+		&midi_sx_bytes(ThereMaxi::Sysex->payload('request_all_presets'));
 		ThereMaxi::Library->save('.',ThereMaxi::Preset->sysex(&midi_read));
 		ThereMaxi::Editor->status('Presets successfully loaded');
 	};
@@ -230,11 +232,11 @@ sub midi_send
 	}
 	elsif ( $CC eq '_ps' )
 	{
-		&midi_sx(qw( 04 0B 06 07 00 00 00 00 00 00 00 00 00 00 00 01 ),@$value,qw( 20 00 ));
+		&midi_sx_bytes(ThereMaxi::Sysex->name_payload('write_preset_name', pack 'H*', join '', @$value));
 	}
 	elsif ( $CC eq '_fx' )
 	{
-		&midi_sx(qw( 04 0B 06 08 00 00 00 00 00 00 00 00 00 00 00 01 ),@$value,qw( 20 00 ));
+		&midi_sx_bytes(ThereMaxi::Sysex->name_payload('write_effect_name', pack 'H*', join '', @$value));
 	}
 }
 
@@ -261,9 +263,9 @@ sub midi_ps
 }
 
 
-sub midi_sx
+sub midi_sx_bytes
 {
-	MIDI::ALSA::output(MIDI::ALSA::sysex($CHAN,pack('(H2)*',@_)));
+	MIDI::ALSA::output(MIDI::ALSA::sysex($CHAN,$_[0]));
 }
 
 

@@ -1,4 +1,39 @@
 {
+   "control" : [
+      {
+         "bytes" : "8H5/BgH3",
+         "name" : "identity_request"
+      },
+      {
+         "bytes" : "8AQLBgMAAAAAAAAAAAAAAPc=",
+         "name" : "request_all_presets"
+      },
+      {
+         "arg" : "",
+         "bytes" : "8AQLBgcAAAAAAAAAAAAAAAEgICAgICAgICAgICAgIAD3",
+         "name" : "write_preset_name"
+      },
+      {
+         "arg" : "TEST",
+         "bytes" : "8AQLBgcAAAAAAAAAAAAAAAFURVNUICAgICAgICAgIAD3",
+         "name" : "write_preset_name"
+      },
+      {
+         "arg" : "THIRTEEN CHAR",
+         "bytes" : "8AQLBgcAAAAAAAAAAAAAAAFUSElSVEVFTiBDSEFSIAD3",
+         "name" : "write_preset_name"
+      },
+      {
+         "arg" : "WAY TOO LONG A NAME",
+         "bytes" : "8AQLBgcAAAAAAAAAAAAAAAFXQVkgVE9PIExPTkcgIAD3",
+         "name" : "write_preset_name"
+      },
+      {
+         "arg" : "  trimmed  ",
+         "bytes" : "8AQLBgcAAAAAAAAAAAAAAAF0cmltbWVkICAgICAgIAD3",
+         "name" : "write_preset_name"
+      }
+   ],
    "export" : {
       "102" : [
          {

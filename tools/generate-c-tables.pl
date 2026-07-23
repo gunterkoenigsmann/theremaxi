@@ -27,6 +27,7 @@ my $c = <<"HEAD";
  * Do not edit, do not commit. */
 
 #include "theremini/protocol.h"
+#include "internal.h"
 
 #include <string.h>
 
@@ -95,6 +96,21 @@ for my $off ( sort { hex($a) <=> hex($b) } keys %{$tables->{sysex}->{offsets}} )
 }
 $c .= "};\n\n";
 
+# the fixed bytes of the device control messages
+sub bytes_array
+{
+	my($name,@bytes) = @_;
+	sprintf "static const uint8_t %s[] = { %s };\n", $name,
+		join ', ', map { sprintf '0x%02x', $_ } @bytes;
+}
+$c .= bytes_array('msg_identity_request',    @{$tables->{messages}->{identity_request}});
+$c .= bytes_array('msg_request_all_presets', @{$tables->{messages}->{request_all_presets}});
+$c .= bytes_array('msg_preset_name_prefix',  @{$tables->{name_messages}->{write_preset_name}->{prefix}});
+$c .= bytes_array('msg_preset_name_suffix',  @{$tables->{name_messages}->{write_preset_name}->{suffix}});
+$c .= bytes_array('msg_effect_name_prefix',  @{$tables->{name_messages}->{write_effect_name}->{prefix}});
+$c .= bytes_array('msg_effect_name_suffix',  @{$tables->{name_messages}->{write_effect_name}->{suffix}});
+$c .= "\n";
+
 $c .= <<'TAIL';
 const theremini_param *theremini_params(size_t *count)
 {
@@ -139,6 +155,17 @@ size_t theremini_param_index(const theremini_param *param)
 {
 	return (size_t)(param - params);
 }
+
+/* The message templates, for message.c. Declared in internal.h. */
+#define TEMPLATE(fn, arr) \
+	const uint8_t *fn(size_t *len) { if (len) *len = sizeof arr; return arr; }
+TEMPLATE(theremini_tmpl_identity_request,    msg_identity_request)
+TEMPLATE(theremini_tmpl_request_all_presets, msg_request_all_presets)
+TEMPLATE(theremini_tmpl_preset_name_prefix,  msg_preset_name_prefix)
+TEMPLATE(theremini_tmpl_preset_name_suffix,  msg_preset_name_suffix)
+TEMPLATE(theremini_tmpl_effect_name_prefix,  msg_effect_name_prefix)
+TEMPLATE(theremini_tmpl_effect_name_suffix,  msg_effect_name_suffix)
+#undef TEMPLATE
 TAIL
 
 open my $O, '>', $out or die "$out: $!";

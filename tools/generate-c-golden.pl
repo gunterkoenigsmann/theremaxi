@@ -149,11 +149,32 @@ for my $i ( 0 .. $messages-1 )
 		$i, $i, $i, $np;
 }
 $c .= "};\n\n";
-$c .= "const size_t golden_message_count = $messages;\n";
+$c .= "const size_t golden_message_count = $messages;\n\n";
+
+# the device control messages the app builds
+my $controls = 0;
+for my $m ( @{$golden->{control}} )
+{
+	my $raw = decode_base64($m->{bytes});
+	$c .= sprintf "static const uint8_t control_bytes_%d[] = { %s };\n", $controls,
+		join ', ', map { sprintf '0x%02x', $_ } unpack 'C*', $raw;
+	$controls++;
+}
+$c .= "\nconst golden_control golden_controls[] = {\n";
+$controls = 0;
+for my $m ( @{$golden->{control}} )
+{
+	my $arg = defined $m->{arg} ? sprintf('"%s"', do { (my$e=$m->{arg})=~s/(["\\])/\\$1/g; $e }) : 'NULL';
+	$c .= sprintf "\t{ \"%s\", %s, control_bytes_%d, sizeof control_bytes_%d },\n",
+		$m->{name}, $arg, $controls, $controls;
+	$controls++;
+}
+$c .= "};\n\n";
+$c .= "const size_t golden_control_count = $controls;\n";
 
 open my $O, '>', $out or die "$out: $!";
 print $O $c;
 close $O;
 
-printf "%s: %d export vectors, %d presets, %d sx pairs, %d messages\n",
-	$out, $n, $presets, $sx, $messages;
+printf "%s: %d export vectors, %d presets, %d sx pairs, %d messages, %d control\n",
+	$out, $n, $presets, $sx, $messages, $controls;

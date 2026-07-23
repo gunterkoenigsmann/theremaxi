@@ -38,11 +38,16 @@ add_library(theremini-protocol
 	src/protocol/value.c
 	src/protocol/preset.c
 	src/protocol/sysex.c
+	src/protocol/message.c
 	${GENERATED}/tables.c)
 
 target_include_directories(theremini-protocol PUBLIC
 	$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src/protocol/include>
 	$<INSTALL_INTERFACE:include>)
+
+# internal.h and the generated tables.c that includes it
+target_include_directories(theremini-protocol PRIVATE
+	${CMAKE_CURRENT_SOURCE_DIR}/src/protocol)
 
 set_target_properties(theremini-protocol PROPERTIES
 	VERSION ${PROJECT_VERSION}

@@ -56,4 +56,14 @@ typedef struct {
 extern const golden_message golden_messages[];
 extern const size_t golden_message_count;
 
+typedef struct {
+	const char *name;    /* which builder */
+	const char *arg;     /* the name argument, or NULL for the constant messages */
+	const uint8_t *bytes;
+	size_t size;
+} golden_control;
+
+extern const golden_control golden_controls[];
+extern const size_t golden_control_count;
+
 #endif

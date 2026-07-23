@@ -189,6 +189,57 @@ theremini_sysex_status theremini_sysex_decode(const uint8_t *data, size_t size,
  */
 uint16_t theremini_sysex_unpack3(uint8_t b0, uint8_t b1, uint8_t b2);
 
+/** The name field the device wants: exactly this many bytes. */
+#define THEREMINI_NAME_BYTES 13
+
+/** Enough room for the longest control message, F0..F7 included. */
+#define THEREMINI_MESSAGE_MAX 64
+
+/**
+ * @brief Encode a name into the device's fixed-width field.
+ *
+ * Trims surrounding spaces, cuts to #THEREMINI_NAME_BYTES, and pads the rest
+ * with spaces - the same as the reference implementation's name export.
+ *
+ * @param name the name to encode, NUL-terminated.
+ * @param out  receives exactly #THEREMINI_NAME_BYTES bytes; not terminated.
+ */
+void theremini_name_encode(const char *name, uint8_t out[THEREMINI_NAME_BYTES]);
+
+/**
+ * @brief Build the sysex message that asks the device to identify itself.
+ * @param out receives the message, F0..F7 included.
+ * @param cap size of @p out.
+ * @return the message length, or 0 if @p out is too small.
+ */
+size_t theremini_msg_identity_request(uint8_t *out, size_t cap);
+
+/**
+ * @brief Build the sysex message that asks for all presets.
+ * @param out receives the message, F0..F7 included.
+ * @param cap size of @p out.
+ * @return the message length, or 0 if @p out is too small.
+ */
+size_t theremini_msg_request_all_presets(uint8_t *out, size_t cap);
+
+/**
+ * @brief Build the sysex message that renames the current preset.
+ * @param name the new name; trimmed, cut and padded by theremini_name_encode().
+ * @param out  receives the message, F0..F7 included.
+ * @param cap  size of @p out.
+ * @return the message length, or 0 if @p out is too small.
+ */
+size_t theremini_msg_write_preset_name(const char *name, uint8_t *out, size_t cap);
+
+/**
+ * @brief Build the sysex message that renames the current effect.
+ * @param name the new name; trimmed, cut and padded by theremini_name_encode().
+ * @param out  receives the message, F0..F7 included.
+ * @param cap  size of @p out.
+ * @return the message length, or 0 if @p out is too small.
+ */
+size_t theremini_msg_write_effect_name(const char *name, uint8_t *out, size_t cap);
+
 /** A value ready for the wire: one byte for a 7-bit parameter, two for a 14-bit
  *  one with the high bits first. Send @c bytes[0] as the parameter's cc and, when
  *  @c count is 2, @c bytes[1] as its lsb_cc. */

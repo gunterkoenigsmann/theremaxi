@@ -32,6 +32,7 @@ require "$LIB/Event.pm";
 require "$LIB/Controller.pm";
 require "$LIB/Preset.pm";
 require "$LIB/Library.pm";
+require "$LIB/Sysex.pm";
 
 # The device needs ALSA and hardware, so replace it. Preset->init calls init,
 # and saving a preset goes through save_preset/sync_on_change.
@@ -101,6 +102,28 @@ ThereMaxi::Library->save_preset('smoketest',0,ThereMaxi::Preset->get_values);
 my %back = ThereMaxi::Library->load_preset('smoketest',0);
 ok( keys(%back) == @C,          'round-trip keeps all '.@C.' values' );
 ok( $back{_ps} eq 'TESTPRESET', 'round-trip keeps the preset name' );
+
+# 6. the device control messages, pinned to the exact bytes Device.pm's old
+#    literals produced, so lib/Sysex.pm can be trusted without a Theremini.
+{
+	my $hex = sub { unpack 'H*', $_[0] };
+
+	ok( $hex->(ThereMaxi::Sysex->payload('identity_request')) eq '7e7f0601',
+		'identity request payload' );
+	ok( $hex->(ThereMaxi::Sysex->payload('request_all_presets')) eq '040b06030000000000000000000000',
+		'request-all-presets payload' );
+
+	# the name field is the 13 raw bytes value_export produces
+	my $name_bytes = sub { pack 'H*', join '', @{ ThereMaxi::Controller->get('_ps')->value_export($_[0]) } };
+
+	ok( $hex->(ThereMaxi::Sysex->name_payload('write_preset_name',$name_bytes->('TEST'))) eq
+		'040b0607000000000000000000000001'.'54455354202020202020202020'.'2000',
+		'write-preset-name payload for TEST' );
+
+	my $fx_bytes = sub { pack 'H*', join '', @{ ThereMaxi::Controller->get('_fx')->value_export($_[0]) } };
+	ok( $hex->(ThereMaxi::Sysex->name_payload('write_effect_name',$fx_bytes->('Off'))) =~ /^040b0608/,
+		'write-effect-name payload framing' );
+}
 
 print $fail ? "\n$fail check(s) failed\n" : "\nall checks passed\n";
 exit( $fail ? 1 : 0 );

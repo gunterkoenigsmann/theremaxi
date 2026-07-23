@@ -41,6 +41,7 @@ require "$LIB/Event.pm";
 require "$LIB/Controller.pm";
 require "$LIB/Preset.pm";
 require "$LIB/Library.pm";
+require "$LIB/Sysex.pm";
 
 {
 	no warnings 'once';
@@ -138,15 +139,25 @@ while ( my($off,$rule) = each %ThereMaxi::Preset::IMPORT )
 	};
 }
 
+my %message = %ThereMaxi::Sysex::MESSAGE;
+my %name_message;
+while ( my($k,$v) = each %ThereMaxi::Sysex::NAME_MESSAGE )
+{
+	$name_message{$k} = { prefix => $v->{prefix}, suffix => $v->{suffix} };
+}
+
 my $tables =
 {
 	generated_by => 'tools/dump-protocol.pl',
-	note         => 'Generated from lib/Controller.pm and lib/Preset.pm. Do not edit by hand.',
+	note         => 'Generated from lib/Controller.pm, lib/Preset.pm and lib/Sysex.pm. Do not edit by hand.',
 	controllers  => \%controller,
 	sysex        => {
 		preset_length => 0x74,
 		offsets       => \%offset,
 	},
+	messages      => \%message,
+	name_messages => \%name_message,
+	name_length   => 13,
 };
 
 
@@ -252,6 +263,32 @@ for my $spec ( [ '01', 32 ], [ '05', 1 ], [ '04', 1 ] )
 	};
 }
 
+# The device control messages the app sends, as full on-the-wire bytes (F0 and
+# F7 included, the way the ALSA sysex() call frames them). The name carrying
+# ones are recorded for a spread of names that exercise trimming, truncation to
+# 13 and padding.
+my @control;
+push @control,
+{
+	name  => 'identity_request',
+	bytes => encode_base64("\xf0".ThereMaxi::Sysex->payload('identity_request')."\xf7",''),
+};
+push @control,
+{
+	name  => 'request_all_presets',
+	bytes => encode_base64("\xf0".ThereMaxi::Sysex->payload('request_all_presets')."\xf7",''),
+};
+for my $n ( '', 'TEST', 'THIRTEEN CHAR', 'WAY TOO LONG A NAME', '  trimmed  ' )
+{
+	my $bytes = pack 'H*', join '', @{ ThereMaxi::Controller->get('_ps')->value_export($n) };
+	push @control,
+	{
+		name    => 'write_preset_name',
+		arg     => $n,
+		bytes   => encode_base64("\xf0".ThereMaxi::Sysex->name_payload('write_preset_name',$bytes)."\xf7",''),
+	};
+}
+
 my $golden =
 {
 	generated_by => 'tools/dump-protocol.pl',
@@ -260,6 +297,7 @@ my $golden =
 	export       => \%export,
 	sx           => \@sx,
 	messages     => \@messages,
+	control      => \@control,
 };
 
 sub _scalar_

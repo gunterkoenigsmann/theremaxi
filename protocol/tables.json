@@ -935,7 +935,83 @@
       }
    },
    "generated_by" : "tools/dump-protocol.pl",
-   "note" : "Generated from lib/Controller.pm and lib/Preset.pm. Do not edit by hand.",
+   "messages" : {
+      "identity_request" : [
+         126,
+         127,
+         6,
+         1
+      ],
+      "request_all_presets" : [
+         4,
+         11,
+         6,
+         3,
+         0,
+         0,
+         0,
+         0,
+         0,
+         0,
+         0,
+         0,
+         0,
+         0,
+         0
+      ]
+   },
+   "name_length" : 13,
+   "name_messages" : {
+      "write_effect_name" : {
+         "prefix" : [
+            4,
+            11,
+            6,
+            8,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            1
+         ],
+         "suffix" : [
+            32,
+            0
+         ]
+      },
+      "write_preset_name" : {
+         "prefix" : [
+            4,
+            11,
+            6,
+            7,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            1
+         ],
+         "suffix" : [
+            32,
+            0
+         ]
+      }
+   },
+   "note" : "Generated from lib/Controller.pm, lib/Preset.pm and lib/Sysex.pm. Do not edit by hand.",
    "sysex" : {
       "offsets" : {
          "0x00" : {

@@ -9,27 +9,10 @@ add_custom_command(
 	COMMENT "Generating the golden vectors from protocol/golden.json"
 	VERBATIM)
 
-add_executable(test_value_export
-	test_value_export.c
-	${GENERATED}/golden_data.c)
-
-target_include_directories(test_value_export PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
-target_link_libraries(test_value_export PRIVATE theremini-protocol)
-
-add_executable(test_preset_decode
-	test_preset_decode.c
-	${GENERATED}/golden_data.c)
-
-target_include_directories(test_preset_decode PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
-target_link_libraries(test_preset_decode PRIVATE theremini-protocol)
-
-add_executable(test_sysex
-	test_sysex.c
-	${GENERATED}/golden_data.c)
-
-target_include_directories(test_sysex PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
-target_link_libraries(test_sysex PRIVATE theremini-protocol)
-
-add_test(NAME value_export COMMAND test_value_export)
-add_test(NAME preset_decode COMMAND test_preset_decode)
-add_test(NAME sysex COMMAND test_sysex)
+# Each test replays part of protocol/golden.json through the library.
+foreach(name value_export preset_decode sysex message)
+	add_executable(test_${name} test_${name}.c ${GENERATED}/golden_data.c)
+	target_include_directories(test_${name} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
+	target_link_libraries(test_${name} PRIVATE theremini-protocol)
+	add_test(NAME ${name} COMMAND test_${name})
+endforeach()
