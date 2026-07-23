@@ -1,0 +1,51 @@
+
+ThereMaxi - Linux Software for Moog Theremini
+Copyright (C) 2017 Peter Niebling
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
+----------------------------------------------------------------------
+
+Moog is a registered trademark of Moog Music Inc.
+Theremini is a trademark of Moog Music Inc.
+
+----------------------------------------------------------------------
+
+
+This is the first release of ThereMaxi. [17/10/19]
+
+There is no help available, and there are not much comments in the code, but it's easy to use.
+
+It's all perl! Developed and tested with version 5.22.1
+
+If your perl is not found under /usr/bin, you need to change the first line in ThereMaxi.pl
+#!/path/to/perl -w
+
+You may need to install some packages. ThereMaxi.pl will inform you about that on start.
+
+
+*** Update [17/10/23]
+- Worakround for locale-problem in numeric controllers.
+- Better MIDI handling.
+- Feature added: MidiFeedbackLoop - weird ;-)
+  Use input from antennas to manipulate preset controllers.
+- Fixed import routine.
+
+*** Update [17/10/27]
+- Fixed low/high note range
+- 14bit support for controller input
+
+*** Update [18/04/13]
+- Fixed comma in numeric values
+- Fixed some undefs
