@@ -1,0 +1,15 @@
+# Runtime files created next to the script
+ThereMaxi.state
+ThereMaxi.pid
+
+# Default library directory (Preferences -> General): your presets, not the program
+/data/
+
+# Scratch from the syntax check in CLAUDE.md and the release workflow
+/stubs/
+/release-notes.md
+
+# Editor leftovers
+*~
+*.bak
+.*.sw?
