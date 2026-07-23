@@ -1,0 +1,57 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Load and exercise the non-GUI code
+        run: perl t/smoke.pl
+
+      - name: Syntax-check ThereMaxi.pl
+        # The dependency check in its BEGIN block runs during -c, and neither Gtk2
+        # nor MIDI::ALSA is available on the runner, so stub them out. This checks
+        # syntax only - it never calls into the stubs.
+        run: |
+          mkdir -p stubs/MIDI stubs/File
+          printf 'package Gtk2;\nsub import {}\n1;\n'     > stubs/Gtk2.pm
+          printf 'package MIDI::ALSA;\n1;\n'              > stubs/MIDI/ALSA.pm
+          printf 'package File::Pid;\n1;\n'               > stubs/File/Pid.pm
+          PERL5LIB=stubs perl -c ThereMaxi.pl
+
+      - name: Extract the release notes from NEWS.md
+        run: |
+          version="${GITHUB_REF_NAME#v}"
+          awk -v v="$version" '
+            $0 == "## " v || index($0, "## " v " ") == 1 { found = 1; next }
+            found && /^## / { exit }
+            found { print }
+          ' NEWS.md > release-notes.md
+          if [ ! -s release-notes.md ]; then
+            echo "No NEWS.md section for $version - add one before tagging." >&2
+            exit 1
+          fi
+          cat release-notes.md
+
+      - name: Publish the release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          case "$GITHUB_REF_NAME" in
+            *-*) prerelease=--prerelease ;;
+            *)   prerelease= ;;
+          esac
+          gh release create "$GITHUB_REF_NAME" \
+            --title "ThereMaxi $GITHUB_REF_NAME" \
+            --notes-file release-notes.md \
+            $prerelease
