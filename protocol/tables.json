@@ -1,0 +1,742 @@
+{
+   "controllers" : {
+      "102" : {
+         "bits" : 7,
+         "cc" : 102,
+         "class" : "numeric",
+         "dig" : 0,
+         "format" : "%d Semitones",
+         "in_preset" : true,
+         "max" : 63,
+         "min" : -64,
+         "name" : "Transpose",
+         "properties" : [
+            "MidiFeedbackLoop",
+            "sync_on_change"
+         ],
+         "ui" : {
+            "group" : null,
+            "label" : "Pitch Transpose",
+            "order" : 26,
+            "tab" : "Advanced"
+         }
+      },
+      "103" : {
+         "bits" : 7,
+         "cc" : 103,
+         "class" : "prozent",
+         "dig" : 0,
+         "format" : "%d %%",
+         "in_preset" : true,
+         "max" : 100,
+         "min" : 0,
+         "name" : "Preset Volume",
+         "properties" : [
+            "sync_on_change"
+         ],
+         "ui" : {
+            "group" : null,
+            "label" : "Preset Volume",
+            "order" : 2,
+            "tab" : "Main"
+         }
+      },
+      "12" : {
+         "bits" : 14,
+         "cc" : 12,
+         "class" : "numeric",
+         "dig" : 0,
+         "format" : "%d ms",
+         "in_preset" : true,
+         "lsb_cc" : 44,
+         "max" : 836,
+         "min" : 0,
+         "name" : "Delay Time",
+         "properties" : [
+            "MidiFeedbackLoop",
+            "sync_on_change"
+         ],
+         "ui" : {
+            "group" : "Effect",
+            "label" : "Delay Time",
+            "order" : 15,
+            "tab" : "Basic"
+         }
+      },
+      "14" : {
+         "bits" : 7,
+         "cc" : 14,
+         "class" : "prozent",
+         "dig" : 0,
+         "format" : "%d %%",
+         "in_preset" : true,
+         "max" : 100,
+         "min" : 0,
+         "name" : "Delay Feedback",
+         "properties" : [
+            "MidiFeedbackLoop",
+            "sync_on_change"
+         ],
+         "ui" : {
+            "group" : "Effect",
+            "label" : "Delay Feedback",
+            "order" : 16,
+            "tab" : "Basic"
+         }
+      },
+      "20" : {
+         "bits" : 7,
+         "cc" : 20,
+         "class" : "_090dep",
+         "dig" : 2,
+         "format" : "%1.2f",
+         "in_preset" : true,
+         "max" : 2,
+         "min" : 0,
+         "name" : "Scan Amount",
+         "properties" : [
+            "MidiFeedbackLoop",
+            "sync_on_change"
+         ],
+         "ui" : {
+            "group" : "Waves",
+            "label" : "Scan Amount",
+            "order" : 8,
+            "tab" : "Basic"
+         }
+      },
+      "21" : {
+         "bits" : 7,
+         "cc" : 21,
+         "class" : "_090dep",
+         "dig" : 2,
+         "format" : "%1.2f",
+         "in_preset" : true,
+         "max" : 2,
+         "min" : 0,
+         "name" : "Scan Position",
+         "properties" : [
+            "MidiFeedbackLoop",
+            "sync_on_change"
+         ],
+         "ui" : {
+            "group" : "Waves",
+            "label" : "Scan Position",
+            "order" : 9,
+            "tab" : "Basic"
+         }
+      },
+      "22" : {
+         "bits" : 14,
+         "cc" : 22,
+         "class" : "prozent",
+         "dig" : 0,
+         "format" : "%d %%",
+         "in_preset" : true,
+         "lsb_cc" : 54,
+         "max" : 400,
+         "min" : -400,
+         "name" : "Pitch Mod Scan Freq.",
+         "properties" : [
+            "MidiFeedbackLoop",
+            "sync_on_change"
+         ],
+         "ui" : {
+            "group" : "Pitch Antenna",
+            "label" : "Wave Scan Rate",
+            "order" : 24,
+            "tab" : "Advanced"
+         }
+      },
+      "23" : {
+         "bits" : 14,
+         "cc" : 23,
+         "class" : "prozent",
+         "dig" : 0,
+         "format" : "%d %%",
+         "in_preset" : true,
+         "lsb_cc" : 55,
+         "max" : 400,
+         "min" : -400,
+         "name" : "Vol Mod Scan Freq.",
+         "properties" : [
+            "MidiFeedbackLoop",
+            "sync_on_change"
+         ],
+         "ui" : {
+            "group" : "Volume Antenna",
+            "label" : "Wave Scan Rate",
+            "order" : 20,
+            "tab" : "Advanced"
+         }
+      },
+      "24" : {
+         "bits" : 14,
+         "cc" : 24,
+         "class" : "prozent",
+         "dig" : 0,
+         "format" : "%d %%",
+         "in_preset" : true,
+         "lsb_cc" : 56,
+         "max" : 400,
+         "min" : -400,
+         "name" : "Pitch Mod Scan Amount",
+         "properties" : [
+            "MidiFeedbackLoop",
+            "sync_on_change"
+         ],
+         "ui" : {
+            "group" : "Pitch Antenna",
+            "label" : "Wave Scan Amount",
+            "order" : 23,
+            "tab" : "Advanced"
+         }
+      },
+      "25" : {
+         "bits" : 14,
+         "cc" : 25,
+         "class" : "prozent",
+         "dig" : 0,
+         "format" : "%d %%",
+         "in_preset" : true,
+         "lsb_cc" : 57,
+         "max" : 400,
+         "min" : -400,
+         "name" : "Vol Mod Scan Amount",
+         "properties" : [
+            "MidiFeedbackLoop",
+            "sync_on_change"
+         ],
+         "ui" : {
+            "group" : "Volume Antenna",
+            "label" : "Wave Scan Amount",
+            "order" : 19,
+            "tab" : "Advanced"
+         }
+      },
+      "26" : {
+         "bits" : 14,
+         "cc" : 26,
+         "class" : "prozent",
+         "dig" : 0,
+         "format" : "%d %%",
+         "in_preset" : true,
+         "lsb_cc" : 58,
+         "max" : 1600,
+         "min" : 0,
+         "name" : "Vol Mod Volume",
+         "properties" : [
+            "MidiFeedbackLoop",
+            "sync_on_change"
+         ],
+         "ui" : {
+            "group" : "Volume Antenna",
+            "label" : "Volume",
+            "order" : 18,
+            "tab" : "Advanced"
+         }
+      },
+      "27" : {
+         "bits" : 14,
+         "cc" : 27,
+         "class" : "prozent",
+         "dig" : 0,
+         "format" : "%d %%",
+         "in_preset" : true,
+         "lsb_cc" : 59,
+         "max" : 100,
+         "min" : -100,
+         "name" : "Vol Mod Cutoff",
+         "properties" : [
+            "MidiFeedbackLoop",
+            "sync_on_change"
+         ],
+         "ui" : {
+            "group" : "Volume Antenna",
+            "label" : "Filter Cutoff",
+            "order" : 21,
+            "tab" : "Advanced"
+         }
+      },
+      "28" : {
+         "bits" : 14,
+         "cc" : 28,
+         "class" : "prozent",
+         "dig" : 0,
+         "format" : "%d %%",
+         "in_preset" : true,
+         "lsb_cc" : 60,
+         "max" : 200,
+         "min" : -200,
+         "name" : "Vol Mod Resonance",
+         "properties" : [
+            "MidiFeedbackLoop",
+            "sync_on_change"
+         ],
+         "ui" : {
+            "group" : "Volume Antenna",
+            "label" : "Filter Resonance",
+            "order" : 22,
+            "tab" : "Advanced"
+         }
+      },
+      "29" : {
+         "bits" : 14,
+         "cc" : 29,
+         "class" : "prozent",
+         "dig" : 0,
+         "format" : "%d %%",
+         "in_preset" : true,
+         "lsb_cc" : 61,
+         "max" : 800,
+         "min" : -800,
+         "name" : "Filter Pitch Tracking",
+         "properties" : [
+            "MidiFeedbackLoop",
+            "sync_on_change"
+         ],
+         "ui" : {
+            "group" : "Filter",
+            "label" : "Pitch Track",
+            "order" : 13,
+            "tab" : "Basic"
+         }
+      },
+      "30" : {
+         "bits" : 14,
+         "cc" : 30,
+         "class" : "prozent",
+         "dig" : 0,
+         "format" : "%d %%",
+         "in_preset" : true,
+         "lsb_cc" : 62,
+         "max" : 400,
+         "min" : -400,
+         "name" : "Pitch Mod Resonance",
+         "properties" : [
+            "MidiFeedbackLoop",
+            "sync_on_change"
+         ],
+         "ui" : {
+            "group" : "Pitch Antenna",
+            "label" : "Filter Resonance",
+            "order" : 25,
+            "tab" : "Advanced"
+         }
+      },
+      "71" : {
+         "bits" : 7,
+         "cc" : 71,
+         "class" : "prozent",
+         "dig" : 0,
+         "format" : "%d %%",
+         "in_preset" : true,
+         "max" : 100,
+         "min" : 0,
+         "name" : "Filter Resonance",
+         "properties" : [
+            "MidiFeedbackLoop",
+            "sync_on_change"
+         ],
+         "ui" : {
+            "group" : "Filter",
+            "label" : "Filter Resonance",
+            "order" : 12,
+            "tab" : "Basic"
+         }
+      },
+      "74" : {
+         "bits" : 7,
+         "cc" : 74,
+         "class" : "_074",
+         "dig" : 0,
+         "format" : "%d %%",
+         "in_preset" : true,
+         "max" : 100,
+         "min" : 0,
+         "name" : "Filter Cutoff Freq",
+         "properties" : [
+            "MidiFeedbackLoop",
+            "sync_on_change"
+         ],
+         "ui" : {
+            "group" : "Filter",
+            "label" : "Cutoff",
+            "order" : 11,
+            "tab" : "Basic"
+         }
+      },
+      "80" : {
+         "bits" : 7,
+         "cc" : 80,
+         "class" : "_080",
+         "in_preset" : true,
+         "name" : "Filter Type",
+         "properties" : [
+            "sync_on_change"
+         ],
+         "ui" : {
+            "group" : "Filter",
+            "label" : "Filter Type",
+            "order" : 10,
+            "tab" : "Basic"
+         },
+         "values" : [
+            "None (bypass)",
+            "2-Pole Lowpass",
+            "2-Pole Bandpass",
+            "2-Pole Highpass",
+            "2-Pole Notch",
+            "Animoog 3",
+            "Etherwave"
+         ]
+      },
+      "84" : {
+         "bits" : 7,
+         "cc" : 84,
+         "class" : "prozent",
+         "dig" : 0,
+         "format" : "%d %%",
+         "in_preset" : true,
+         "max" : 100,
+         "min" : 0,
+         "name" : "Pitch Correction Amount",
+         "properties" : [
+            "MidiFeedbackLoop",
+            "sync_on_change"
+         ],
+         "ui" : {
+            "group" : "Notes",
+            "label" : "Pitch Correction",
+            "order" : 5,
+            "tab" : "Basic"
+         }
+      },
+      "85" : {
+         "bits" : 7,
+         "cc" : 85,
+         "class" : "_085",
+         "in_preset" : true,
+         "name" : "Scale",
+         "properties" : [
+            "sync_on_change"
+         ],
+         "ui" : {
+            "group" : "Notes",
+            "label" : "Scale",
+            "order" : 3,
+            "tab" : "Basic"
+         },
+         "values" : [
+            "Chromatic",
+            "Ionian",
+            "Dorian",
+            "Phrygian",
+            "Lydian",
+            "Mixolydian",
+            "Aeolian",
+            "Locrian",
+            "Major Blues",
+            "Minor Blues",
+            "Diminished",
+            "Major Penta",
+            "Minor Penta",
+            "Spanish",
+            "Gypsy",
+            "Arabian",
+            "Egyptian",
+            "Ryukyu",
+            "Wholetone",
+            "Major 3rd",
+            "Minor 3rd",
+            "5th"
+         ]
+      },
+      "86" : {
+         "bits" : 7,
+         "cc" : 86,
+         "class" : "_086",
+         "in_preset" : true,
+         "name" : "Root Note",
+         "properties" : [
+            "sync_on_change"
+         ],
+         "ui" : {
+            "group" : "Notes",
+            "label" : "Root",
+            "order" : 4,
+            "tab" : "Basic"
+         },
+         "values" : [
+            "C",
+            "C#",
+            "D",
+            "D#",
+            "E",
+            "F",
+            "F#",
+            "G",
+            "G#",
+            "A",
+            "A#",
+            "B"
+         ]
+      },
+      "9" : {
+         "bits" : 7,
+         "cc" : 9,
+         "class" : "_090dep",
+         "dig" : 2,
+         "format" : "%2.2f Hz",
+         "in_preset" : true,
+         "max" : 32,
+         "min" : 0,
+         "name" : "Wavetable Scan Rate",
+         "properties" : [
+            "MidiFeedbackLoop",
+            "sync_on_change"
+         ],
+         "ui" : {
+            "group" : "Waves",
+            "label" : "Scan Rate",
+            "order" : 7,
+            "tab" : "Basic"
+         }
+      },
+      "90" : {
+         "bits" : 7,
+         "cc" : 90,
+         "class" : "_090",
+         "in_preset" : true,
+         "name" : "Wave Selection",
+         "properties" : [
+            "sync_on_change"
+         ],
+         "ui" : {
+            "group" : "Waves",
+            "label" : "Waveform",
+            "order" : 6,
+            "tab" : "Basic"
+         },
+         "values" : [
+            "Sine",
+            "Triangle",
+            "Super Saw",
+            "Animoog",
+            "Bright",
+            "Hollow",
+            "Etherwave",
+            "RCA #7",
+            "RCA #8",
+            "RCA #9"
+         ]
+      },
+      "91" : {
+         "bits" : 7,
+         "cc" : 91,
+         "class" : "prozent",
+         "dig" : 0,
+         "format" : "%d %%",
+         "in_preset" : true,
+         "max" : 100,
+         "min" : 0,
+         "name" : "Effect Mix",
+         "properties" : [
+            "MidiFeedbackLoop",
+            "sync_on_change"
+         ],
+         "ui" : {
+            "group" : "Effect",
+            "label" : "Delay Amount",
+            "order" : 17,
+            "tab" : "Basic"
+         }
+      },
+      "_fx" : {
+         "cc" : "_fx",
+         "class" : "_fx",
+         "in_preset" : true,
+         "name" : "Effect Name",
+         "properties" : [
+            "sync_on_change"
+         ],
+         "ui" : {
+            "group" : "Effect",
+            "label" : "Delay Type",
+            "order" : 14,
+            "tab" : "Basic"
+         }
+      },
+      "_nr" : {
+         "cc" : "_nr",
+         "class" : "_nr",
+         "in_preset" : true,
+         "name" : "Preset Number",
+         "properties" : [
+            "MidiFeedbackLoop"
+         ]
+      },
+      "_ps" : {
+         "cc" : "_ps",
+         "class" : "_ps",
+         "in_preset" : true,
+         "name" : "Preset Name",
+         "properties" : [
+            "MidiFeedbackLoop"
+         ],
+         "ui" : {
+            "group" : null,
+            "label" : "Preset Name",
+            "order" : 1,
+            "tab" : "Main"
+         }
+      }
+   },
+   "generated_by" : "tools/dump-protocol.pl",
+   "note" : "Generated from lib/Controller.pm and lib/Preset.pm. Do not edit by hand.",
+   "sysex" : {
+      "offsets" : {
+         "0x00" : {
+            "cc" : "_nr",
+            "divisor" : null,
+            "pack" : "S"
+         },
+         "0x02" : {
+            "cc" : "_ps",
+            "divisor" : null,
+            "pack" : "(Zx)13"
+         },
+         "0x20" : {
+            "cc" : "85",
+            "divisor" : null,
+            "pack" : "S"
+         },
+         "0x22" : {
+            "cc" : "86",
+            "divisor" : null,
+            "pack" : "S"
+         },
+         "0x24" : {
+            "cc" : "84",
+            "divisor" : 163.84,
+            "pack" : "S"
+         },
+         "0x26" : {
+            "cc" : "102",
+            "divisor" : null,
+            "pack" : "s"
+         },
+         "0x2a" : {
+            "cc" : "12",
+            "divisor" : 16.384,
+            "pack" : "S"
+         },
+         "0x2e" : {
+            "cc" : "14",
+            "divisor" : 163.84,
+            "pack" : "S"
+         },
+         "0x34" : {
+            "cc" : "91",
+            "divisor" : 163.84,
+            "pack" : "S"
+         },
+         "0x36" : {
+            "cc" : "_fx",
+            "divisor" : null,
+            "pack" : "Z13"
+         },
+         "0x50" : {
+            "cc" : "90",
+            "divisor" : null,
+            "pack" : "S"
+         },
+         "0x52" : {
+            "cc" : "9",
+            "divisor" : 512,
+            "pack" : "S"
+         },
+         "0x54" : {
+            "cc" : "90",
+            "divisor" : null,
+            "pack" : "S"
+         },
+         "0x56" : {
+            "cc" : "74",
+            "divisor" : null,
+            "pack" : "v"
+         },
+         "0x58" : {
+            "cc" : "71",
+            "divisor" : 163.84,
+            "pack" : "S"
+         },
+         "0x5a" : {
+            "cc" : "80",
+            "divisor" : null,
+            "pack" : "S"
+         },
+         "0x5c" : {
+            "cc" : "29",
+            "divisor" : 10.24,
+            "pack" : "s"
+         },
+         "0x5e" : {
+            "cc" : "28",
+            "divisor" : 10.24,
+            "pack" : "s"
+         },
+         "0x60" : {
+            "cc" : "27",
+            "divisor" : 10.24,
+            "pack" : "s"
+         },
+         "0x62" : {
+            "cc" : "21",
+            "divisor" : 16384,
+            "pack" : "S"
+         },
+         "0x64" : {
+            "cc" : "20",
+            "divisor" : 16384,
+            "pack" : "S"
+         },
+         "0x66" : {
+            "cc" : "22",
+            "divisor" : 10.24,
+            "pack" : "s"
+         },
+         "0x68" : {
+            "cc" : "23",
+            "divisor" : 10.24,
+            "pack" : "s"
+         },
+         "0x6a" : {
+            "cc" : "24",
+            "divisor" : 10.24,
+            "pack" : "s"
+         },
+         "0x6c" : {
+            "cc" : "25",
+            "divisor" : 10.24,
+            "pack" : "s"
+         },
+         "0x6e" : {
+            "cc" : "30",
+            "divisor" : 10.24,
+            "pack" : "s"
+         },
+         "0x70" : {
+            "cc" : "26",
+            "divisor" : 10.24,
+            "pack" : "S"
+         },
+         "0x72" : {
+            "cc" : "103",
+            "divisor" : 163.84,
+            "pack" : "S"
+         }
+      },
+      "preset_length" : 116
+   }
+}

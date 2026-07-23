@@ -10,7 +10,9 @@ require "$main::LIB/Controller/choice.pm";
 require "$main::LIB/Controller/name.pm";
 
 
-my %CONTROLLER =
+# our, not my: tools/dump-protocol.pl reads this table to generate the machine
+# readable description of the protocol. It is the authoritative copy.
+our %CONTROLLER =
 (
 	_nr => { name=>'Preset Number'                                                                    ,preset=>1,                                                        props=>{ sync_on_change=>undef }},
 	_ps => { name=>'Preset Name'            ,show=>[ 1,'Main'    , undef          ,'Preset Name'     ],preset=>1,                                                        props=>{ sync_on_change=>undef }},

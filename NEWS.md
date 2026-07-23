@@ -4,6 +4,23 @@ This file is the source for the release notes: the release workflow copies the s
 the pushed tag into the GitHub release. Versions follow [semantic versioning](https://semver.org);
 the releases from 2017/2018 predate that and are listed under their original dates.
 
+## Unreleased
+
+### Added
+
+* `protocol/tables.json` and `protocol/golden.json`, generated from the tables in `lib/` by
+  `tools/dump-protocol.pl`: the parameter descriptions, the sysex offsets, decoded preset dumps and
+  value-to-wire sweeps. `t/check.sh` fails if they drift from the code.
+* `DESIGN.md`: the plan for the split into a protocol library, a device library, a UI-less LV2
+  plugin and a wxWidgets application, and how each step is tested against the perl implementation.
+* CI on every push and pull request.
+* A `.gitignore` for the files the program writes next to itself.
+
+### Changed
+
+* `%CONTROLLER` and `%IMPORT` are package variables now, so the generator can read them. No
+  behaviour change.
+
 ## 1.0.0 — 2026-07-23
 
 First release of this fork, and the first version that runs on a current Linux distribution.

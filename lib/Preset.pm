@@ -62,7 +62,8 @@ sub get_values    { map { $_->{CC} => $_->get_value    } values %CONTROLLER }
 sub export_values { map { $_->{CC} => $_->value_export } values %CONTROLLER }
 
 
-my %IMPORT =
+# our, not my: read by tools/dump-protocol.pl - see lib/Controller.pm
+our %IMPORT =
 (
 	0x00 => [ _nr => 'S'              ], # Preset Nr.
 	0x02 => [ _ps => '(Zx)13'         ], # Preset Name
