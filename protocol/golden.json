@@ -6358,6 +6358,944 @@
       ]
    },
    "generated_by" : "tools/dump-protocol.pl",
+   "messages" : [
+      {
+         "header" : "01",
+         "input" : "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",
+         "presets" : [
+            {
+               "102" : -64,
+               "103" : 100,
+               "12" : 836,
+               "14" : 100,
+               "20" : 2,
+               "21" : 0.86,
+               "22" : -260,
+               "23" : 400,
+               "24" : -400,
+               "25" : 400,
+               "26" : 1157,
+               "27" : 100,
+               "28" : 200,
+               "29" : -800,
+               "30" : -400,
+               "71" : 100,
+               "74" : 100,
+               "80" : 21533,
+               "84" : 29,
+               "85" : 14642,
+               "86" : 28130,
+               "9" : 32,
+               "90" : 105655,
+               "91" : 100,
+               "_nr" : 30361
+            },
+            {
+               "102" : 63,
+               "103" : 100,
+               "12" : 836,
+               "14" : 38,
+               "20" : 2,
+               "21" : 0.44,
+               "22" : -400,
+               "23" : -185,
+               "24" : -68,
+               "25" : 400,
+               "26" : 1600,
+               "27" : -100,
+               "28" : 200,
+               "29" : -800,
+               "30" : -373,
+               "71" : 100,
+               "74" : 100,
+               "80" : 2489,
+               "84" : 100,
+               "85" : 24114,
+               "86" : 20904,
+               "9" : 32,
+               "90" : 30341,
+               "91" : 100,
+               "_nr" : 24046
+            },
+            {
+               "102" : -64,
+               "103" : 100,
+               "12" : 836,
+               "14" : 100,
+               "20" : 2,
+               "21" : 0.47,
+               "22" : -379,
+               "23" : -400,
+               "24" : 400,
+               "25" : 400,
+               "26" : 1600,
+               "27" : -100,
+               "28" : -200,
+               "29" : -800,
+               "30" : 400,
+               "71" : 100,
+               "74" : 100,
+               "80" : 27547,
+               "84" : 94,
+               "85" : 14238,
+               "86" : 40573,
+               "9" : 32,
+               "90" : 117618,
+               "91" : 15,
+               "_nr" : 40919
+            },
+            {
+               "102" : 63,
+               "103" : 100,
+               "12" : 519,
+               "14" : 100,
+               "20" : 2,
+               "21" : 2,
+               "22" : 349,
+               "23" : -400,
+               "24" : 400,
+               "25" : 400,
+               "26" : 562,
+               "27" : 100,
+               "28" : -200,
+               "29" : 800,
+               "30" : 400,
+               "71" : 100,
+               "74" : 100,
+               "80" : 48767,
+               "84" : 100,
+               "85" : 7392,
+               "86" : 21519,
+               "9" : 32,
+               "90" : 86005,
+               "91" : 95,
+               "_nr" : 13182
+            },
+            {
+               "102" : 63,
+               "103" : 100,
+               "12" : 836,
+               "14" : 99,
+               "20" : 0.41,
+               "21" : 2,
+               "22" : 400,
+               "23" : 76,
+               "24" : -400,
+               "25" : 400,
+               "26" : 1600,
+               "27" : -100,
+               "28" : -200,
+               "29" : -800,
+               "30" : -400,
+               "71" : 100,
+               "74" : 100,
+               "80" : 56220,
+               "84" : 100,
+               "85" : 21272,
+               "86" : 39236,
+               "9" : 11.18,
+               "90" : 38123,
+               "91" : 100,
+               "_nr" : 52723
+            },
+            {
+               "102" : 63,
+               "103" : 100,
+               "12" : 836,
+               "14" : 99,
+               "20" : 2,
+               "21" : 2,
+               "22" : 296,
+               "23" : 400,
+               "24" : 400,
+               "25" : -400,
+               "26" : 1600,
+               "27" : -54,
+               "28" : -200,
+               "29" : 800,
+               "30" : -400,
+               "71" : 100,
+               "74" : 72,
+               "80" : 13405,
+               "84" : 67,
+               "85" : 7615,
+               "86" : 39479,
+               "9" : 32,
+               "90" : 71340,
+               "91" : 100,
+               "_nr" : 21183
+            },
+            {
+               "102" : -64,
+               "103" : 93,
+               "12" : 836,
+               "14" : 100,
+               "20" : 0.82,
+               "21" : 0.85,
+               "22" : 400,
+               "23" : 400,
+               "24" : 400,
+               "25" : -400,
+               "26" : 1600,
+               "27" : 100,
+               "28" : 200,
+               "29" : 800,
+               "30" : 400,
+               "71" : 100,
+               "74" : 100,
+               "80" : 24120,
+               "84" : 5,
+               "85" : 64951,
+               "86" : 10430,
+               "9" : 31.42,
+               "90" : 44275,
+               "91" : 100,
+               "_nr" : 33459
+            },
+            {
+               "102" : -64,
+               "103" : 100,
+               "12" : 217,
+               "14" : 100,
+               "20" : 1.3,
+               "21" : 2,
+               "22" : -88,
+               "23" : -151,
+               "24" : -400,
+               "25" : -400,
+               "26" : 1600,
+               "27" : -100,
+               "28" : 200,
+               "29" : -800,
+               "30" : 400,
+               "71" : 100,
+               "74" : 100,
+               "80" : 50586,
+               "84" : 100,
+               "85" : 62008,
+               "86" : 36197,
+               "9" : 32,
+               "90" : 56651,
+               "91" : 100,
+               "_nr" : 32153
+            },
+            {
+               "102" : -64,
+               "103" : 100,
+               "12" : 836,
+               "14" : 100,
+               "20" : 2,
+               "21" : 1.93,
+               "22" : 400,
+               "23" : 400,
+               "24" : 400,
+               "25" : -300,
+               "26" : 1600,
+               "27" : -100,
+               "28" : -200,
+               "29" : 800,
+               "30" : 400,
+               "71" : 100,
+               "74" : 57,
+               "80" : 15560,
+               "84" : 100,
+               "85" : 47315,
+               "86" : 46707,
+               "9" : 25,
+               "90" : 88075,
+               "91" : 100,
+               "_nr" : 28754
+            },
+            {
+               "102" : 63,
+               "103" : 100,
+               "12" : 836,
+               "14" : 100,
+               "20" : 1.59,
+               "21" : 1.97,
+               "22" : 400,
+               "23" : -400,
+               "24" : -400,
+               "25" : -400,
+               "26" : 1600,
+               "27" : -100,
+               "28" : -200,
+               "29" : 800,
+               "30" : 400,
+               "71" : 100,
+               "74" : 79,
+               "80" : 7295,
+               "84" : 53,
+               "85" : 15538,
+               "86" : 47092,
+               "9" : 31.31,
+               "90" : 31008,
+               "91" : 86,
+               "_nr" : 54966
+            },
+            {
+               "102" : 63,
+               "103" : 100,
+               "12" : 836,
+               "14" : 95,
+               "20" : 2,
+               "21" : 0.88,
+               "22" : 283,
+               "23" : 400,
+               "24" : -400,
+               "25" : 400,
+               "26" : 1600,
+               "27" : -100,
+               "28" : -200,
+               "29" : -176,
+               "30" : -400,
+               "71" : 100,
+               "74" : 100,
+               "80" : 8708,
+               "84" : 77,
+               "85" : 5845,
+               "86" : 44156,
+               "9" : 32,
+               "90" : 18898,
+               "91" : 100,
+               "_nr" : 63798
+            },
+            {
+               "102" : -64,
+               "103" : 100,
+               "12" : 836,
+               "14" : 100,
+               "20" : 2,
+               "21" : 0.4,
+               "22" : -400,
+               "23" : -400,
+               "24" : 24,
+               "25" : 400,
+               "26" : 1184,
+               "27" : 100,
+               "28" : -200,
+               "29" : -800,
+               "30" : 400,
+               "71" : 100,
+               "74" : 100,
+               "80" : 41555,
+               "84" : 100,
+               "85" : 24277,
+               "86" : 41977,
+               "9" : 20.97,
+               "90" : 69052,
+               "91" : 100,
+               "_nr" : 65387
+            },
+            {
+               "102" : 63,
+               "103" : 100,
+               "12" : 177,
+               "14" : 100,
+               "20" : 1.85,
+               "21" : 2,
+               "22" : 400,
+               "23" : 400,
+               "24" : 400,
+               "25" : -400,
+               "26" : 1600,
+               "27" : 100,
+               "28" : 200,
+               "29" : 800,
+               "30" : 315,
+               "71" : 100,
+               "74" : 100,
+               "80" : 30643,
+               "84" : 44,
+               "85" : 31220,
+               "86" : 38129,
+               "9" : 32,
+               "90" : 112231,
+               "91" : 100,
+               "_nr" : 32439
+            },
+            {
+               "102" : 63,
+               "103" : 100,
+               "12" : 132,
+               "14" : 100,
+               "20" : 1.09,
+               "21" : 2,
+               "22" : -400,
+               "23" : -400,
+               "24" : -195,
+               "25" : 112,
+               "26" : 1600,
+               "27" : -100,
+               "28" : -200,
+               "29" : -800,
+               "30" : -400,
+               "71" : 100,
+               "74" : 100,
+               "80" : 61919,
+               "84" : 100,
+               "85" : 47899,
+               "86" : 52015,
+               "9" : 32,
+               "90" : 40815,
+               "91" : 100,
+               "_nr" : 35346
+            },
+            {
+               "102" : 63,
+               "103" : 100,
+               "12" : 836,
+               "14" : 94,
+               "20" : 2,
+               "21" : 0.31,
+               "22" : -400,
+               "23" : -135,
+               "24" : -400,
+               "25" : 400,
+               "26" : 1600,
+               "27" : -100,
+               "28" : -200,
+               "29" : 496,
+               "30" : 400,
+               "71" : 35,
+               "74" : 100,
+               "80" : 55213,
+               "84" : 100,
+               "85" : 33785,
+               "86" : 6553,
+               "9" : 32,
+               "90" : 33068,
+               "91" : 100,
+               "_nr" : 41694
+            },
+            {
+               "102" : 63,
+               "103" : 100,
+               "12" : 836,
+               "14" : 59,
+               "20" : 0.38,
+               "21" : 2,
+               "22" : 400,
+               "23" : -400,
+               "24" : 400,
+               "25" : 400,
+               "26" : 1381,
+               "27" : -100,
+               "28" : 200,
+               "29" : -800,
+               "30" : 400,
+               "71" : 100,
+               "74" : 100,
+               "80" : 29946,
+               "84" : 100,
+               "85" : 62329,
+               "86" : 42972,
+               "9" : 32,
+               "90" : 69960,
+               "91" : 100,
+               "_nr" : 59539
+            },
+            {
+               "102" : -64,
+               "103" : 81,
+               "12" : 391,
+               "14" : 100,
+               "20" : 2,
+               "21" : 0.84,
+               "22" : -400,
+               "23" : 400,
+               "24" : -400,
+               "25" : -173,
+               "26" : 1450,
+               "27" : -100,
+               "28" : 200,
+               "29" : -800,
+               "30" : 400,
+               "71" : 100,
+               "74" : 100,
+               "80" : 48123,
+               "84" : 100,
+               "85" : 42636,
+               "86" : 25788,
+               "9" : 30.71,
+               "90" : 53103,
+               "91" : 100,
+               "_nr" : 59394
+            },
+            {
+               "102" : -64,
+               "103" : 100,
+               "12" : 836,
+               "14" : 48,
+               "20" : 2,
+               "21" : 1.85,
+               "22" : -400,
+               "23" : -32,
+               "24" : 400,
+               "25" : -400,
+               "26" : 1600,
+               "27" : 100,
+               "28" : -200,
+               "29" : -800,
+               "30" : -400,
+               "71" : 64,
+               "74" : 100,
+               "80" : 42237,
+               "84" : 90,
+               "85" : 39193,
+               "86" : 46104,
+               "9" : 32,
+               "90" : 100362,
+               "91" : 4,
+               "_nr" : 44309
+            },
+            {
+               "102" : -64,
+               "103" : 100,
+               "12" : 836,
+               "14" : 27,
+               "20" : 1.87,
+               "21" : 2,
+               "22" : -400,
+               "23" : -400,
+               "24" : -400,
+               "25" : -400,
+               "26" : 37,
+               "27" : 100,
+               "28" : -200,
+               "29" : -800,
+               "30" : -400,
+               "71" : 100,
+               "74" : 69,
+               "80" : 32357,
+               "84" : 100,
+               "85" : 29812,
+               "86" : 16403,
+               "9" : 32,
+               "90" : 103442,
+               "91" : 38,
+               "_nr" : 53340
+            },
+            {
+               "102" : 63,
+               "103" : 100,
+               "12" : 333,
+               "14" : 100,
+               "20" : 0.43,
+               "21" : 2,
+               "22" : 400,
+               "23" : 400,
+               "24" : 400,
+               "25" : -400,
+               "26" : 1600,
+               "27" : 100,
+               "28" : -200,
+               "29" : 800,
+               "30" : 11,
+               "71" : 100,
+               "74" : 100,
+               "80" : 7327,
+               "84" : 27,
+               "85" : 7971,
+               "86" : 31132,
+               "9" : 32,
+               "90" : 55218,
+               "91" : 82,
+               "_nr" : 18753
+            },
+            {
+               "102" : -64,
+               "103" : 100,
+               "12" : 836,
+               "14" : 100,
+               "20" : 1.77,
+               "21" : 1.83,
+               "22" : -400,
+               "23" : -400,
+               "24" : -339,
+               "25" : -400,
+               "26" : 644,
+               "27" : -100,
+               "28" : 200,
+               "29" : 800,
+               "30" : -400,
+               "71" : 100,
+               "74" : 100,
+               "80" : 47538,
+               "84" : 42,
+               "85" : 16089,
+               "86" : 5654,
+               "9" : 6.61,
+               "90" : 119700,
+               "91" : 100,
+               "_nr" : 48500
+            },
+            {
+               "102" : 63,
+               "103" : 100,
+               "12" : 362,
+               "14" : 100,
+               "20" : 0.77,
+               "21" : 2,
+               "22" : -400,
+               "23" : -400,
+               "24" : 400,
+               "25" : -400,
+               "26" : 1346,
+               "27" : -100,
+               "28" : -200,
+               "29" : -800,
+               "30" : 400,
+               "71" : 100,
+               "74" : 100,
+               "80" : 17817,
+               "84" : 100,
+               "85" : 63166,
+               "86" : 29279,
+               "9" : 32,
+               "90" : 70641,
+               "91" : 100,
+               "_nr" : 16318
+            },
+            {
+               "102" : -64,
+               "103" : 100,
+               "12" : 836,
+               "14" : 100,
+               "20" : 0.79,
+               "21" : 1.85,
+               "22" : 400,
+               "23" : -400,
+               "24" : 400,
+               "25" : -400,
+               "26" : 1600,
+               "27" : -6,
+               "28" : -200,
+               "29" : -800,
+               "30" : 400,
+               "71" : 100,
+               "74" : 100,
+               "80" : 55018,
+               "84" : 39,
+               "85" : 47156,
+               "86" : 28748,
+               "9" : 32,
+               "90" : 98805,
+               "91" : 100,
+               "_nr" : 20785
+            },
+            {
+               "102" : 63,
+               "103" : 44,
+               "12" : 836,
+               "14" : 100,
+               "20" : 1.43,
+               "21" : 0.88,
+               "22" : 400,
+               "23" : 400,
+               "24" : 400,
+               "25" : 400,
+               "26" : 1600,
+               "27" : 100,
+               "28" : 200,
+               "29" : 761,
+               "30" : -400,
+               "71" : 100,
+               "74" : 100,
+               "80" : 47602,
+               "84" : 100,
+               "85" : 37459,
+               "86" : 14522,
+               "9" : 11.07,
+               "90" : 24887,
+               "91" : 100,
+               "_nr" : 61877
+            },
+            {
+               "102" : -64,
+               "103" : 80,
+               "12" : 836,
+               "14" : 49,
+               "20" : 1.72,
+               "21" : 2,
+               "22" : 278,
+               "23" : -400,
+               "24" : 400,
+               "25" : 400,
+               "26" : 1600,
+               "27" : 100,
+               "28" : 200,
+               "29" : 800,
+               "30" : 400,
+               "71" : 100,
+               "74" : 100,
+               "80" : 32902,
+               "84" : 100,
+               "85" : 12892,
+               "86" : 47421,
+               "9" : 32,
+               "90" : 33492,
+               "91" : 100,
+               "_nr" : 60891
+            },
+            {
+               "102" : -64,
+               "103" : 100,
+               "12" : 836,
+               "14" : 100,
+               "20" : 0.44,
+               "21" : 2,
+               "22" : -400,
+               "23" : -400,
+               "24" : -400,
+               "25" : 400,
+               "26" : 1562,
+               "27" : -100,
+               "28" : 200,
+               "29" : 800,
+               "30" : 400,
+               "71" : 72,
+               "74" : 100,
+               "80" : 46003,
+               "84" : 100,
+               "85" : 33721,
+               "86" : 9748,
+               "9" : 11.39,
+               "90" : 37556,
+               "91" : 100,
+               "_nr" : 4493
+            },
+            {
+               "102" : -64,
+               "103" : 100,
+               "12" : 836,
+               "14" : 100,
+               "20" : 1.83,
+               "21" : 2,
+               "22" : -400,
+               "23" : 400,
+               "24" : 400,
+               "25" : -400,
+               "26" : 1600,
+               "27" : 100,
+               "28" : -200,
+               "29" : -800,
+               "30" : 400,
+               "71" : 100,
+               "74" : 100,
+               "80" : 8446,
+               "84" : 100,
+               "85" : 24490,
+               "86" : 31282,
+               "9" : 0.45,
+               "90" : 68178,
+               "91" : 100,
+               "_nr" : 5515
+            },
+            {
+               "102" : -64,
+               "103" : 100,
+               "12" : 836,
+               "14" : 100,
+               "20" : 2,
+               "21" : 1.29,
+               "22" : -400,
+               "23" : -400,
+               "24" : -172,
+               "25" : -400,
+               "26" : 1600,
+               "27" : -100,
+               "28" : 200,
+               "29" : 800,
+               "30" : 400,
+               "71" : 21,
+               "74" : 100,
+               "80" : 3236,
+               "84" : 100,
+               "85" : 23817,
+               "86" : 50486,
+               "9" : 32,
+               "90" : 105896,
+               "91" : 100,
+               "_nr" : 4479
+            },
+            {
+               "102" : -64,
+               "103" : 100,
+               "12" : 836,
+               "14" : 100,
+               "20" : 2,
+               "21" : 1.88,
+               "22" : 400,
+               "23" : -400,
+               "24" : 400,
+               "25" : -400,
+               "26" : 282,
+               "27" : -100,
+               "28" : -200,
+               "29" : -116,
+               "30" : 400,
+               "71" : 100,
+               "74" : 100,
+               "80" : 16729,
+               "84" : 100,
+               "85" : 29062,
+               "86" : 7603,
+               "9" : 32,
+               "90" : 60640,
+               "91" : 100,
+               "_nr" : 31288
+            },
+            {
+               "102" : -64,
+               "103" : 100,
+               "12" : 836,
+               "14" : 100,
+               "20" : 1.91,
+               "21" : 2,
+               "22" : 400,
+               "23" : 400,
+               "24" : -400,
+               "25" : -302,
+               "26" : 1600,
+               "27" : 100,
+               "28" : -200,
+               "29" : 800,
+               "30" : 400,
+               "71" : 100,
+               "74" : 100,
+               "80" : 7963,
+               "84" : 100,
+               "85" : 36970,
+               "86" : 44935,
+               "9" : 32,
+               "90" : 111859,
+               "91" : 46,
+               "_nr" : 21266
+            },
+            {
+               "102" : -64,
+               "103" : 100,
+               "12" : 836,
+               "14" : 26,
+               "20" : 0.23,
+               "21" : 1.49,
+               "22" : -138,
+               "23" : 400,
+               "24" : -400,
+               "25" : 400,
+               "26" : 546,
+               "27" : -100,
+               "28" : 200,
+               "29" : 800,
+               "30" : 400,
+               "71" : 41,
+               "74" : 100,
+               "80" : 23664,
+               "84" : 100,
+               "85" : 14934,
+               "86" : 19783,
+               "9" : 13.3,
+               "90" : 89676,
+               "91" : 100,
+               "_nr" : 23963
+            },
+            {
+               "102" : -64,
+               "103" : 100,
+               "12" : 836,
+               "14" : 100,
+               "20" : 0.43,
+               "21" : 0.92,
+               "22" : -341,
+               "23" : 400,
+               "24" : -400,
+               "25" : 400,
+               "26" : 1600,
+               "27" : 100,
+               "28" : 200,
+               "29" : -760,
+               "30" : -400,
+               "71" : 100,
+               "74" : 100,
+               "80" : 21811,
+               "84" : 100,
+               "85" : 40772,
+               "86" : 24384,
+               "9" : 32,
+               "90" : 36134,
+               "91" : 100,
+               "_nr" : 39086
+            }
+         ]
+      },
+      {
+         "header" : "05",
+         "input" : "8AAABQEAAAAAAAAAAAAAAAAAAAAAAAAlBwwkXxNQVyMreUEIBmBbJ1xcHRdnRn5wXHV2THZCfkBqBA5mcxQdVkZKIycefRlxMAV2TjY7M1NodkgafQ8sOy5dV00yOUJpQnplJhV5NxxkDjBkZg9JFlRXekllPDoWUhYBFFI+SFseCwYEbVY0J3h2Slt2RD85IBgLWC1IJ1BWLws6UiMuLlp8CEMlExISaz9EMmZZFTtLOH1HVTV1azkndUEyZ3RhdU1qYj33",
+         "presets" : [
+            {
+               "102" : -64,
+               "103" : 100,
+               "12" : 836,
+               "14" : 72,
+               "20" : 2,
+               "21" : 1.2,
+               "22" : -400,
+               "23" : 400,
+               "24" : 400,
+               "25" : 400,
+               "26" : 734,
+               "27" : 100,
+               "28" : 200,
+               "29" : -800,
+               "30" : 400,
+               "71" : 100,
+               "74" : 100,
+               "80" : 60314,
+               "84" : 100,
+               "85" : 7173,
+               "86" : 29622,
+               "9" : 32,
+               "90" : 74216,
+               "91" : 100,
+               "_nr" : 20940
+            }
+         ]
+      },
+      {
+         "header" : "04",
+         "input" : "8AAABAEAAAAAAAAAAAAAAAAAAAAAAAAwUFw/aB1pNU5KHlc5TxVcAiNmfQA+KHEMGXRxfSxhNCxuB3NxV39lImBhQxoBREQvMUEhOWhvEREfZk0OTT8MCWsSB1lxdnVXVgQPWxJTDDseeyVSchURdgU5CX9PfkRGSX16ImtNZWwsBjp7BEI0KGwWCEpcHHE6S2wkUDEdXGMHR05LRAQ0YWFpRnxWEDt1GhFMIyUDMF9wfyAAcxxTXyVyAlR+GmQ1dywyXQj3",
+         "presets" : [
+            {
+               "102" : -64,
+               "103" : 86,
+               "12" : 836,
+               "14" : 46,
+               "20" : 0.94,
+               "21" : 2,
+               "22" : 400,
+               "23" : 400,
+               "24" : 400,
+               "25" : 400,
+               "26" : 1600,
+               "27" : 100,
+               "28" : 200,
+               "29" : -800,
+               "30" : -400,
+               "71" : 100,
+               "74" : 100,
+               "80" : 22641,
+               "84" : 100,
+               "85" : 64593,
+               "86" : 7800,
+               "9" : 32,
+               "90" : 100911,
+               "91" : 80,
+               "_nr" : 5148
+            }
+         ]
+      }
+   ],
    "note" : "Generated. Regenerate with tools/dump-protocol.pl after changing lib/.",
    "presets" : [
       {
@@ -6615,6 +7553,776 @@
             "_ps" : "CASE 7"
          },
          "input" : "QTZDAEEAUwBFACAANwAgACAAIAAgACAAIAAgACEA5jilM8crBhz0LL8RyyJCHUMwvCOrAs4BTWVkIERlbGF5AAAAACs1Kik/uRVvNn8PbiB0HTYc+QrtLKoRkhMbEL0elT5cINwRdjnqO+srtDoyIuQkGB2cJA=="
+      }
+   ],
+   "sx" : [
+      {
+         "in" : [
+            6,
+            56,
+            58
+         ],
+         "out" : 28218
+      },
+      {
+         "in" : [
+            12,
+            12,
+            33
+         ],
+         "out" : 49953
+      },
+      {
+         "in" : [
+            42,
+            123,
+            92
+         ],
+         "out" : 48860
+      },
+      {
+         "in" : [
+            84,
+            64,
+            97
+         ],
+         "out" : 20529
+      },
+      {
+         "in" : [
+            13,
+            12,
+            83
+         ],
+         "out" : 54035
+      },
+      {
+         "in" : [
+            55,
+            55,
+            126
+         ],
+         "out" : 32254
+      },
+      {
+         "in" : [
+            59,
+            116,
+            116
+         ],
+         "out" : 48436
+      },
+      {
+         "in" : [
+            100,
+            81,
+            17
+         ],
+         "out" : 21585
+      },
+      {
+         "in" : [
+            89,
+            118,
+            108
+         ],
+         "out" : 40380
+      },
+      {
+         "in" : [
+            6,
+            0,
+            107
+         ],
+         "out" : 24635
+      },
+      {
+         "in" : [
+            101,
+            74,
+            1
+         ],
+         "out" : 21121
+      },
+      {
+         "in" : [
+            124,
+            19,
+            85
+         ],
+         "out" : 50389
+      },
+      {
+         "in" : [
+            115,
+            96,
+            79
+         ],
+         "out" : 14367
+      },
+      {
+         "in" : [
+            32,
+            111,
+            80
+         ],
+         "out" : 7120
+      },
+      {
+         "in" : [
+            112,
+            35,
+            12
+         ],
+         "out" : 2252
+      },
+      {
+         "in" : [
+            3,
+            79,
+            85
+         ],
+         "out" : 13269
+      },
+      {
+         "in" : [
+            98,
+            50,
+            68
+         ],
+         "out" : 11412
+      },
+      {
+         "in" : [
+            46,
+            10,
+            20
+         ],
+         "out" : 58004
+      },
+      {
+         "in" : [
+            37,
+            39,
+            28
+         ],
+         "out" : 23004
+      },
+      {
+         "in" : [
+            98,
+            77,
+            56
+         ],
+         "out" : 13176
+      },
+      {
+         "in" : [
+            47,
+            83,
+            18
+         ],
+         "out" : 62674
+      },
+      {
+         "in" : [
+            88,
+            92,
+            32
+         ],
+         "out" : 38688
+      },
+      {
+         "in" : [
+            76,
+            127,
+            58
+         ],
+         "out" : 57338
+      },
+      {
+         "in" : [
+            0,
+            84,
+            38
+         ],
+         "out" : 5414
+      },
+      {
+         "in" : [
+            97,
+            44,
+            1
+         ],
+         "out" : 6913
+      },
+      {
+         "in" : [
+            68,
+            106,
+            91
+         ],
+         "out" : 23195
+      },
+      {
+         "in" : [
+            44,
+            82,
+            109
+         ],
+         "out" : 54461
+      },
+      {
+         "in" : [
+            70,
+            44,
+            72
+         ],
+         "out" : 27416
+      },
+      {
+         "in" : [
+            1,
+            36,
+            90
+         ],
+         "out" : 6426
+      },
+      {
+         "in" : [
+            29,
+            63,
+            46
+         ],
+         "out" : 57326
+      },
+      {
+         "in" : [
+            14,
+            73,
+            62
+         ],
+         "out" : 62078
+      },
+      {
+         "in" : [
+            27,
+            30,
+            69
+         ],
+         "out" : 46997
+      },
+      {
+         "in" : [
+            22,
+            36,
+            101
+         ],
+         "out" : 26933
+      },
+      {
+         "in" : [
+            9,
+            96,
+            0
+         ],
+         "out" : 38912
+      },
+      {
+         "in" : [
+            57,
+            12,
+            52
+         ],
+         "out" : 37684
+      },
+      {
+         "in" : [
+            104,
+            114,
+            70
+         ],
+         "out" : 40086
+      },
+      {
+         "in" : [
+            41,
+            19,
+            105
+         ],
+         "out" : 38137
+      },
+      {
+         "in" : [
+            48,
+            88,
+            57
+         ],
+         "out" : 5689
+      },
+      {
+         "in" : [
+            117,
+            66,
+            88
+         ],
+         "out" : 20632
+      },
+      {
+         "in" : [
+            20,
+            111,
+            115
+         ],
+         "out" : 23539
+      },
+      {
+         "in" : [
+            65,
+            89,
+            46
+         ],
+         "out" : 5742
+      },
+      {
+         "in" : [
+            59,
+            45,
+            67
+         ],
+         "out" : 47955
+      },
+      {
+         "in" : [
+            11,
+            19,
+            49
+         ],
+         "out" : 46321
+      },
+      {
+         "in" : [
+            7,
+            93,
+            115
+         ],
+         "out" : 30579
+      },
+      {
+         "in" : [
+            103,
+            96,
+            125
+         ],
+         "out" : 30781
+      },
+      {
+         "in" : [
+            82,
+            103,
+            3
+         ],
+         "out" : 14787
+      },
+      {
+         "in" : [
+            67,
+            40,
+            72
+         ],
+         "out" : 14872
+      },
+      {
+         "in" : [
+            43,
+            6,
+            110
+         ],
+         "out" : 45502
+      },
+      {
+         "in" : [
+            34,
+            13,
+            30
+         ],
+         "out" : 9054
+      },
+      {
+         "in" : [
+            27,
+            15,
+            99
+         ],
+         "out" : 46067
+      },
+      {
+         "in" : [
+            100,
+            40,
+            36
+         ],
+         "out" : 18980
+      },
+      {
+         "in" : [
+            101,
+            47,
+            13
+         ],
+         "out" : 23501
+      },
+      {
+         "in" : [
+            123,
+            74,
+            88
+         ],
+         "out" : 45720
+      },
+      {
+         "in" : [
+            65,
+            44,
+            75
+         ],
+         "out" : 6939
+      },
+      {
+         "in" : [
+            54,
+            60,
+            78
+         ],
+         "out" : 28446
+      },
+      {
+         "in" : [
+            31,
+            34,
+            119
+         ],
+         "out" : 63671
+      },
+      {
+         "in" : [
+            122,
+            127,
+            115
+         ],
+         "out" : 49139
+      },
+      {
+         "in" : [
+            106,
+            71,
+            34
+         ],
+         "out" : 45538
+      },
+      {
+         "in" : [
+            2,
+            12,
+            77
+         ],
+         "out" : 8989
+      },
+      {
+         "in" : [
+            65,
+            39,
+            85
+         ],
+         "out" : 6613
+      },
+      {
+         "in" : [
+            37,
+            19,
+            56
+         ],
+         "out" : 21752
+      },
+      {
+         "in" : [
+            62,
+            103,
+            81
+         ],
+         "out" : 63953
+      },
+      {
+         "in" : [
+            16,
+            63,
+            42
+         ],
+         "out" : 4074
+      },
+      {
+         "in" : [
+            50,
+            5,
+            79
+         ],
+         "out" : 8543
+      },
+      {
+         "in" : [
+            7,
+            111,
+            111
+         ],
+         "out" : 31743
+      },
+      {
+         "in" : [
+            102,
+            21,
+            63
+         ],
+         "out" : 25983
+      },
+      {
+         "in" : [
+            39,
+            125,
+            108
+         ],
+         "out" : 32636
+      },
+      {
+         "in" : [
+            91,
+            4,
+            11
+         ],
+         "out" : 45323
+      },
+      {
+         "in" : [
+            37,
+            122,
+            95
+         ],
+         "out" : 24223
+      },
+      {
+         "in" : [
+            9,
+            88,
+            85
+         ],
+         "out" : 38421
+      },
+      {
+         "in" : [
+            15,
+            111,
+            28
+         ],
+         "out" : 64476
+      },
+      {
+         "in" : [
+            35,
+            109,
+            52
+         ],
+         "out" : 15220
+      },
+      {
+         "in" : [
+            10,
+            29,
+            81
+         ],
+         "out" : 42833
+      },
+      {
+         "in" : [
+            80,
+            57,
+            122
+         ],
+         "out" : 3706
+      },
+      {
+         "in" : [
+            17,
+            60,
+            65
+         ],
+         "out" : 7953
+      },
+      {
+         "in" : [
+            115,
+            8,
+            112
+         ],
+         "out" : 12848
+      },
+      {
+         "in" : [
+            59,
+            63,
+            12
+         ],
+         "out" : 49100
+      },
+      {
+         "in" : [
+            99,
+            63,
+            23
+         ],
+         "out" : 16343
+      },
+      {
+         "in" : [
+            117,
+            13,
+            100
+         ],
+         "out" : 21364
+      },
+      {
+         "in" : [
+            50,
+            28,
+            103
+         ],
+         "out" : 10039
+      },
+      {
+         "in" : [
+            67,
+            72,
+            88
+         ],
+         "out" : 12824
+      },
+      {
+         "in" : [
+            105,
+            115,
+            19
+         ],
+         "out" : 40147
+      },
+      {
+         "in" : [
+            2,
+            10,
+            12
+         ],
+         "out" : 8844
+      },
+      {
+         "in" : [
+            72,
+            113,
+            66
+         ],
+         "out" : 40018
+      },
+      {
+         "in" : [
+            40,
+            34,
+            126
+         ],
+         "out" : 35006
+      },
+      {
+         "in" : [
+            10,
+            92,
+            86
+         ],
+         "out" : 46870
+      },
+      {
+         "in" : [
+            0,
+            90,
+            66
+         ],
+         "out" : 5778
+      },
+      {
+         "in" : [
+            31,
+            80,
+            41
+         ],
+         "out" : 62505
+      },
+      {
+         "in" : [
+            114,
+            50,
+            70
+         ],
+         "out" : 11414
+      },
+      {
+         "in" : [
+            111,
+            3,
+            74
+         ],
+         "out" : 61658
+      },
+      {
+         "in" : [
+            57,
+            37,
+            13
+         ],
+         "out" : 39245
+      },
+      {
+         "in" : [
+            28,
+            1,
+            66
+         ],
+         "out" : 49234
+      },
+      {
+         "in" : [
+            42,
+            98,
+            119
+         ],
+         "out" : 47287
+      },
+      {
+         "in" : [
+            63,
+            111,
+            84
+         ],
+         "out" : 64468
+      },
+      {
+         "in" : [
+            114,
+            20,
+            118
+         ],
+         "out" : 9526
+      },
+      {
+         "in" : [
+            41,
+            75,
+            56
+         ],
+         "out" : 37624
       }
    ]
 }

@@ -23,5 +23,13 @@ add_executable(test_preset_decode
 target_include_directories(test_preset_decode PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
 target_link_libraries(test_preset_decode PRIVATE theremini-protocol)
 
+add_executable(test_sysex
+	test_sysex.c
+	${GENERATED}/golden_data.c)
+
+target_include_directories(test_sysex PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
+target_link_libraries(test_sysex PRIVATE theremini-protocol)
+
 add_test(NAME value_export COMMAND test_value_export)
 add_test(NAME preset_decode COMMAND test_preset_decode)
+add_test(NAME sysex COMMAND test_sysex)

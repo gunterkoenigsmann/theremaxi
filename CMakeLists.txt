@@ -37,6 +37,7 @@ add_custom_command(
 add_library(theremini-protocol
 	src/protocol/value.c
 	src/protocol/preset.c
+	src/protocol/sysex.c
 	${GENERATED}/tables.c)
 
 target_include_directories(theremini-protocol PUBLIC

@@ -142,6 +142,53 @@ bool theremini_preset_decode(const uint8_t *data, size_t size, int number,
 const theremini_value *theremini_preset_value(const theremini_preset *preset,
                                               const char *id);
 
+/** Most presets a single dump can carry: the device sends its 32 factory slots
+ *  in one message. */
+#define THEREMINI_MAX_PRESETS 32
+
+/** All the presets decoded out of one sysex dump. */
+typedef struct {
+	theremini_preset presets[THEREMINI_MAX_PRESETS]; /**< the decoded presets */
+	size_t count;                                    /**< how many were decoded */
+} theremini_dump;
+
+/** Why theremini_sysex_decode() gave up, or that it did not. */
+typedef enum {
+	THEREMINI_SYSEX_OK,         /**< decoded successfully */
+	THEREMINI_SYSEX_BAD_HEADER, /**< the header is not one of the known layouts */
+	THEREMINI_SYSEX_TRUNCATED,  /**< the message ends inside a preset */
+	THEREMINI_SYSEX_TOO_MANY    /**< more presets than THEREMINI_MAX_PRESETS */
+} theremini_sysex_status;
+
+/**
+ * @brief Decode every preset out of a raw device sysex dump.
+ *
+ * The device packs preset data seven bits to a byte; this undoes that packing
+ * and decodes each preset. Handles the message with or without its enclosing
+ * 0xf0..0xf7. The layout - one preset or all thirty-two - is taken from the
+ * header, exactly as the reference implementation reads it.
+ *
+ * @param data the sysex bytes.
+ * @param size how many bytes @p data holds.
+ * @param out  filled in on success.
+ * @return #THEREMINI_SYSEX_OK, or the reason it could not be decoded.
+ */
+theremini_sysex_status theremini_sysex_decode(const uint8_t *data, size_t size,
+                                              theremini_dump *out);
+
+/**
+ * @brief Unpack one group of three seven-bit bytes into a 16-bit value.
+ *
+ * The core of the device's packing scheme, exposed because it is small,
+ * self-contained, and the single most error-prone thing to reimplement.
+ *
+ * @param b0 first byte, most significant.
+ * @param b1 second byte.
+ * @param b2 third byte, least significant.
+ * @return the unpacked value.
+ */
+uint16_t theremini_sysex_unpack3(uint8_t b0, uint8_t b1, uint8_t b2);
+
 /** A value ready for the wire: one byte for a 7-bit parameter, two for a 14-bit
  *  one with the high bits first. Send @c bytes[0] as the parameter's cc and, when
  *  @c count is 2, @c bytes[1] as its lsb_cc. */

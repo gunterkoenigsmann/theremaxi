@@ -33,4 +33,27 @@ typedef struct {
 extern const golden_preset golden_presets[];
 extern const size_t golden_preset_count;
 
+typedef struct {
+	uint8_t in[3];
+	uint16_t out;
+} golden_sx;
+
+extern const golden_sx golden_sx_vectors[];
+extern const size_t golden_sx_count;
+
+typedef struct {
+	const golden_value *values;
+	size_t value_count;
+} golden_message_preset;
+
+typedef struct {
+	const uint8_t *input;
+	size_t input_size;
+	const golden_message_preset *presets;
+	size_t preset_count;
+} golden_message;
+
+extern const golden_message golden_messages[];
+extern const size_t golden_message_count;
+
 #endif

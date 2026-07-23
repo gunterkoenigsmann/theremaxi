@@ -211,12 +211,55 @@ sub _wire_
 	ref($wire) ? [ map {$_+0} @$wire ] : [ $wire + 0 ];
 }
 
+# The 7-bit unpacking, on its own. Every input is three MIDI data bytes, so each
+# is 0..0x7f - which is what the device actually sends and where the perl's bit
+# arithmetic is defined.
+my @sx;
+for ( 1 .. 96 )
+{
+	my @triple = map { &rnd % 0x80 } 1 .. 3;
+	push @sx,
+	{
+		in  => [ @triple ],
+		out => ThereMaxi::Preset::_sx_( hex unpack 'H*', pack 'C3', @triple ),
+	};
+}
+
+# Whole sysex dumps, framed the way the device sends them: an F0, a 22 byte
+# header whose third and fourth bytes select the layout, the 7-bit-packed body,
+# an F7. A preset is 174 packed bytes, which unpack to the 0x74 the decoder
+# reads. Built here by running random bodies through the real Preset->sysex, so
+# there is no need to invert the packing to make test data.
+my $preset_packed = 174;
+my @messages;
+for my $spec ( [ '01', 32 ], [ '05', 1 ], [ '04', 1 ] )
+{
+	my($type,$count) = @$spec;
+	my $header = pack('C*', 0x00, 0x00, hex $type, 0x01) . ("\x00" x 18);
+	my $body   = pack 'C*', map { &rnd % 0x80 } 1 .. $preset_packed * $count;
+	my $msg    = "\xf0" . $header . $body . "\xf7";
+
+	my $decoded = ThereMaxi::Preset->sysex($msg);
+	push @messages,
+	{
+		input   => encode_base64($msg,''),
+		header  => $type,
+		# Only the numeric values: the bodies are random, so the name fields
+		# would be raw high bytes that add nothing here and make the JSON
+		# fragile. Text decoding is covered by the preset vectors above, whose
+		# names are controlled.
+		presets => [ map { my $d = $_; +{ map { $_ => &_scalar_($d->{$_}) } grep { /^\d+$/ || $_ eq '_nr' } keys %$d } } @$decoded ],
+	};
+}
+
 my $golden =
 {
 	generated_by => 'tools/dump-protocol.pl',
 	note         => 'Generated. Regenerate with tools/dump-protocol.pl after changing lib/.',
 	presets      => \@blobs,
 	export       => \%export,
+	sx           => \@sx,
+	messages     => \@messages,
 };
 
 sub _scalar_

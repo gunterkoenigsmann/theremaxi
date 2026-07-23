@@ -88,10 +88,72 @@ for my $i ( 0 .. $presets-1 )
 		$i, $i, $i, $i, $i, $i;
 }
 $c .= "};\n\n";
-$c .= "const size_t golden_preset_count = $presets;\n";
+$c .= "const size_t golden_preset_count = $presets;\n\n";
+
+# the seven-bit unpacking, on its own
+$c .= "const golden_sx golden_sx_vectors[] = {\n";
+my $sx = 0;
+for my $v ( @{$golden->{sx}} )
+{
+	$c .= sprintf "\t{ { %d, %d, %d }, %d },\n",
+		$v->{in}->[0], $v->{in}->[1], $v->{in}->[2], $v->{out};
+	$sx++;
+}
+$c .= "};\n\n";
+$c .= "const size_t golden_sx_count = $sx;\n\n";
+
+# whole framed dumps, and the numeric values each preset decoded to
+my $messages = 0;
+my $mvalues = 0;
+for my $m ( @{$golden->{messages}} )
+{
+	my $raw = decode_base64($m->{input});
+	$c .= sprintf "static const uint8_t message_input_%d[] = {\n", $messages;
+	my @bytes = map { sprintf '0x%02x', $_ } unpack 'C*', $raw;
+	while ( @bytes )
+	{
+		$c .= "\t".join(', ', splice @bytes, 0, 12).",\n";
+	}
+	$c .= "};\n\n";
+
+	my $np = 0;
+	for my $p ( @{$m->{presets}} )
+	{
+		$c .= sprintf "static const golden_value message_%d_preset_%d[] = {\n", $messages, $np;
+		for my $id ( sort keys %$p )
+		{
+			my $v = $p->{$id};
+			next unless defined $v && $v =~ /^-?[0-9.]+(?:[eE][-+]?\d+)?$/;
+			$c .= sprintf "\t{ \"%s\", %.17g, NULL },\n", $id, $v;
+			$mvalues++;
+		}
+		$c .= "};\n\n";
+		$np++;
+	}
+
+	$c .= sprintf "static const golden_message_preset message_%d_presets[] = {\n", $messages;
+	for my $i ( 0 .. $np-1 )
+	{
+		$c .= sprintf "\t{ message_%d_preset_%d, sizeof message_%d_preset_%d / sizeof message_%d_preset_%d[0] },\n",
+			$messages, $i, $messages, $i, $messages, $i;
+	}
+	$c .= "};\n\n";
+	$messages++;
+}
+
+$c .= "const golden_message golden_messages[] = {\n";
+for my $i ( 0 .. $messages-1 )
+{
+	my $np = scalar @{$golden->{messages}->[$i]->{presets}};
+	$c .= sprintf "\t{ message_input_%d, sizeof message_input_%d, message_%d_presets, %d },\n",
+		$i, $i, $i, $np;
+}
+$c .= "};\n\n";
+$c .= "const size_t golden_message_count = $messages;\n";
 
 open my $O, '>', $out or die "$out: $!";
 print $O $c;
 close $O;
 
-printf "%s: %d export vectors, %d presets with %d values\n", $out, $n, $presets, $values;
+printf "%s: %d export vectors, %d presets, %d sx pairs, %d messages\n",
+	$out, $n, $presets, $sx, $messages;
