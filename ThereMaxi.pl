@@ -28,7 +28,10 @@ GetOptions
 or die "Usage: $0 [--pidfile=<filename>] [--statefile=<filename>] [--cleanstate]\n";
 
 $pid = File::Pid->new({file=>$pid});
-die "$NAME is running\n" if $pid->running;
+# File::Pid->running does kill(0,undef) if there is no pidfile yet,
+# which is fatal since perl 5.36 - so no pidfile means: not running.
+my $running = eval { $pid->running };
+die "$NAME is running (pid $running)\n" if $running;
 $pid->write;
 
 $SIG{__DIE__} = sub

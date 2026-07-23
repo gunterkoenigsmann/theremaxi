@@ -62,7 +62,7 @@ sub new
 	my $self = $CC =~ /^\d+$/ ? sprintf '_%03d', $CC : $CC;
 	$self = $CONTROLLER{$CC}->{typ} unless -f "$main::LIB/Controller/$self.pm";
 	require "$main::LIB/Controller/$self.pm";
-	$self = bless {}, "$base::$self";
+	$self = bless {}, $base.'::'.$self; # "$base::$self" interpolates as ${base::} on modern perl
 
 	$CONTROLLER{$CC}->{tunable} = ( $CC =~ /^\d+$/ ) unless defined $CONTROLLER{$CC}->{tunable};
 
