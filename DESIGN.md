@@ -3,6 +3,19 @@
 The perl program works, but it is one monolith: protocol knowledge, ALSA I/O and GTK2 widgets in
 the same files. The target is four pieces with one shared core.
 
+## Status
+
+* **`libtheremini-protocol`** — the byte-level language of the device is done and tested against the
+  perl: the parameter table, value ↔ wire in both directions, preset dump → presets (including the
+  seven-bit unpacking and framing), and the device control messages. See the C under
+  `src/protocol/` and the tests under `tests/`.
+* **LV2 plugin (no UI)** — done: `src/lv2/`, ports generated from the parameter table, driven by a
+  descriptor-level test and validated with `sord_validate`.
+* **`libtheremini-device`** — not started. The ALSA transport; see below. This is the part that
+  needs hardware to verify, so its pure pieces (discovery matching, 14-bit input reassembly) will be
+  split out and tested, and the ALSA I/O kept behind a backend seam.
+* **wxWidgets application** — not started.
+
 ```
                        protocol/tables.json          (generated from lib/, authoritative)
                                  |
@@ -44,14 +57,21 @@ tables before the device library is written, by the same rule as above.
 
 ## LV2 plugin
 
-No UI. A plugin that declares its control ports with proper ranges and `units:unit` gets a
-host-generated interface for free, and for a parameter editor that is most of what is wanted at
+No UI, and built. A plugin that declares its control ports with proper ranges and `units:unit` gets
+a host-generated interface for free, and for a parameter editor that is most of what is wanted at
 zero toolkit risk. It also sidesteps a concrete problem: Ardour is still GTK2 (it ships
 `libsuil_x11_in_gtk2.so`), wxGTK is GTK3, and both in one process is an immediate abort. Keeping wx
 out of the plugin entirely is not a compromise here, it is the design.
 
-The plugin outputs MIDI CC on an atom port; the host routes that to the hardware. `run()` must not
-allocate, lock or log.
+The plugin (`src/lv2/theremini.c`) exposes each CC parameter as a control port and emits the
+matching control-change messages, on channel 0, whenever a port changes; `run()` allocates nothing.
+`tools/generate-lv2.pl` writes both the port description (`theremini.ttl`) and the C port table
+(`lv2_ports.h`) from `protocol/tables.json`, so the two cannot drift from each other or from the
+parameters. `tests/test_lv2.c` instantiates the plugin through its descriptor, runs it and checks
+the emitted MIDI against `theremini_value_export`; CI validates the TTL with `sord_validate`.
+
+Not yet exposed as ports: the two names (they are sysex, awkward as control ports) and preset
+selection (a program change). Those belong to the device library or a later plugin revision.
 
 ## wxWidgets application
 

@@ -4,6 +4,26 @@ This file is the source for the release notes: the release workflow copies the s
 the pushed tag into the GitHub release. Versions follow [semantic versioning](https://semver.org);
 the releases from 2017/2018 predate that and are listed under their original dates.
 
+## Unreleased
+
+Work on the C rewrite. Nothing here changes the perl application.
+
+### Added
+
+* The read-from-hardware path in `libtheremini-protocol`: `theremini_preset_decode` takes a preset
+  apart through the sysex offset table, and `theremini_sysex_decode` / `theremini_sysex_unpack3`
+  undo the device's seven-bit packing and frame a whole 32-preset dump. Checked against decoded
+  dumps and unpacking groups recorded from the perl.
+* The write path: `theremini_value_export` (display value to MIDI bytes, 7- and 14-bit) and the
+  device control messages `theremini_msg_*` with `theremini_name_encode`. The sysex templates moved
+  out of `Device.pm` into `lib/Sysex.pm` as shared data; `t/smoke.pl` pins the assembled bytes.
+* An LV2 plugin (no UI) under `src/lv2/`: the Theremini's parameters as control ports, with their
+  ranges, units and enum labels, emitting the matching MIDI control-change messages so a host such
+  as Ardour can automate the device. The port list is generated from the parameter table. A test
+  drives the plugin through its own descriptor and checks its MIDI against the protocol library; CI
+  validates the generated TTL with `sord_validate`.
+* API documentation (Doxygen) for the protocol library, checked in CI.
+
 ## 1.0.1 — 2026-07-23
 
 ### Fixed

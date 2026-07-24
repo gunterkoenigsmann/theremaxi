@@ -61,6 +61,58 @@ endif()
 install(TARGETS theremini-protocol)
 install(DIRECTORY src/protocol/include/ DESTINATION include)
 
+# ---------------------------------------------------------------- LV2 plugin
+
+# The port list and the C port table are both generated from tables.json so
+# they cannot drift from each other or from the parameters.
+add_custom_command(
+	OUTPUT ${GENERATED}/theremini.ttl ${GENERATED}/lv2_ports.h
+	COMMAND ${PERL_EXECUTABLE}
+	        ${CMAKE_CURRENT_SOURCE_DIR}/tools/generate-lv2.pl
+	        ${CMAKE_CURRENT_SOURCE_DIR}/protocol/tables.json
+	        ${GENERATED}/theremini.ttl
+	        ${GENERATED}/lv2_ports.h
+	DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/tools/generate-lv2.pl
+	        ${CMAKE_CURRENT_SOURCE_DIR}/protocol/tables.json
+	COMMENT "Generating the LV2 port description from protocol/tables.json"
+	VERBATIM)
+
+find_package(PkgConfig)
+set(THEREMINI_HAVE_LV2 FALSE)
+if(PkgConfig_FOUND)
+	pkg_check_modules(LV2 IMPORTED_TARGET lv2)
+endif()
+
+if(LV2_FOUND)
+	set(THEREMINI_HAVE_LV2 TRUE)
+	set(BUNDLE ${CMAKE_CURRENT_BINARY_DIR}/theremini.lv2)
+	file(MAKE_DIRECTORY ${BUNDLE})
+
+	configure_file(src/lv2/manifest.ttl.in ${BUNDLE}/manifest.ttl @ONLY)
+
+	# copy the generated port description into the bundle
+	add_custom_command(
+		OUTPUT ${BUNDLE}/theremini.ttl
+		COMMAND ${CMAKE_COMMAND} -E copy ${GENERATED}/theremini.ttl ${BUNDLE}/theremini.ttl
+		DEPENDS ${GENERATED}/theremini.ttl
+		VERBATIM)
+	add_custom_target(lv2_ttl DEPENDS ${BUNDLE}/theremini.ttl)
+
+	add_library(theremini_lv2 MODULE
+		src/lv2/theremini.c
+		${GENERATED}/lv2_ports.h)
+	add_dependencies(theremini_lv2 lv2_ttl)
+	set_target_properties(theremini_lv2 PROPERTIES
+		OUTPUT_NAME theremini
+		PREFIX ""
+		LIBRARY_OUTPUT_DIRECTORY ${BUNDLE})
+	target_include_directories(theremini_lv2 PRIVATE ${GENERATED})
+	target_link_libraries(theremini_lv2 PRIVATE theremini-protocol PkgConfig::LV2)
+
+	# install into the user or system LV2 path
+	install(DIRECTORY ${BUNDLE} DESTINATION lib/lv2)
+endif()
+
 if(THEREMINI_BUILD_TESTS)
 	enable_testing()
 	add_subdirectory(tests)
