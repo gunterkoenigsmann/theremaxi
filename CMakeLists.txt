@@ -3,11 +3,18 @@ cmake_minimum_required(VERSION 3.20)
 project(theremini
 	VERSION 0.1.0
 	DESCRIPTION "Protocol and device libraries for the Moog Theremini"
-	LANGUAGES C)
+	LANGUAGES C CXX)
 
 set(CMAKE_C_STANDARD 11)
 set(CMAKE_C_STANDARD_REQUIRED ON)
 set(CMAKE_C_EXTENSIONS OFF)
+
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_EXTENSIONS OFF)
+
+# Strict flags for our own C++ (the preset module), separate from the wx code.
+set(THEREMINI_CXX_STRICT -Wextra -Wpedantic -Wconversion -Wshadow)
 
 option(THEREMINI_BUILD_TESTS "Build the tests" ON)
 
@@ -70,6 +77,15 @@ endif()
 install(TARGETS theremini-protocol)
 install(DIRECTORY src/protocol/include/ DESTINATION include)
 
+# ------------------------------------------------------- preset library format
+
+# Reading and writing .theremaxi files. Pure C++, no wx, so it is tested on its
+# own and shared by the application.
+add_library(theremaxi-preset STATIC src/preset/library.cpp)
+target_include_directories(theremaxi-preset PUBLIC src/preset)
+target_compile_options(theremaxi-preset PRIVATE ${THEREMINI_CXX_STRICT})
+set_target_properties(theremaxi-preset PROPERTIES POSITION_INDEPENDENT_CODE ON)
+
 # ---------------------------------------------------------------- LV2 plugin
 
 # The port list and the C port table are both generated from tables.json so
@@ -128,16 +144,13 @@ endif()
 # needs no hardware to develop.
 find_package(wxWidgets COMPONENTS core base)
 if(wxWidgets_FOUND)
-	enable_language(CXX)
-	set(CMAKE_CXX_STANDARD 17)
-	set(CMAKE_CXX_STANDARD_REQUIRED ON)
-
 	include(${wxWidgets_USE_FILE})
 	add_executable(theremaxi-gui
 		src/gui/app.cpp
 		src/gui/mainframe.cpp
 		src/gui/paramcontrol.cpp)
-	target_link_libraries(theremaxi-gui PRIVATE theremini-protocol ${wxWidgets_LIBRARIES})
+	target_link_libraries(theremaxi-gui PRIVATE
+		theremini-protocol theremaxi-preset ${wxWidgets_LIBRARIES})
 	install(TARGETS theremaxi-gui)
 endif()
 

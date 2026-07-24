@@ -25,7 +25,11 @@ Work on the C rewrite. Nothing here changes the perl application.
 * The start of the wxWidgets application (`src/gui/`): a parameter editor generated from the
   protocol library. Numeric parameters are a slider paired with a spin control that stay in sync
   (drag, step or type); enums are a choice; the notebook pages and boxes come from each parameter's
-  layout hints. No device or library management yet.
+  layout hints.
+* `theremaxi-preset`: a small, dependency-free reader/writer for the `.theremaxi` library format, so
+  files are interchangeable with the perl app. It reads the perl's mix of number- and
+  string-encoded values, preserves names that need escaping, and is tested both ways - against a
+  file the perl wrote and by having perl read a file it wrote.
 * API documentation (Doxygen) for the protocol library, checked in CI.
 
 ## 1.0.1 — 2026-07-23

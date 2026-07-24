@@ -17,6 +17,19 @@ foreach(name value_export preset_decode sysex message)
 	add_test(NAME ${name} COMMAND test_${name})
 endforeach()
 
+# The .theremaxi reader/writer. Runs from the repo root so the write-compat
+# check can reach ./lib/Storage.pm, and is handed the fixtures and a writable
+# scratch directory.
+add_executable(test_preset_storage test_preset_storage.cpp)
+target_link_libraries(test_preset_storage PRIVATE theremaxi-preset)
+target_compile_options(test_preset_storage PRIVATE ${THEREMINI_CXX_STRICT})
+add_test(NAME preset_storage
+	COMMAND test_preset_storage
+	        ${CMAKE_CURRENT_SOURCE_DIR}/fixtures
+	        ${CMAKE_BINARY_DIR})
+set_tests_properties(preset_storage PROPERTIES
+	WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
+
 # The LV2 plugin, driven through its own descriptor - built only where LV2 is.
 if(THEREMINI_HAVE_LV2)
 	add_executable(test_lv2
