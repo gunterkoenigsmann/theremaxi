@@ -128,6 +128,15 @@ or with a malloc hook that aborts while the callback is on the stack.
 `aseqdump`, replay the same operation through the C stack, diff the byte streams. No unit test
 reaches the device layer; a captured stream does.
 
+**Range discovery, with hardware** — the parameter ranges are faithful to the original, but the
+original only set minimums explicitly for the parameters that go negative; the rest inherited 0 as a
+default, so a floor of 0 is unverified for a few (Wavetable Scan Rate in Hz; Filter Cutoff, which
+hides a frequency behind a 0–100% curve). The device can be asked directly: write a sweep of values
+to a parameter as CC, read the preset dump back, and decode it with `theremini_sysex_decode` — the
+decoder is already built. Intended vs. stored reveals the effective range, any dead zone (e.g. "0 =
+off, then 5–100%") and the quantization step. Any correction goes into `min`/`max` in
+`lib/Controller.pm` and propagates through the generated table.
+
 ## Decisions already forced by the data
 
 Generating the golden vectors turned up a bug before any C existed: a filter cutoff word below 15
