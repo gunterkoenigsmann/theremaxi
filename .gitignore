@@ -13,8 +13,8 @@ ThereMaxi.pid
 *.bak
 .*.sw?
 
-# CMake
-/build/
+# CMake build trees (build/, build-asan/, build-fuzz/, ...)
+/build*/
 
 # Generated docs
 /docs/
