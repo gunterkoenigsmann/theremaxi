@@ -90,11 +90,12 @@ notebook pages, the boxes within them and the control order all come from the la
 table as everything else.
 
 It is also a working offline librarian: open a `.theremaxi` library, and its presets fill a list;
-selecting one loads its values into the editor; Store writes the editor back to the preset; Save
-writes the library. The file format is handled by `theremaxi-preset` (`src/preset/`), a
-dependency-free reader/writer tested against files the perl actually wrote and by having perl read
-files it writes. Still to come: values to and from the device and the LV2 plugin, creating and
-deleting libraries and presets, and the MidiFeedbackLoop tab.
+selecting one loads its values into the editor; Store writes the editor back to the preset; New,
+Copy and Delete manage presets, New Library starts an empty one, and Save writes it out. The file
+format and the library edits are handled by `theremaxi-preset` (`src/preset/`), a dependency-free
+module tested against files the perl actually wrote, by having perl read files it writes, and fuzzed;
+the add/copy/remove helpers keep each preset's `_nr` in step with its position. Still to come: values
+to and from the device and the LV2 plugin, and the MidiFeedbackLoop tab.
 
 ## Testing
 

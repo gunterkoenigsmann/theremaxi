@@ -118,12 +118,45 @@ static void perl_reads_our_output(const char *dir)
 	}
 }
 
+// Adding, copying and removing presets keeps _nr in step with position.
+static void editing()
+{
+	Library lib;
+	const size_t a = add_preset(lib, "FIRST");
+	const size_t b = add_preset(lib, "SECOND");
+	ok(a == 0 && b == 1, "add_preset returns growing indices");
+	ok(near(lib.presets[0].at("_nr").as_number(), 0), "first preset numbered 0");
+	ok(near(lib.presets[1].at("_nr").as_number(), 1), "second preset numbered 1");
+	ok(preset_name(lib.presets[1]) == "SECOND", "second preset name");
+
+	lib.presets[0]["85"] = Value::num(5);
+	const size_t c = copy_preset(lib, 0);
+	ok(c == 2, "copy appends");
+	ok(near(lib.presets[2].at("85").as_number(), 5), "copy keeps values");
+	ok(near(lib.presets[2].at("_nr").as_number(), 2), "copy is renumbered");
+
+	remove_preset(lib, 0); // drop FIRST; SECOND and the copy shift down
+	ok(lib.presets.size() == 2, "remove shrinks the library");
+	ok(preset_name(lib.presets[0]) == "SECOND", "remove shifts the rest down");
+	ok(near(lib.presets[0].at("_nr").as_number(), 0), "remove renumbers to 0");
+	ok(near(lib.presets[1].at("_nr").as_number(), 1), "remove renumbers to 1");
+
+	bool threw = false;
+	try {
+		remove_preset(lib, 99);
+	} catch (const ParseError &) {
+		threw = true;
+	}
+	ok(threw, "removing out of range throws");
+}
+
 int main(int argc, char **argv)
 {
 	const char *dir = argc > 1 ? argv[1] : ".";
 	read_perl_fixture(dir);
 	round_trip();
 	edges();
+	editing();
 	perl_reads_our_output(argc > 2 ? argv[2] : ".");
 
 	if (failures) {

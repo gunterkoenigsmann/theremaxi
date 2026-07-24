@@ -311,4 +311,45 @@ void save_theremaxi(const std::string &path, const Library &lib)
 	out << dump_theremaxi(lib);
 }
 
+void renumber(Library &lib)
+{
+	for (size_t i = 0; i < lib.presets.size(); ++i) {
+		lib.presets[i]["_nr"] = Value::num(static_cast<double>(i));
+	}
+}
+
+size_t add_preset(Library &lib, const std::string &name)
+{
+	Preset preset;
+	preset["_ps"] = Value::str(name);
+	lib.presets.push_back(std::move(preset));
+	renumber(lib);
+	return lib.presets.size() - 1;
+}
+
+size_t copy_preset(Library &lib, size_t index)
+{
+	if (index >= lib.presets.size()) {
+		throw ParseError("copy_preset: index out of range");
+	}
+	lib.presets.push_back(lib.presets[index]);
+	renumber(lib);
+	return lib.presets.size() - 1;
+}
+
+void remove_preset(Library &lib, size_t index)
+{
+	if (index >= lib.presets.size()) {
+		throw ParseError("remove_preset: index out of range");
+	}
+	lib.presets.erase(lib.presets.begin() + static_cast<std::ptrdiff_t>(index));
+	renumber(lib);
+}
+
+std::string preset_name(const Preset &preset)
+{
+	const auto it = preset.find("_ps");
+	return it != preset.end() ? it->second.text : std::string();
+}
+
 } // namespace theremaxi

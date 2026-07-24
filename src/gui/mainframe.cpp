@@ -12,6 +12,7 @@
 #include <wx/sizer.h>
 #include <wx/statbox.h>
 #include <wx/stattext.h>
+#include <wx/textdlg.h>
 
 #include <algorithm>
 #include <map>
@@ -20,7 +21,7 @@
 
 namespace {
 
-enum { ID_STORE = wxID_HIGHEST + 1 };
+enum { ID_STORE = wxID_HIGHEST + 1, ID_NEW_PRESET, ID_COPY_PRESET, ID_DEL_PRESET };
 
 std::vector<const theremini_param *> params_for_tab(const char *tab)
 {
@@ -70,6 +71,7 @@ MainFrame::MainFrame()
 	: wxFrame(nullptr, wxID_ANY, "ThereMaxi", wxDefaultPosition, wxSize(920, 900))
 {
 	auto *menu = new wxMenu();
+	menu->Append(wxID_NEW, "&New Library\tCtrl+N");
 	menu->Append(wxID_OPEN, "&Open Library...\tCtrl+O");
 	menu->Append(wxID_SAVEAS, "Save Library &As...\tCtrl+S");
 	menu->AppendSeparator();
@@ -78,16 +80,30 @@ MainFrame::MainFrame()
 	bar->Append(menu, "&File");
 	SetMenuBar(bar);
 
+	Bind(wxEVT_MENU, &MainFrame::OnNewLibrary, this, wxID_NEW);
 	Bind(wxEVT_MENU, &MainFrame::OnOpen, this, wxID_OPEN);
 	Bind(wxEVT_MENU, &MainFrame::OnSaveAs, this, wxID_SAVEAS);
 	Bind(wxEVT_MENU, [this](wxCommandEvent &) { Close(true); }, wxID_EXIT);
 
-	// left: the preset list and a Store button; right: the editor notebook
+	// left: the preset list with New/Copy/Delete and Store; right: the editor
 	auto *left = new wxBoxSizer(wxVERTICAL);
 	m_presetList = new wxListBox(this, wxID_ANY);
 	m_presetList->Bind(wxEVT_LISTBOX, &MainFrame::OnSelectPreset, this);
 	left->Add(new wxStaticText(this, wxID_ANY, "Presets"), 0, wxALL, 4);
 	left->Add(m_presetList, 1, wxEXPAND | wxALL, 4);
+
+	auto *row = new wxBoxSizer(wxHORIZONTAL);
+	auto *add = new wxButton(this, ID_NEW_PRESET, "New");
+	auto *copy = new wxButton(this, ID_COPY_PRESET, "Copy");
+	auto *del = new wxButton(this, ID_DEL_PRESET, "Delete");
+	add->Bind(wxEVT_BUTTON, &MainFrame::OnNewPreset, this);
+	copy->Bind(wxEVT_BUTTON, &MainFrame::OnCopyPreset, this);
+	del->Bind(wxEVT_BUTTON, &MainFrame::OnDeletePreset, this);
+	row->Add(add, 1, wxRIGHT, 2);
+	row->Add(copy, 1, wxRIGHT, 2);
+	row->Add(del, 1);
+	left->Add(row, 0, wxEXPAND | wxALL, 4);
+
 	auto *store = new wxButton(this, ID_STORE, "Store to Preset");
 	store->Bind(wxEVT_BUTTON, &MainFrame::OnStore, this);
 	left->Add(store, 0, wxEXPAND | wxALL, 4);
@@ -235,14 +251,20 @@ void MainFrame::OnSaveAs(wxCommandEvent &)
 	SetStatusText("Saved " + dlg.GetFilename());
 }
 
-void MainFrame::OnSelectPreset(wxCommandEvent &)
+void MainFrame::SelectPreset(int index)
 {
-	const int sel = m_presetList->GetSelection();
-	if (sel < 0 || sel >= static_cast<int>(m_library.presets.size())) {
+	if (index < 0 || index >= static_cast<int>(m_library.presets.size())) {
+		m_current = -1;
 		return;
 	}
-	m_current = sel;
-	ApplyPreset(m_library.presets[static_cast<size_t>(sel)]);
+	m_current = index;
+	m_presetList->SetSelection(index);
+	ApplyPreset(m_library.presets[static_cast<size_t>(index)]);
+}
+
+void MainFrame::OnSelectPreset(wxCommandEvent &)
+{
+	SelectPreset(m_presetList->GetSelection());
 }
 
 void MainFrame::OnStore(wxCommandEvent &)
@@ -252,5 +274,58 @@ void MainFrame::OnStore(wxCommandEvent &)
 		return;
 	}
 	m_library.presets[static_cast<size_t>(m_current)] = CollectPreset(m_current);
+	RefreshPresetList(); // the name may have changed
+	m_presetList->SetSelection(m_current);
 	SetStatusText("Stored to preset - Save the library to keep it");
+}
+
+void MainFrame::OnNewLibrary(wxCommandEvent &)
+{
+	m_library = theremaxi::Library{};
+	m_current = -1;
+	RefreshPresetList();
+	SetStatusText("New library");
+}
+
+void MainFrame::OnNewPreset(wxCommandEvent &)
+{
+	wxTextEntryDialog dlg(this, "Name for the new preset:", "New Preset", "NEW");
+	if (dlg.ShowModal() != wxID_OK) {
+		return;
+	}
+	// capture the current editor into a new preset with the given name
+	const size_t index = m_library.presets.size();
+	theremaxi::Preset preset = CollectPreset(static_cast<int>(index));
+	preset["_ps"] = theremaxi::Value::str(dlg.GetValue().ToStdString());
+	m_library.presets.push_back(std::move(preset));
+	theremaxi::renumber(m_library);
+	RefreshPresetList();
+	SelectPreset(static_cast<int>(index));
+	SetStatusText("New preset - Save the library to keep it");
+}
+
+void MainFrame::OnCopyPreset(wxCommandEvent &)
+{
+	if (m_current < 0) {
+		SetStatusText("Select a preset to copy first");
+		return;
+	}
+	const size_t index = theremaxi::copy_preset(m_library, static_cast<size_t>(m_current));
+	RefreshPresetList();
+	SelectPreset(static_cast<int>(index));
+	SetStatusText("Copied preset - Save the library to keep it");
+}
+
+void MainFrame::OnDeletePreset(wxCommandEvent &)
+{
+	if (m_current < 0) {
+		SetStatusText("Select a preset to delete first");
+		return;
+	}
+	theremaxi::remove_preset(m_library, static_cast<size_t>(m_current));
+	RefreshPresetList();
+	SelectPreset(m_library.presets.empty()
+	                 ? -1
+	                 : std::min(m_current, static_cast<int>(m_library.presets.size()) - 1));
+	SetStatusText("Deleted preset - Save the library to keep it");
 }

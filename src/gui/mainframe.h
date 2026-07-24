@@ -29,8 +29,14 @@ private:
 	void BuildPages(wxNotebook *book);
 	void OnOpen(wxCommandEvent &);
 	void OnSaveAs(wxCommandEvent &);
+	void OnNewLibrary(wxCommandEvent &);
 	void OnSelectPreset(wxCommandEvent &);
 	void OnStore(wxCommandEvent &);
+	void OnNewPreset(wxCommandEvent &);
+	void OnCopyPreset(wxCommandEvent &);
+	void OnDeletePreset(wxCommandEvent &);
+
+	void SelectPreset(int index); // update list, editor and m_current
 
 	void RefreshPresetList();
 	void ApplyPreset(const theremaxi::Preset &preset);

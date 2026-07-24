@@ -62,6 +62,25 @@ std::string dump_theremaxi(const Library &lib);
 Library load_theremaxi(const std::string &path);
 void save_theremaxi(const std::string &path, const Library &lib);
 
+// Editing a library. Every preset carries its own position as "_nr", so these
+// keep that in step - the same bookkeeping the perl librarian does.
+
+// Set each preset's _nr to its index.
+void renumber(Library &lib);
+
+// Append a preset and return its index. Its _nr is set; if it has no _ps, one
+// is added from the given name.
+size_t add_preset(Library &lib, const std::string &name);
+
+// Append a copy of an existing preset (a new _nr, the rest kept).
+size_t copy_preset(Library &lib, size_t index);
+
+// Remove a preset and renumber the rest.
+void remove_preset(Library &lib, size_t index);
+
+// The name a preset shows (its _ps), or "" if it has none.
+std::string preset_name(const Preset &preset);
+
 } // namespace theremaxi
 
 #endif
