@@ -22,6 +22,10 @@ Work on the C rewrite. Nothing here changes the perl application.
   as Ardour can automate the device. The port list is generated from the parameter table. A test
   drives the plugin through its own descriptor and checks its MIDI against the protocol library; CI
   validates the generated TTL with `sord_validate`.
+* The start of the wxWidgets application (`src/gui/`): a parameter editor generated from the
+  protocol library. Numeric parameters are a slider paired with a spin control that stay in sync
+  (drag, step or type); enums are a choice; the notebook pages and boxes come from each parameter's
+  layout hints. No device or library management yet.
 * API documentation (Doxygen) for the protocol library, checked in CI.
 
 ## 1.0.1 — 2026-07-23

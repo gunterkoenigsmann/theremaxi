@@ -12,7 +12,16 @@ set(CMAKE_C_EXTENSIONS OFF)
 option(THEREMINI_BUILD_TESTS "Build the tests" ON)
 
 if(CMAKE_C_COMPILER_ID MATCHES "GNU|Clang")
-	add_compile_options(-Wall -Wextra -Wpedantic -Wconversion -Wshadow)
+	# Strict on our C. The wx C++ is kept to -Wall: wxWidgets' flag-combining
+	# idioms (wxALIGN_CENTRE | wxRIGHT) trip -Wextra/-Wconversion in library
+	# code we do not own.
+	add_compile_options(
+		$<$<COMPILE_LANGUAGE:C>:-Wall>
+		$<$<COMPILE_LANGUAGE:C>:-Wextra>
+		$<$<COMPILE_LANGUAGE:C>:-Wpedantic>
+		$<$<COMPILE_LANGUAGE:C>:-Wconversion>
+		$<$<COMPILE_LANGUAGE:C>:-Wshadow>
+		$<$<COMPILE_LANGUAGE:CXX>:-Wall>)
 endif()
 
 # Perl generates the tables from protocol/tables.json. It is already required to
@@ -111,6 +120,25 @@ if(LV2_FOUND)
 
 	# install into the user or system LV2 path
 	install(DIRECTORY ${BUNDLE} DESTINATION lib/lv2)
+endif()
+
+# ------------------------------------------------------------ wx application
+
+# Built where wxWidgets is present. It uses only the protocol library, so it
+# needs no hardware to develop.
+find_package(wxWidgets COMPONENTS core base)
+if(wxWidgets_FOUND)
+	enable_language(CXX)
+	set(CMAKE_CXX_STANDARD 17)
+	set(CMAKE_CXX_STANDARD_REQUIRED ON)
+
+	include(${wxWidgets_USE_FILE})
+	add_executable(theremaxi-gui
+		src/gui/app.cpp
+		src/gui/mainframe.cpp
+		src/gui/paramcontrol.cpp)
+	target_link_libraries(theremaxi-gui PRIVATE theremini-protocol ${wxWidgets_LIBRARIES})
+	install(TARGETS theremaxi-gui)
 endif()
 
 if(THEREMINI_BUILD_TESTS)

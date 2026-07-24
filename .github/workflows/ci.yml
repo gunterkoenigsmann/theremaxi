@@ -24,7 +24,7 @@ jobs:
       # Before configuring, so find_package sees them: doxygen for the docs
       # target, lv2 for the plugin, sordi for validating its TTL.
       - name: Install build tools
-        run: sudo apt-get update && sudo apt-get install -y doxygen lv2-dev sordi
+        run: sudo apt-get update && sudo apt-get install -y doxygen lv2-dev sordi libwxgtk3.2-dev
 
       - name: Configure
         run: cmake -S . -B build -DCMAKE_BUILD_TYPE=Debug

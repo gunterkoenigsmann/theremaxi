@@ -69,6 +69,12 @@ typedef struct {
 
 	bool in_preset;    /**< stored in a preset, as opposed to a global setting */
 	theremini_import import; /**< how a dumped value becomes the displayed one */
+
+	/* hints for a UI, straight from the reference editor's layout */
+	const char *tab;   /**< notebook page, e.g. "Basic"; NULL if not shown */
+	const char *group; /**< box within the page, e.g. "Filter"; may be NULL */
+	const char *label; /**< short label for a control, e.g. "Cutoff"; else @c name */
+	int order;         /**< sort order within the editor */
 } theremini_param;
 
 /**

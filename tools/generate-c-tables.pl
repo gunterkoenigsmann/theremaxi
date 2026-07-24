@@ -71,6 +71,11 @@ for my $id ( @ids )
 	$c .= sprintf "\t\t.in_preset = %s, .import = %s,\n",
 		( $e->{in_preset} ? 'true' : 'false' ),
 		'THEREMINI_IMPORT_'.uc($e->{import});
+	$c .= sprintf "\t\t.tab = %s, .group = %s, .label = %s, .order = %d,\n",
+		cstr($e->{ui} ? $e->{ui}->{tab}   : undef),
+		cstr($e->{ui} ? $e->{ui}->{group} : undef),
+		cstr($e->{ui} && $e->{ui}->{label} ? $e->{ui}->{label} : $e->{name}),
+		( $e->{ui} ? $e->{ui}->{order} : 0 );
 	$c .= "\t},\n";
 }
 $c .= "};\n\n";

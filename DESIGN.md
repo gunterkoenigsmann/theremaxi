@@ -14,7 +14,10 @@ the same files. The target is four pieces with one shared core.
 * **`libtheremini-device`** — not started. The ALSA transport; see below. This is the part that
   needs hardware to verify, so its pure pieces (discovery matching, 14-bit input reassembly) will be
   split out and tested, and the ALSA I/O kept behind a backend seam.
-* **wxWidgets application** — not started.
+* **wxWidgets application** — started (`src/gui/`). The parameter editor is built from the protocol
+  library: a notebook whose pages and boxes come from each parameter's layout hints, numeric
+  parameters as a slider paired with a `wxSpinCtrlDouble`, enums as a choice. No device or library
+  management yet. Builds where wxWidgets is present.
 
 ```
                        protocol/tables.json          (generated from lib/, authoritative)
@@ -78,6 +81,14 @@ selection (a program change). Those belong to the device library or a later plug
 The standalone editor and librarian: the tree of libraries and presets, the tabs, the
 MidiFeedbackLoop feature. wxWidgets is chosen for its stable source API — note that on Linux it is
 implemented on GTK3, so this buys insulation from toolkit churn, not independence from GTK.
+
+The parameter editor exists (`src/gui/`). Each numeric parameter is a slider paired with a
+`wxSpinCtrlDouble` that stay in sync, so a value can be dragged, stepped or typed — deliberately
+not the reference editor's min/mid/max labels under each slider, which waste vertical space. The
+notebook pages, the boxes within them and the control order all come from the layout hints on
+`theremini_param` (`tab`, `group`, `label`, `order`), so the editor is generated from the same
+table as everything else. Still to come: reading and writing values through the device and the LV2
+plugin, the library/preset tree, saving to `.theremaxi` files, and the MidiFeedbackLoop tab.
 
 ## Testing
 
