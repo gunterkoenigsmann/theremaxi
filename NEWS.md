@@ -30,6 +30,10 @@ Work on the C rewrite. Nothing here changes the perl application.
   files are interchangeable with the perl app. It reads the perl's mix of number- and
   string-encoded values, preserves names that need escaping, and is tested both ways - against a
   file the perl wrote and by having perl read a file it wrote.
+* The GUI is now an offline librarian: open a `.theremaxi` library (menu or command line), pick a
+  preset from the list to load it into the editor, Store the edited values back and Save the
+  library. Loading resolves the perl's string-or-number values onto the right widgets - an enum
+  index becomes the chosen scale, a string "12.34" becomes a slider position.
 * API documentation (Doxygen) for the protocol library, checked in CI.
 
 ## 1.0.1 — 2026-07-23

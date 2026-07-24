@@ -22,8 +22,16 @@ class ParamControl : public wxPanel {
 public:
 	ParamControl(wxWindow *parent, const theremini_param *param);
 
+	const theremini_param *param() const { return m_param; }
+
 	// The current value in display units (0 for a name).
 	double GetValue() const;
+	wxString GetText() const;
+
+	// Set from a loaded preset. SetValue drives the numeric slider/spin or the
+	// enum choice; SetText drives a name field.
+	void SetValue(double value);
+	void SetText(const wxString &text);
 
 private:
 	void OnSlider(wxCommandEvent &);

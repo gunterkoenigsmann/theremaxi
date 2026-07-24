@@ -87,8 +87,14 @@ The parameter editor exists (`src/gui/`). Each numeric parameter is a slider pai
 not the reference editor's min/mid/max labels under each slider, which waste vertical space. The
 notebook pages, the boxes within them and the control order all come from the layout hints on
 `theremini_param` (`tab`, `group`, `label`, `order`), so the editor is generated from the same
-table as everything else. Still to come: reading and writing values through the device and the LV2
-plugin, the library/preset tree, saving to `.theremaxi` files, and the MidiFeedbackLoop tab.
+table as everything else.
+
+It is also a working offline librarian: open a `.theremaxi` library, and its presets fill a list;
+selecting one loads its values into the editor; Store writes the editor back to the preset; Save
+writes the library. The file format is handled by `theremaxi-preset` (`src/preset/`), a
+dependency-free reader/writer tested against files the perl actually wrote and by having perl read
+files it writes. Still to come: values to and from the device and the LV2 plugin, creating and
+deleting libraries and presets, and the MidiFeedbackLoop tab.
 
 ## Testing
 

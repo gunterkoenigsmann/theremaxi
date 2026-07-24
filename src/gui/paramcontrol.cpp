@@ -95,3 +95,28 @@ double ParamControl::GetValue() const
 	}
 	return 0.0;
 }
+
+wxString ParamControl::GetText() const
+{
+	return m_text ? m_text->GetValue() : wxString();
+}
+
+void ParamControl::SetValue(double value)
+{
+	// A programmatic change does not fire the control's event, so move the
+	// paired widget here rather than relying on the echo handlers.
+	if (m_spin) {
+		m_spin->SetValue(value);
+		m_slider->SetValue(
+			static_cast<int>(std::lround((value - m_param->min) / m_increment)));
+	} else if (m_choice) {
+		m_choice->SetSelection(static_cast<int>(std::lround(value)));
+	}
+}
+
+void ParamControl::SetText(const wxString &text)
+{
+	if (m_text) {
+		m_text->SetValue(text);
+	}
+}

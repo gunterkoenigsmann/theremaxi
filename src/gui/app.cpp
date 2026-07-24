@@ -16,6 +16,9 @@ public:
 	bool OnInit() override
 	{
 		auto *frame = new MainFrame();
+		if (argc > 1) {
+			frame->LoadLibrary(argv[1]);
+		}
 		frame->Show(true);
 		return true;
 	}
