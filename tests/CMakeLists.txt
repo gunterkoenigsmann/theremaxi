@@ -30,6 +30,15 @@ add_test(NAME preset_storage
 set_tests_properties(preset_storage PROPERTIES
 	WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
 
+# Replay the fuzz corpus through the parser. The same source as the libFuzzer
+# target, built without the engine so it runs anywhere; under the sanitizer CI
+# build this catches an out-of-bounds read on any of the recorded inputs.
+add_executable(fuzz_replay ${CMAKE_SOURCE_DIR}/fuzz/fuzz_theremaxi.cpp)
+target_link_libraries(fuzz_replay PRIVATE theremaxi-preset)
+target_compile_options(fuzz_replay PRIVATE ${THEREMINI_CXX_STRICT})
+file(GLOB fuzz_corpus CONFIGURE_DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/fuzz-corpus/*)
+add_test(NAME fuzz_corpus COMMAND fuzz_replay ${fuzz_corpus})
+
 # The LV2 plugin, driven through its own descriptor - built only where LV2 is.
 if(THEREMINI_HAVE_LV2)
 	add_executable(test_lv2

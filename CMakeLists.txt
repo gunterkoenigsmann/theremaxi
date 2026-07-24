@@ -86,6 +86,19 @@ target_include_directories(theremaxi-preset PUBLIC src/preset)
 target_compile_options(theremaxi-preset PRIVATE ${THEREMINI_CXX_STRICT})
 set_target_properties(theremaxi-preset PROPERTIES POSITION_INDEPENDENT_CODE ON)
 
+# Deep fuzzing of the .theremaxi parser: cmake -DTHEREMINI_FUZZ=ON with clang,
+# then run ./fuzz_theremaxi. The same source builds a plain corpus-replay driver
+# for the deterministic test below (see tests/), so this target is only the
+# coverage-guided engine, which needs clang's libFuzzer.
+option(THEREMINI_FUZZ "Build the libFuzzer target for the .theremaxi parser" OFF)
+if(THEREMINI_FUZZ)
+	add_executable(fuzz_theremaxi fuzz/fuzz_theremaxi.cpp)
+	target_compile_definitions(fuzz_theremaxi PRIVATE THEREMINI_FUZZ)
+	target_compile_options(fuzz_theremaxi PRIVATE -fsanitize=fuzzer,address,undefined)
+	target_link_options(fuzz_theremaxi PRIVATE -fsanitize=fuzzer,address,undefined)
+	target_link_libraries(fuzz_theremaxi PRIVATE theremaxi-preset)
+endif()
+
 # ---------------------------------------------------------------- LV2 plugin
 
 # The port list and the C port table are both generated from tables.json so

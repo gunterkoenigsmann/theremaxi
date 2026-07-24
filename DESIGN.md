@@ -116,9 +116,13 @@ test all of it: `import(export(x)) == x` within tolerance, and `export` monotoni
 implementations over the same cases, asserting equality. This catches the cases the golden file
 does not enumerate.
 
-**Fuzzing** — the sysex parser is the one component that eats untrusted input, and in C that is
-where buffer overruns live. Seed afl or libFuzzer with the golden corpus; assert no crash, and
-identical output wherever perl accepts the input.
+**Fuzzing** — the parsers eat untrusted input, and in C/C++ that is where buffer overruns live. The
+`.theremaxi` parser has this: `fuzz/fuzz_theremaxi.cpp` builds a libFuzzer target with
+`cmake -DTHEREMINI_FUZZ=ON` (needs clang), and the same source builds a plain replay driver that the
+`fuzz_corpus` test runs over `tests/fuzz-corpus/` under the sanitizers on every build - deterministic,
+so it does not depend on the fuzzer's speed. The property is that any input either parses or throws
+`ParseError`, never crashing or reading out of bounds. The sysex parser deserves the same treatment
+next.
 
 **Byte-exact round-trip** — a property the perl code does not have and the C library must. The
 offset table still has unknown regions (`0x1c..0x1f`, `0x28..0x29`, `0x46..0x4f`, `0x74..EOF`).
