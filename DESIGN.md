@@ -11,9 +11,9 @@ the same files. The target is four pieces with one shared core.
   `src/protocol/` and the tests under `tests/`.
 * **LV2 plugin (no UI)** — done: `src/lv2/`, ports generated from the parameter table, driven by a
   descriptor-level test and validated with `sord_validate`.
-* **`libtheremini-device`** — not started. The ALSA transport; see below. This is the part that
-  needs hardware to verify, so its pure pieces (discovery matching, 14-bit input reassembly) will be
-  split out and tested, and the ALSA I/O kept behind a backend seam.
+* **`libtheremini-device`** — the hardware-independent core is done (`src/device/`): antenna input
+  reassembly and device-name matching, both tested against the perl. The ALSA transport that opens
+  ports and moves bytes is the remaining piece, and the part that needs hardware to verify.
 * **wxWidgets application** — started (`src/gui/`). The parameter editor is built from the protocol
   library: a notebook whose pages and boxes come from each parameter's layout hints, numeric
   parameters as a slider paired with a `wxSpinCtrlDouble`, enums as a choice. No device or library
@@ -52,6 +52,12 @@ them plausible-looking numbers whose errors are silent — so nobody gets to ret
 **`libtheremini-device`** owns the ALSA sequencer client, device discovery, the sysex request and
 response cycle, and the "sync on change" mode. It depends on the protocol library, never the other
 way round.
+
+Its hardware-independent core exists (`src/device/`): `theremini_input_*` reassembles an antenna's
+14-bit input from the two controllers it arrives on (or passes a 7-bit value through), and
+`theremini_client_matches` is the `/theremini/i` name test discovery uses. Both are transcribed from
+`lib/Input.pm` — extracted out of `Device.pm`'s `_CC_` so the perl and the C share one definition —
+and checked against golden vectors the perl produced. What remains is the ALSA I/O itself.
 
 Not yet extracted: the sysex message templates still live as literals in `lib/Device.pm`
 (`04 0B 06 03 …` requests all presets, `07`/`08` write the preset and effect names, `7E 7F 06 01`

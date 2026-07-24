@@ -10,6 +10,11 @@ Work on the C rewrite. Nothing here changes the perl application.
 
 ### Added
 
+* The hardware-independent core of `libtheremini-device` (`src/device/`): `theremini_input_*`
+  reassembles an antenna's 14-bit MIDI input from the two controllers it arrives on (or passes a
+  7-bit value straight through), and `theremini_client_matches` recognises the device by name. The
+  reassembly logic moved out of `Device.pm`'s `_CC_` into a shared `lib/Input.pm`, so the perl and
+  the C agree by construction; both are checked against golden vectors.
 * The read-from-hardware path in `libtheremini-protocol`: `theremini_preset_decode` takes a preset
   apart through the sysex offset table, and `theremini_sysex_decode` / `theremini_sysex_unpack3`
   undo the device's seven-bit packing and frame a whole 32-preset dump. Checked against decoded

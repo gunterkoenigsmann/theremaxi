@@ -66,4 +66,20 @@ typedef struct {
 extern const golden_control golden_controls[];
 extern const size_t golden_control_count;
 
+typedef struct {
+	int channel, cc, value; /* the incoming message */
+	int has_emit;           /* whether a value was produced */
+	int emit;               /* the produced value, if has_emit */
+} golden_input_event;
+
+typedef struct {
+	const char *name;
+	int channel, cc, wide; /* the antenna config */
+	const golden_input_event *events;
+	size_t event_count;
+} golden_input;
+
+extern const golden_input golden_inputs[];
+extern const size_t golden_input_count;
+
 #endif

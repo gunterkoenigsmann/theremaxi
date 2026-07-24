@@ -7,6 +7,7 @@ use warnings;
 use MIDI::ALSA ':CONSTS';
 
 require "$main::LIB/Sysex.pm";
+require "$main::LIB/Input.pm";
 
 my $MIDI;
 my $PEER;
@@ -313,24 +314,10 @@ sub _CC_
 	my($chan,$cc,$value) = @_;
 	while ( my($type,$cb) = each %CC )
 	{
-		next unless $chan == $main::STATE{device}->{midi_input}->{$type}->[0];
-		if ( $cc == $main::STATE{device}->{midi_input}->{$type}->[1] )
-		{
-			if ( $main::STATE{device}->{midi_input}->{$type}->[2] )
-			{
-				$value{$type} = $value;
-			}
-			else
-			{
-				$value{$type} = undef;
-				&$_($type,$value) for values %$cb;
-			}
-		}
-		elsif ( ( $cc == $main::STATE{device}->{midi_input}->{$type}->[1] + 32 ) && defined $value{$type} )
-		{
-			&$_($type,($value{$type}<<7)|$value) for values %$cb;
-			$value{$type} = undef;
-		}
+		my $emit;
+		( $value{$type}, $emit ) = ThereMaxi::Input::feed(
+			$value{$type}, $main::STATE{device}->{midi_input}->{$type}, $chan, $cc, $value );
+		&$_($type,$emit) for defined $emit ? values %$cb : ();
 	}
 }
 

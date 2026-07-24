@@ -33,6 +33,7 @@ require "$LIB/Controller.pm";
 require "$LIB/Preset.pm";
 require "$LIB/Library.pm";
 require "$LIB/Sysex.pm";
+require "$LIB/Input.pm";
 
 # The device needs ALSA and hardware, so replace it. Preset->init calls init,
 # and saving a preset goes through save_preset/sync_on_change.
@@ -123,6 +124,30 @@ ok( $back{_ps} eq 'TESTPRESET', 'round-trip keeps the preset name' );
 	my $fx_bytes = sub { pack 'H*', join '', @{ ThereMaxi::Controller->get('_fx')->value_export($_[0]) } };
 	ok( $hex->(ThereMaxi::Sysex->name_payload('write_effect_name',$fx_bytes->('Off'))) =~ /^040b0608/,
 		'write-effect-name payload framing' );
+}
+
+# 7. antenna input reassembly (lib/Input.pm), every path
+{
+	# a 14-bit antenna on channel 1, controller 2 (so LSB on 34)
+	my $wide = [ 1, 2, 1 ];
+	my($p,$e) = ThereMaxi::Input::feed( undef, $wide, 1, 2, 100 );
+	ok( $p == 100 && !defined $e, 'wide: high bits held, nothing emitted yet' );
+	($p,$e) = ThereMaxi::Input::feed( $p, $wide, 1, 34, 5 );
+	ok( !defined $p && $e == ((100<<7)|5), 'wide: value emitted once low bits arrive' );
+
+	($p,$e) = ThereMaxi::Input::feed( undef, $wide, 1, 34, 5 );
+	ok( !defined $p && !defined $e, 'wide: low bits with no pending high bits do nothing' );
+
+	($p,$e) = ThereMaxi::Input::feed( 100, $wide, 1, 2, 42 );
+	ok( $p == 42 && !defined $e, 'wide: a second high value replaces the pending one' );
+
+	# a 7-bit antenna on channel 0, controller 20
+	my $narrow = [ 0, 20, 0 ];
+	($p,$e) = ThereMaxi::Input::feed( undef, $narrow, 0, 20, 77 );
+	ok( !defined $p && $e == 77, '7-bit: value passed straight through' );
+
+	($p,$e) = ThereMaxi::Input::feed( undef, $wide, 2, 2, 100 );
+	ok( !defined $p && !defined $e, 'wrong channel is ignored' );
 }
 
 print $fail ? "\n$fail check(s) failed\n" : "\nall checks passed\n";

@@ -170,11 +170,37 @@ for my $m ( @{$golden->{control}} )
 	$controls++;
 }
 $c .= "};\n\n";
-$c .= "const size_t golden_control_count = $controls;\n";
+$c .= "const size_t golden_control_count = $controls;\n\n";
+
+# antenna input reassembly sequences
+my $inputs = 0;
+for my $seq ( @{$golden->{input}} )
+{
+	$c .= sprintf "static const golden_input_event input_events_%d[] = {\n", $inputs;
+	for my $e ( @{$seq->{events}} )
+	{
+		my $has = defined $e->{emit} ? 1 : 0;
+		$c .= sprintf "\t{ %d, %d, %d, %d, %d },\n",
+			$e->{in}->[0], $e->{in}->[1], $e->{in}->[2], $has, $has ? $e->{emit} : 0;
+	}
+	$c .= "};\n";
+	$inputs++;
+}
+$c .= "\nconst golden_input golden_inputs[] = {\n";
+$inputs = 0;
+for my $seq ( @{$golden->{input}} )
+{
+	$c .= sprintf "\t{ \"%s\", %d, %d, %d, input_events_%d, sizeof input_events_%d / sizeof input_events_%d[0] },\n",
+		$seq->{name}, $seq->{config}->[0], $seq->{config}->[1], $seq->{config}->[2],
+		$inputs, $inputs, $inputs;
+	$inputs++;
+}
+$c .= "};\n\n";
+$c .= "const size_t golden_input_count = $inputs;\n";
 
 open my $O, '>', $out or die "$out: $!";
 print $O $c;
 close $O;
 
-printf "%s: %d export vectors, %d presets, %d sx pairs, %d messages, %d control\n",
-	$out, $n, $presets, $sx, $messages, $controls;
+printf "%s: %d export vectors, %d presets, %d sx pairs, %d messages, %d control, %d input\n",
+	$out, $n, $presets, $sx, $messages, $controls, $inputs;

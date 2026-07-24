@@ -9,13 +9,18 @@ add_custom_command(
 	COMMENT "Generating the golden vectors from protocol/golden.json"
 	VERBATIM)
 
-# Each test replays part of protocol/golden.json through the library.
+# Each test replays part of protocol/golden.json through a library.
 foreach(name value_export preset_decode sysex message)
 	add_executable(test_${name} test_${name}.c ${GENERATED}/golden_data.c)
 	target_include_directories(test_${name} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
 	target_link_libraries(test_${name} PRIVATE theremini-protocol)
 	add_test(NAME ${name} COMMAND test_${name})
 endforeach()
+
+add_executable(test_device test_device.c ${GENERATED}/golden_data.c)
+target_include_directories(test_device PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
+target_link_libraries(test_device PRIVATE theremini-device)
+add_test(NAME device COMMAND test_device)
 
 # The .theremaxi reader/writer. Runs from the repo root so the write-compat
 # check can reach ./lib/Storage.pm, and is handed the fixtures and a writable

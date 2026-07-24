@@ -42,6 +42,7 @@ require "$LIB/Controller.pm";
 require "$LIB/Preset.pm";
 require "$LIB/Library.pm";
 require "$LIB/Sysex.pm";
+require "$LIB/Input.pm";
 
 {
 	no warnings 'once';
@@ -289,6 +290,30 @@ for my $n ( '', 'TEST', 'THIRTEEN CHAR', 'WAY TOO LONG A NAME', '  trimmed  ' )
 	};
 }
 
+# Antenna input reassembly: sequences of incoming controller messages run
+# through lib/Input.pm, with the value each step produces (or null). The C port
+# has to reproduce the same emissions.
+my @input;
+for my $spec (
+	{ name => 'wide reassembly', config => [ 1, 2, 1 ],
+	  events => [ [1,2,100], [1,34,5], [1,2,0], [1,34,0], [1,34,9] ] },
+	{ name => 'seven bit passthrough', config => [ 0, 20, 0 ],
+	  events => [ [0,20,77], [0,52,5], [0,20,0], [3,20,64] ] },
+	{ name => 'msb overwrite and stray lsb', config => [ 2, 7, 1 ],
+	  events => [ [2,39,5], [2,7,10], [2,7,20], [2,39,3], [9,7,1] ] },
+)
+{
+	my $pending;
+	my @events;
+	for my $ev ( @{$spec->{events}} )
+	{
+		my $emit;
+		( $pending, $emit ) = ThereMaxi::Input::feed( $pending, $spec->{config}, @$ev );
+		push @events, { in => $ev, emit => defined $emit ? $emit : JSON::PP::null };
+	}
+	push @input, { name => $spec->{name}, config => $spec->{config}, events => \@events };
+}
+
 my $golden =
 {
 	generated_by => 'tools/dump-protocol.pl',
@@ -298,6 +323,7 @@ my $golden =
 	sx           => \@sx,
 	messages     => \@messages,
 	control      => \@control,
+	input        => \@input,
 };
 
 sub _scalar_

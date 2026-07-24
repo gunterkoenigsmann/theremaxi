@@ -77,6 +77,22 @@ endif()
 install(TARGETS theremini-protocol)
 install(DIRECTORY src/protocol/include/ DESTINATION include)
 
+# --------------------------------------------------------------- device library
+
+# The hardware-independent core of the device layer: input reassembly and
+# device-name matching. The ALSA transport will be added on top, Linux-only.
+add_library(theremini-device
+	src/device/input.c
+	src/device/discover.c)
+target_include_directories(theremini-device PUBLIC
+	$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src/device/include>
+	$<INSTALL_INTERFACE:include>)
+set_target_properties(theremini-device PROPERTIES
+	VERSION ${PROJECT_VERSION}
+	POSITION_INDEPENDENT_CODE ON)
+install(TARGETS theremini-device)
+install(DIRECTORY src/device/include/ DESTINATION include)
+
 # ------------------------------------------------------- preset library format
 
 # Reading and writing .theremaxi files. Pure C++, no wx, so it is tested on its
