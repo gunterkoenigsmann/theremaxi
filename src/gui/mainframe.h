@@ -8,6 +8,7 @@
 #define THEREMAXI_MAINFRAME_H
 
 #include "library.hpp"
+#include "prefs.h"
 
 #include <wx/frame.h>
 
@@ -30,6 +31,7 @@ private:
 	void OnOpen(wxCommandEvent &);
 	void OnSaveAs(wxCommandEvent &);
 	void OnNewLibrary(wxCommandEvent &);
+	void OnPreferences(wxCommandEvent &);
 	void OnSelectPreset(wxCommandEvent &);
 	void OnStore(wxCommandEvent &);
 	void OnNewPreset(wxCommandEvent &);
@@ -47,6 +49,7 @@ private:
 
 	theremaxi::Library m_library;
 	int m_current = -1;
+	Settings m_settings;
 };
 
 #endif

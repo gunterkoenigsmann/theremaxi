@@ -75,14 +75,19 @@ MainFrame::MainFrame()
 	menu->Append(wxID_OPEN, "&Open Library...\tCtrl+O");
 	menu->Append(wxID_SAVEAS, "Save Library &As...\tCtrl+S");
 	menu->AppendSeparator();
+	menu->Append(wxID_PREFERENCES, "&Preferences...");
+	menu->AppendSeparator();
 	menu->Append(wxID_EXIT, "&Quit\tCtrl+Q");
 	auto *bar = new wxMenuBar();
 	bar->Append(menu, "&File");
 	SetMenuBar(bar);
 
+	m_settings = load_settings();
+
 	Bind(wxEVT_MENU, &MainFrame::OnNewLibrary, this, wxID_NEW);
 	Bind(wxEVT_MENU, &MainFrame::OnOpen, this, wxID_OPEN);
 	Bind(wxEVT_MENU, &MainFrame::OnSaveAs, this, wxID_SAVEAS);
+	Bind(wxEVT_MENU, &MainFrame::OnPreferences, this, wxID_PREFERENCES);
 	Bind(wxEVT_MENU, [this](wxCommandEvent &) { Close(true); }, wxID_EXIT);
 
 	// left: the preset list with New/Copy/Delete and Store; right: the editor
@@ -285,6 +290,16 @@ void MainFrame::OnNewLibrary(wxCommandEvent &)
 	m_current = -1;
 	RefreshPresetList();
 	SetStatusText("New library");
+}
+
+void MainFrame::OnPreferences(wxCommandEvent &)
+{
+	PrefsDialog dlg(this, m_settings);
+	if (dlg.ShowModal() == wxID_OK) {
+		m_settings = dlg.GetSettings();
+		save_settings(m_settings);
+		SetStatusText("Preferences saved");
+	}
 }
 
 void MainFrame::OnNewPreset(wxCommandEvent &)

@@ -15,6 +15,7 @@ class ThereMaxiApp : public wxApp {
 public:
 	bool OnInit() override
 	{
+		SetAppName("ThereMaxi"); // gives wxConfig a place to store settings
 		auto *frame = new MainFrame();
 		if (argc > 1) {
 			frame->LoadLibrary(argv[1]);

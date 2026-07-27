@@ -196,7 +196,8 @@ if(wxWidgets_FOUND)
 	add_executable(theremaxi-gui
 		src/gui/app.cpp
 		src/gui/mainframe.cpp
-		src/gui/paramcontrol.cpp)
+		src/gui/paramcontrol.cpp
+		src/gui/prefs.cpp)
 	target_link_libraries(theremaxi-gui PRIVATE
 		theremini-protocol theremaxi-preset ${wxWidgets_LIBRARIES})
 	install(TARGETS theremaxi-gui)
