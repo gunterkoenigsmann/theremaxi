@@ -189,8 +189,9 @@ endif()
 
 # ------------------------------------------------------------ wx application
 
-# Built where wxWidgets is present. It uses only the protocol library, so it
-# needs no hardware to develop.
+# Built where wxWidgets is present. It edits and manages libraries with no
+# hardware; where ALSA is also present it links the device library and gains the
+# Device menu (connect, sync, auto-detect channel).
 find_package(wxWidgets COMPONENTS core base)
 if(wxWidgets_FOUND)
 	include(${wxWidgets_USE_FILE})
@@ -201,6 +202,10 @@ if(wxWidgets_FOUND)
 		src/gui/prefs.cpp)
 	target_link_libraries(theremaxi-gui PRIVATE
 		theremini-protocol theremaxi-preset ${wxWidgets_LIBRARIES})
+	if(ALSA_FOUND)
+		target_link_libraries(theremaxi-gui PRIVATE theremini-device)
+		target_compile_definitions(theremaxi-gui PRIVATE THEREMINI_HAVE_ALSA)
+	endif()
 	install(TARGETS theremaxi-gui)
 endif()
 

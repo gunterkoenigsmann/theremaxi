@@ -2,6 +2,10 @@
 #include "paramcontrol.h"
 
 #include "theremini/protocol.h"
+#ifdef THEREMINI_HAVE_ALSA
+#include "theremini/alsa.h"
+#include "theremini/device.h"
+#endif
 
 #include <wx/button.h>
 #include <wx/filedlg.h>
@@ -21,7 +25,16 @@
 
 namespace {
 
-enum { ID_STORE = wxID_HIGHEST + 1, ID_NEW_PRESET, ID_COPY_PRESET, ID_DEL_PRESET };
+enum {
+	ID_STORE = wxID_HIGHEST + 1,
+	ID_NEW_PRESET,
+	ID_COPY_PRESET,
+	ID_DEL_PRESET,
+	ID_CONNECT,
+	ID_DISCONNECT,
+	ID_SYNC_DEVICE,
+	ID_AUTODETECT
+};
 
 std::vector<const theremini_param *> params_for_tab(const char *tab)
 {
@@ -80,9 +93,29 @@ MainFrame::MainFrame()
 	menu->Append(wxID_EXIT, "&Quit\tCtrl+Q");
 	auto *bar = new wxMenuBar();
 	bar->Append(menu, "&File");
+
+#ifdef THEREMINI_HAVE_ALSA
+	auto *dev = new wxMenu();
+	dev->Append(ID_CONNECT, "&Connect");
+	dev->Append(ID_DISCONNECT, "&Disconnect");
+	dev->AppendSeparator();
+	dev->Append(ID_SYNC_DEVICE, "&Sync Presets from Device");
+	dev->Append(ID_AUTODETECT, "&Auto-detect Channel");
+	bar->Append(dev, "&Device");
+	Bind(wxEVT_MENU, &MainFrame::OnConnect, this, ID_CONNECT);
+	Bind(wxEVT_MENU, &MainFrame::OnDisconnect, this, ID_DISCONNECT);
+	Bind(wxEVT_MENU, &MainFrame::OnSyncDevice, this, ID_SYNC_DEVICE);
+	Bind(wxEVT_MENU, &MainFrame::OnAutoDetect, this, ID_AUTODETECT);
+	m_pump.SetOwner(this);
+	Bind(wxEVT_TIMER, &MainFrame::OnPump, this);
+#endif
+
 	SetMenuBar(bar);
 
 	m_settings = load_settings();
+#ifdef THEREMINI_HAVE_ALSA
+	UpdateDeviceMenu();
+#endif
 
 	Bind(wxEVT_MENU, &MainFrame::OnNewLibrary, this, wxID_NEW);
 	Bind(wxEVT_MENU, &MainFrame::OnOpen, this, wxID_OPEN);
@@ -343,4 +376,175 @@ void MainFrame::OnDeletePreset(wxCommandEvent &)
 	                 ? -1
 	                 : std::min(m_current, static_cast<int>(m_library.presets.size()) - 1));
 	SetStatusText("Deleted preset - Save the library to keep it");
+}
+
+// --------------------------------------------------------------- device I/O
+
+#ifdef THEREMINI_HAVE_ALSA
+
+namespace {
+void antenna_trampoline(int channel, int cc, int value, void *user)
+{
+	static_cast<MainFrame *>(user)->OnAntenna(channel, cc, value);
+}
+} // namespace
+
+void MainFrame::UpdateDeviceMenu()
+{
+	wxMenuBar *bar = GetMenuBar();
+	const bool on = m_seq != nullptr;
+	bar->Enable(ID_CONNECT, !on);
+	bar->Enable(ID_DISCONNECT, on);
+	bar->Enable(ID_SYNC_DEVICE, on);
+	bar->Enable(ID_AUTODETECT, on);
+}
+
+void MainFrame::OnConnect(wxCommandEvent &)
+{
+	m_seq = theremini_alsa_open("ThereMaxi");
+	if (!m_seq) {
+		SetStatusText("Cannot open the ALSA sequencer");
+		return;
+	}
+	const char *name = theremini_alsa_discover(m_seq);
+	if (!name) {
+		theremini_alsa_close(m_seq);
+		m_seq = nullptr;
+		SetStatusText("No Theremini found");
+		return;
+	}
+
+	theremini_alsa_on_cc(m_seq, antenna_trampoline, this);
+
+	// identity, for the firmware version
+	uint8_t req[THEREMINI_MESSAGE_MAX];
+	uint8_t reply[64];
+	size_t len = theremini_msg_identity_request(req, sizeof req);
+	theremini_alsa_send(m_seq, req, len);
+	long n = theremini_alsa_read_sysex(m_seq, reply, sizeof reply, 1500);
+	wxString fw;
+	if (n >= 7 && reply[3] == 0x06 && reply[4] == 0x02) {
+		fw = wxString::Format(" (firmware %d.%d.%d)", reply[n - 4], reply[n - 3], reply[n - 2]);
+	}
+
+	SetStatusText(wxString::Format("Connected to %s%s", name, fw));
+	m_pump.Start(50); // keep up with the antenna stream
+	UpdateDeviceMenu();
+}
+
+void MainFrame::OnDisconnect(wxCommandEvent &)
+{
+	m_pump.Stop();
+	if (m_seq) {
+		theremini_alsa_close(m_seq);
+		m_seq = nullptr;
+	}
+	SetStatusText("Disconnected");
+	UpdateDeviceMenu();
+}
+
+void MainFrame::OnSyncDevice(wxCommandEvent &)
+{
+	if (!m_seq) {
+		return;
+	}
+	m_pump.Stop(); // do not compete for the input while reading the dump
+
+	uint8_t req[THEREMINI_MESSAGE_MAX];
+	static uint8_t reply[16384];
+	size_t len = theremini_msg_request_all_presets(req, sizeof req);
+	theremini_alsa_send(m_seq, req, len);
+	long n = theremini_alsa_read_sysex(m_seq, reply, sizeof reply, 3000);
+
+	if (n <= 0) {
+		SetStatusText("No preset dump from the device");
+		m_pump.Start(50);
+		return;
+	}
+
+	theremini_dump dump;
+	if (theremini_sysex_decode(reply, static_cast<size_t>(n), &dump) != THEREMINI_SYSEX_OK) {
+		SetStatusText("Could not decode the preset dump");
+		m_pump.Start(50);
+		return;
+	}
+
+	// turn the decoded presets into a library
+	theremaxi::Library lib;
+	size_t count = 0;
+	const theremini_param *params = theremini_params(&count);
+	for (size_t i = 0; i < dump.count; i++) {
+		theremaxi::Preset preset;
+		for (size_t j = 0; j < count; j++) {
+			const theremini_value *v = &dump.presets[i].values[j];
+			if (!v->present) {
+				continue;
+			}
+			if (params[j].kind == THEREMINI_TEXT && v->text[0]) {
+				preset[params[j].id] = theremaxi::Value::str(v->text);
+			} else {
+				preset[params[j].id] = theremaxi::Value::num(v->number);
+			}
+		}
+		lib.presets.push_back(std::move(preset));
+	}
+	theremaxi::renumber(lib);
+
+	m_library = std::move(lib);
+	m_current = -1;
+	RefreshPresetList();
+	if (!m_library.presets.empty()) {
+		SelectPreset(0);
+	}
+	SetStatusText(wxString::Format("Synced %zu presets from the device", m_library.presets.size()));
+	m_pump.Start(50);
+}
+
+void MainFrame::OnAutoDetect(wxCommandEvent &)
+{
+	if (!m_seq) {
+		return;
+	}
+	m_pump.Stop();
+	const int ch = theremini_alsa_detect_channel(m_seq, 2000);
+	m_pump.Start(50);
+
+	if (ch < 0) {
+		SetStatusText("Could not detect the channel - move a hand near the antennas");
+		return;
+	}
+	m_settings.volume.channel = ch;
+	m_settings.pitch.channel = ch;
+	save_settings(m_settings);
+	SetStatusText(wxString::Format("Antennas on channel %d - saved to preferences", ch));
+}
+
+void MainFrame::OnPump(wxTimerEvent &)
+{
+	if (m_seq) {
+		theremini_alsa_pump(m_seq, 0); // non-blocking; drives OnAntenna
+	}
+}
+
+void MainFrame::OnAntenna(int channel, int cc, int value)
+{
+	const char *which = cc == THEREMINI_VOLUME_CC ? "volume"
+	                    : cc == THEREMINI_PITCH_CC ? "pitch"
+	                                               : nullptr;
+	if (which && value != m_last_antenna) {
+		m_last_antenna = value;
+		SetStatusText(wxString::Format("antenna %s: channel %d value %d", which, channel, value), 0);
+	}
+}
+
+#endif // THEREMINI_HAVE_ALSA
+
+MainFrame::~MainFrame()
+{
+#ifdef THEREMINI_HAVE_ALSA
+	m_pump.Stop();
+	if (m_seq) {
+		theremini_alsa_close(m_seq);
+	}
+#endif
 }

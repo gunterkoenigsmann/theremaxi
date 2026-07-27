@@ -98,13 +98,19 @@ notebook pages, the boxes within them and the control order all come from the la
 `theremini_param` (`tab`, `group`, `label`, `order`), so the editor is generated from the same
 table as everything else.
 
-It is also a working offline librarian: open a `.theremaxi` library, and its presets fill a list;
-selecting one loads its values into the editor; Store writes the editor back to the preset; New,
-Copy and Delete manage presets, New Library starts an empty one, and Save writes it out. The file
-format and the library edits are handled by `theremaxi-preset` (`src/preset/`), a dependency-free
-module tested against files the perl actually wrote, by having perl read files it writes, and fuzzed;
-the add/copy/remove helpers keep each preset's `_nr` in step with its position. Still to come: values
-to and from the device and the LV2 plugin, and the MidiFeedbackLoop tab.
+It is also a working librarian: open a `.theremaxi` library, and its presets fill a list; selecting
+one loads its values into the editor; Store writes the editor back to the preset; New, Copy and
+Delete manage presets, New Library starts an empty one, and Save writes it out. The file format and
+the library edits are handled by `theremaxi-preset` (`src/preset/`), a dependency-free module tested
+against files the perl actually wrote, by having perl read files it writes, and fuzzed; the
+add/copy/remove helpers keep each preset's `_nr` in step with its position.
+
+Where ALSA is present it also links the device library and gains a Device menu: Connect (discover,
+and read the firmware), Sync Presets from Device (request the dump, decode it, fill the library),
+and Auto-detect Channel. A wxTimer pumps the antenna stream so the live values show in the status
+bar. This was run against a real Theremini - it syncs the 32 presets and shows the antennas moving.
+The read path is done; still to come are writing to the device (values and preset saves, which need
+confirming since they change the device) and the MidiFeedbackLoop tab.
 
 ## Testing
 

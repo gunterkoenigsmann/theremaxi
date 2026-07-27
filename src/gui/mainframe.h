@@ -18,13 +18,24 @@ class ParamControl;
 class wxListBox;
 class wxNotebook;
 
+#ifdef THEREMINI_HAVE_ALSA
+struct theremini_alsa; // opaque, from theremini/alsa.h
+#include <wx/timer.h>
+#endif
+
 class MainFrame : public wxFrame {
 public:
 	MainFrame();
+	~MainFrame() override;
 
 	// Load a library at startup (from the command line) and show its first
 	// preset. Errors go to the status bar rather than a dialog.
 	void LoadLibrary(const wxString &path);
+
+#ifdef THEREMINI_HAVE_ALSA
+	// Called from the ALSA callback for each incoming antenna message.
+	void OnAntenna(int channel, int cc, int value);
+#endif
 
 private:
 	void BuildPages(wxNotebook *book);
@@ -50,6 +61,19 @@ private:
 	theremaxi::Library m_library;
 	int m_current = -1;
 	Settings m_settings;
+
+#ifdef THEREMINI_HAVE_ALSA
+	void OnConnect(wxCommandEvent &);
+	void OnDisconnect(wxCommandEvent &);
+	void OnSyncDevice(wxCommandEvent &);
+	void OnAutoDetect(wxCommandEvent &);
+	void OnPump(wxTimerEvent &);
+	void UpdateDeviceMenu();
+
+	theremini_alsa *m_seq = nullptr;
+	wxTimer m_pump;
+	int m_last_antenna = -1;
+#endif
 };
 
 #endif
