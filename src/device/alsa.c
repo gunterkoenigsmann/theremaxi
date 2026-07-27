@@ -160,6 +160,33 @@ bool theremini_alsa_send(theremini_alsa *self, const uint8_t *data, size_t len)
 	return snd_seq_drain_output(self->seq) >= 0;
 }
 
+static bool send_event(theremini_alsa *self, snd_seq_event_t *ev)
+{
+	snd_seq_ev_set_source(ev, self->out_port);
+	snd_seq_ev_set_subs(ev);
+	snd_seq_ev_set_direct(ev);
+	if (snd_seq_event_output(self->seq, ev) < 0) {
+		return false;
+	}
+	return snd_seq_drain_output(self->seq) >= 0;
+}
+
+bool theremini_alsa_send_cc(theremini_alsa *self, int channel, int cc, int value)
+{
+	snd_seq_event_t ev;
+	snd_seq_ev_clear(&ev);
+	snd_seq_ev_set_controller(&ev, channel, cc, value);
+	return send_event(self, &ev);
+}
+
+bool theremini_alsa_send_program(theremini_alsa *self, int channel, int program)
+{
+	snd_seq_event_t ev;
+	snd_seq_ev_clear(&ev);
+	snd_seq_ev_set_pgmchange(&ev, channel, program);
+	return send_event(self, &ev);
+}
+
 void theremini_alsa_on_cc(theremini_alsa *self, theremini_cc_fn cb, void *user)
 {
 	self->on_cc = cb;

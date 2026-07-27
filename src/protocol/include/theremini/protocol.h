@@ -64,6 +64,10 @@ typedef struct {
 	int digits;        /**< decimals the value is displayed with */
 	const char *format; /**< printf format for the displayed value, may be NULL */
 
+	/** For an unsigned 14-bit parameter, the divisor that scales a displayed
+	 *  value onto the wire (wire = value * wire_divisor); 0 when not applicable. */
+	double wire_divisor;
+
 	const char *const *values; /**< names, for THEREMINI_ENUM; NULL otherwise */
 	int value_count;   /**< number of entries in @c values */
 

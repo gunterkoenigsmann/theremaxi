@@ -40,6 +40,25 @@ bool theremini_value_export(const theremini_param *param, double value,
 		break;
 	}
 
+	/* Unsigned 14-bit parameters go on the wire in storage units - the value
+	 * times its divisor - not scaled to the display maximum. Matches the perl
+	 * value_export; see protocol.h. */
+	if (param->wire_divisor > 0) {
+		if (value <= param->min) {
+			out->bytes[0] = 0;
+			out->count = 1;
+			return true;
+		}
+		unsigned wire = (unsigned)(value * param->wire_divisor);
+		if (wire > 0x3fff) {
+			wire = 0x3fff;
+		}
+		out->bytes[0] = (uint8_t)(wire >> 7);
+		out->bytes[1] = (uint8_t)(wire & 0x7f);
+		out->count = 2;
+		return true;
+	}
+
 	/* The three shortcuts below come straight from the perl. Note that they
 	 * return a single byte even for a 14-bit parameter, which leaves the low
 	 * controller at whatever the device had. */

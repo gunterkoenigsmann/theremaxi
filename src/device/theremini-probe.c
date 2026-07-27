@@ -13,8 +13,10 @@
 #include "theremini/alsa.h"
 #include "theremini/device.h"
 #include "theremini/protocol.h"
+#include "theremini/write.h"
 
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 
 static int antenna_left = 0;
@@ -36,6 +38,10 @@ int main(int argc, char **argv)
 	const bool want_antenna = argc > 1 && strcmp(argv[1], "--antenna") == 0;
 	const bool want_channel = argc > 1 && strcmp(argv[1], "--channel") == 0;
 	const char *backup_path = (argc > 2 && strcmp(argv[1], "--backup") == 0) ? argv[2] : NULL;
+	/* --set-name SLOT NAME : select the 0-based slot, set its name, save */
+	const bool want_set_name = argc > 3 && strcmp(argv[1], "--set-name") == 0;
+	/* --restore-slot SLOT BACKUP.syx : write the backup's preset for that slot back */
+	const bool want_restore = argc > 3 && strcmp(argv[1], "--restore-slot") == 0;
 
 	theremini_alsa *seq = theremini_alsa_open("ThereMaxi-probe");
 	if (!seq) {
@@ -107,6 +113,42 @@ int main(int argc, char **argv)
 		}
 		fclose(f);
 		printf("backed up %zu presets (%ld bytes) to %s\n", dump.count, n, backup_path);
+	}
+
+	if (want_set_name) {
+		const int slot = atoi(argv[2]);
+		theremini_alsa_send_cc(seq, 0, 0, 0);
+		theremini_alsa_send_program(seq, 0, slot);
+		uint8_t name_msg[THEREMINI_MESSAGE_MAX];
+		size_t mlen = theremini_msg_write_preset_name(argv[3], name_msg, sizeof name_msg);
+		theremini_alsa_send(seq, name_msg, mlen);
+		theremini_alsa_send_cc(seq, 0, 119, 1); /* save */
+		printf("set slot %d name to \"%s\" and saved\n", slot, argv[3]);
+	}
+
+	if (want_restore) {
+		const int slot = atoi(argv[2]);
+		FILE *f = fopen(argv[3], "rb");
+		if (!f) {
+			printf("cannot read %s\n", argv[3]);
+			theremini_alsa_close(seq);
+			return 1;
+		}
+		static uint8_t buf[16384];
+		size_t blen = fread(buf, 1, sizeof buf, f);
+		fclose(f);
+		theremini_dump dump;
+		if (theremini_sysex_decode(buf, blen, &dump) != THEREMINI_SYSEX_OK ||
+		    slot < 0 || (size_t)slot >= dump.count) {
+			printf("backup does not have slot %d\n", slot);
+			theremini_alsa_close(seq);
+			return 1;
+		}
+		if (theremini_write_preset(seq, 0, slot, &dump.presets[slot])) {
+			printf("restored slot %d from %s\n", slot, argv[3]);
+		} else {
+			printf("restore of slot %d failed\n", slot);
+		}
 	}
 
 	if (want_channel) {

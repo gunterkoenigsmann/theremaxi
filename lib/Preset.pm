@@ -102,6 +102,16 @@ our %IMPORT =
 #	0x74 .. <EOF> => ?
 );
 
+
+# The divisor turns a stored value into the displayed one (stored = shown * div).
+# For unsigned 14-bit parameters it is also the scale the device reads a CC value
+# in - so value_export uses it to put the value on the wire. Keyed by CC.
+our %WIRE_DIVISOR;
+while ( my($offset,$rule) = each %IMPORT )
+{
+	$WIRE_DIVISOR{$rule->[0]} = $rule->[2] if defined $rule->[2];
+}
+
 sub import_data
 {
 	my (undef,$nr,$data) = @_;

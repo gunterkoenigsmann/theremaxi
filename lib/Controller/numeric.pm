@@ -60,6 +60,23 @@ sub value_export
 {
 	my($self,$value) = @_;
 	$value = $self->{VALUE} unless defined $value;
+
+	# Unsigned 14-bit parameters go on the wire in their storage units - the
+	# value times its divisor - not scaled to the display maximum. For most that
+	# is the same number, but the delay time's range on the wire (about 1000 ms)
+	# is wider than the 836 ms shown, so only the divisor scaling reads back
+	# correctly from the device.
+	my $abs = abs($self->{min}) + abs($self->{max});
+	my $div = ( $self->{CC} < 32 && $abs > 0x7f && $self->{min} >= 0 )
+		? $ThereMaxi::Preset::WIRE_DIVISOR{$self->{CC}} : undef;
+	if ( defined $div )
+	{
+		return 0 if $value <= $self->{min};
+		my $wire = int( $value * $div );
+		$wire = 0x3fff if $wire > 0x3fff;
+		return [ $wire >> 7, $wire & 0x7f ];
+	}
+
 	return 0    if $value <= $self->{min};
 	return 0x40 if $value == 0 and $self->{min} < 0;
 	return 0x7f if $value >= $self->{max};

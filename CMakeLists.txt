@@ -101,8 +101,9 @@ if(PkgConfig_FOUND)
 	pkg_check_modules(ALSA IMPORTED_TARGET alsa)
 endif()
 if(ALSA_FOUND)
-	target_sources(theremini-device PRIVATE src/device/alsa.c)
-	target_link_libraries(theremini-device PUBLIC PkgConfig::ALSA)
+	target_sources(theremini-device PRIVATE src/device/alsa.c src/device/write.c)
+	# write.c uses the protocol library's value export and message builders
+	target_link_libraries(theremini-device PUBLIC PkgConfig::ALSA theremini-protocol)
 	# ALSA's event macros do int/unsigned juggling we do not own, like the wx
 	# and lv2 headers - relax just the conversion warnings for this one file.
 	set_source_files_properties(src/device/alsa.c PROPERTIES

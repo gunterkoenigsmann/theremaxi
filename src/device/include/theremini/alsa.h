@@ -55,6 +55,12 @@ bool theremini_alsa_connected(const theremini_alsa *seq);
  */
 bool theremini_alsa_send(theremini_alsa *seq, const uint8_t *data, size_t len);
 
+/** @brief Send a control-change message. @return true on success. */
+bool theremini_alsa_send_cc(theremini_alsa *seq, int channel, int cc, int value);
+
+/** @brief Send a program-change message (selects a preset). @return true on success. */
+bool theremini_alsa_send_program(theremini_alsa *seq, int channel, int program);
+
 /**
  * @brief Wait for one complete sysex reply.
  *

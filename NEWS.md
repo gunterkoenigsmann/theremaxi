@@ -10,6 +10,11 @@ Work on the C rewrite. Nothing here changes the perl application.
 
 ### Fixed
 
+* Writing the delay time to the device put it out by about 20%: `value_export` scaled unsigned
+  14-bit values to the display maximum, but the device reads them in storage units (the delay's
+  wire range is ~1000 ms, wider than the 836 ms shown). It now scales by the storage divisor, which
+  is the same number for every parameter except the delay time - confirmed on real hardware, where
+  700 ms now writes and reads back as 700 ms. This also corrects the LV2 plugin's delay-time output.
 * The default MIDI input channel for the antennas was 1, but a default-configured Theremini streams
   them on channel 0 (confirmed on the wire against firmware 1.1.1). So the antenna input, and the
   MidiFeedbackLoop feature that uses it, did not work out of the box. The defaults in `ThereMaxi.pl`
@@ -32,6 +37,13 @@ Work on the C rewrite. Nothing here changes the perl application.
   and sends and receives MIDI. A `theremini-probe` tool exercises it: against a real Theremini it
   discovers the device, reads its identity, decodes the preset dump and shows the live antenna
   stream.
+* Writing to the device: `theremini_write_preset` selects a slot, sends every value as a
+  control-change (and the names as sysex), and saves - the counterpart to the read path.
+  `theremini_alsa_send_cc` / `theremini_alsa_send_program` are the new transport primitives.
+  `theremini-probe` gained `--set-name`, `--restore-slot` and `--backup`, used to test writing
+  against the hardware. Two device findings came out of that: there are no hidden preset slots
+  beyond the 32 (program change past 31 wraps into them), and the effect name is a stored string the
+  documented protocol does not let us set, so a written preset keeps its delay but loses that label.
 * `theremini-probe --backup FILE` saves the device's preset dump verbatim, as a restore point to
   take before anything writes to the device. The file holds the maker's factory content, so it is
   git-ignored.
