@@ -51,10 +51,14 @@ our %STATE = $clean ? () : ThereMaxi::Storage->load($state);
 	$STATE{device}->{midi_read_timeout} = 10 unless defined
 	$STATE{device}->{midi_read_timeout};
 
-	$STATE{device}->{midi_input}->{volume} = [1,2,0] unless defined
+	# [ channel, controller, 14-bit ]. A default-configured Theremini streams
+	# its antennas on MIDI channel 0 - confirmed on the wire against firmware
+	# 1.1.1 - so the input defaults match that. The channel is configurable both
+	# here and on the device.
+	$STATE{device}->{midi_input}->{volume} = [0,2,0] unless defined
 	$STATE{device}->{midi_input}->{volume};
 
-	$STATE{device}->{midi_input}->{pitch} = [1,20,0] unless defined
+	$STATE{device}->{midi_input}->{pitch} = [0,20,0] unless defined
 	$STATE{device}->{midi_input}->{pitch};
 
 	$STATE{editor}->{library_path} = "$CWD/data" unless defined

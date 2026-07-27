@@ -8,6 +8,13 @@ the releases from 2017/2018 predate that and are listed under their original dat
 
 Work on the C rewrite. Nothing here changes the perl application.
 
+### Fixed
+
+* The default MIDI input channel for the antennas was 1, but a default-configured Theremini streams
+  them on channel 0 (confirmed on the wire against firmware 1.1.1). So the antenna input, and the
+  MidiFeedbackLoop feature that uses it, did not work out of the box. The defaults in `ThereMaxi.pl`
+  are now channel 0; the channel is still configurable in Preferences and on the device.
+
 ### Verified
 
 * The C read path was checked against a real Theremini (firmware 1.1.1): a 32-preset dump requested
