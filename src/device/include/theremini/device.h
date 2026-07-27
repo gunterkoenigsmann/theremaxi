@@ -19,12 +19,39 @@
 extern "C" {
 #endif
 
+/** The controllers the antennas stream on (fixed; the channel is configurable). */
+#define THEREMINI_VOLUME_CC 2
+#define THEREMINI_PITCH_CC 20
+
 /** How one antenna's MIDI input arrives. */
 typedef struct {
 	int channel; /**< MIDI channel, 0-15 */
 	int cc;      /**< controller number carrying the value (or its high bits) */
 	bool wide;   /**< 14-bit: the value is on @c cc (high) and @c cc + 32 (low) */
 } theremini_input_config;
+
+/**
+ * Guesses which MIDI channel the antennas use by watching the stream.
+ *
+ * The device streams its antennas continuously as control-change messages on
+ * the two antenna controllers, so counting which channel carries them reveals
+ * the configured channel without asking the user.
+ */
+typedef struct {
+	int hits[16]; /**< antenna-controller messages seen on each channel */
+} theremini_channel_probe;
+
+/** @brief Reset a channel probe. */
+void theremini_channel_probe_init(theremini_channel_probe *probe);
+
+/** @brief Note one incoming control-change message. */
+void theremini_channel_probe_feed(theremini_channel_probe *probe, int channel, int cc);
+
+/**
+ * @brief The channel the antennas appear to use.
+ * @return the channel 0-15, or -1 if too little antenna traffic was seen to tell.
+ */
+int theremini_channel_probe_result(const theremini_channel_probe *probe);
 
 /** Reassembles one antenna's input. Zero-initialise via theremini_input_init. */
 typedef struct {

@@ -32,7 +32,22 @@ struct theremini_alsa {
 
 	theremini_cc_fn on_cc;
 	void *cc_user;
+
+	theremini_channel_probe *active_probe; /* fed during channel detection */
 };
+
+/* dispatch one control-change event to whoever is listening */
+static void handle_cc(theremini_alsa *self, const snd_seq_event_t *ev)
+{
+	const int channel = ev->data.control.channel;
+	const int param = ev->data.control.param;
+	if (self->active_probe) {
+		theremini_channel_probe_feed(self->active_probe, channel, param);
+	}
+	if (self->on_cc) {
+		self->on_cc(channel, param, ev->data.control.value, self->cc_user);
+	}
+}
 
 theremini_alsa *theremini_alsa_open(const char *client_name)
 {
@@ -168,9 +183,8 @@ int theremini_alsa_pump(theremini_alsa *self, int timeout_ms)
 	int count = 0;
 	snd_seq_event_t *ev = NULL;
 	while (snd_seq_event_input(self->seq, &ev) >= 0 && ev) {
-		if (ev->type == SND_SEQ_EVENT_CONTROLLER && self->on_cc) {
-			self->on_cc(ev->data.control.channel, ev->data.control.param,
-			            ev->data.control.value, self->cc_user);
+		if (ev->type == SND_SEQ_EVENT_CONTROLLER) {
+			handle_cc(self, ev);
 		}
 		count++;
 		if (snd_seq_event_input_pending(self->seq, 0) == 0) {
@@ -178,6 +192,28 @@ int theremini_alsa_pump(theremini_alsa *self, int timeout_ms)
 		}
 	}
 	return count;
+}
+
+int theremini_alsa_detect_channel(theremini_alsa *self, int timeout_ms)
+{
+	theremini_channel_probe probe;
+	theremini_channel_probe_init(&probe);
+	self->active_probe = &probe;
+
+	const int slice = 50;
+	int remaining = timeout_ms;
+	int result = -1;
+	while (remaining > 0) {
+		theremini_alsa_pump(self, slice < remaining ? slice : remaining);
+		result = theremini_channel_probe_result(&probe);
+		if (result >= 0) {
+			break;
+		}
+		remaining -= slice;
+	}
+
+	self->active_probe = NULL;
+	return result;
 }
 
 long theremini_alsa_read_sysex(theremini_alsa *self, uint8_t *buf, size_t cap,
@@ -214,9 +250,8 @@ long theremini_alsa_read_sysex(theremini_alsa *self, uint8_t *buf, size_t cap,
 				if (n > 0 && chunk[n - 1] == 0xf7) {
 					return (long)got; /* a complete message */
 				}
-			} else if (ev->type == SND_SEQ_EVENT_CONTROLLER && self->on_cc) {
-				self->on_cc(ev->data.control.channel, ev->data.control.param,
-				            ev->data.control.value, self->cc_user);
+			} else if (ev->type == SND_SEQ_EVENT_CONTROLLER) {
+				handle_cc(self, ev);
 			}
 
 			if (snd_seq_event_input_pending(self->seq, 0) == 0) {

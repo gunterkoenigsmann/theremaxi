@@ -60,10 +60,46 @@ static void check_discovery(void)
 	printf("device-name matching\n");
 }
 
+static void check_channel_probe(void)
+{
+	theremini_channel_probe p;
+
+	// nothing seen -> unknown
+	theremini_channel_probe_init(&p);
+	if (theremini_channel_probe_result(&p) != -1) {
+		printf("FAIL: empty probe should be -1\n");
+		failures++;
+	}
+
+	// a stream of antenna controllers on channel 0, plus noise elsewhere
+	theremini_channel_probe_init(&p);
+	for (int i = 0; i < 20; i++) {
+		theremini_channel_probe_feed(&p, 0, THEREMINI_VOLUME_CC);
+		theremini_channel_probe_feed(&p, 0, THEREMINI_PITCH_CC);
+	}
+	theremini_channel_probe_feed(&p, 5, 7);  // unrelated controller, ignored
+	theremini_channel_probe_feed(&p, 9, THEREMINI_VOLUME_CC); // a stray, below threshold
+	if (theremini_channel_probe_result(&p) != 0) {
+		printf("FAIL: probe should find channel 0, got %d\n",
+		       theremini_channel_probe_result(&p));
+		failures++;
+	}
+
+	// too little traffic to be sure
+	theremini_channel_probe_init(&p);
+	theremini_channel_probe_feed(&p, 3, THEREMINI_PITCH_CC);
+	if (theremini_channel_probe_result(&p) != -1) {
+		printf("FAIL: a single hit should not be trusted\n");
+		failures++;
+	}
+	printf("channel probe: detect, ignore noise, and stay unsure on too little\n");
+}
+
 int main(void)
 {
 	check_input();
 	check_discovery();
+	check_channel_probe();
 
 	if (failures) {
 		printf("\n%d check(s) failed\n", failures);

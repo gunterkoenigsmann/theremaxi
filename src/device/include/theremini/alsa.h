@@ -75,6 +75,17 @@ long theremini_alsa_read_sysex(theremini_alsa *seq, uint8_t *buf, size_t cap,
 void theremini_alsa_on_cc(theremini_alsa *seq, theremini_cc_fn cb, void *user);
 
 /**
+ * @brief Listen to the antenna stream and report the channel it uses.
+ *
+ * Watches incoming control-change messages for up to @p timeout_ms and returns
+ * the channel the antennas stream on, so the input can be configured without
+ * asking the user. Messages are still passed to the CC callback meanwhile.
+ *
+ * @return the channel 0-15, or -1 if no antenna traffic was seen in time.
+ */
+int theremini_alsa_detect_channel(theremini_alsa *seq, int timeout_ms);
+
+/**
  * @brief Process one batch of incoming events, without waiting for a sysex.
  *
  * Waits up to @p timeout_ms for events, dispatches the control-change ones to

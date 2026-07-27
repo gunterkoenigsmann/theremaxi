@@ -34,6 +34,7 @@ int main(int argc, char **argv)
 
 	const bool want_dump = argc > 1 && strcmp(argv[1], "--dump") == 0;
 	const bool want_antenna = argc > 1 && strcmp(argv[1], "--antenna") == 0;
+	const bool want_channel = argc > 1 && strcmp(argv[1], "--channel") == 0;
 
 	theremini_alsa *seq = theremini_alsa_open("ThereMaxi-probe");
 	if (!seq) {
@@ -77,6 +78,16 @@ int main(int argc, char **argv)
 			} else {
 				printf("preset dump: %ld bytes, decode failed (%d)\n", n, st);
 			}
+		}
+	}
+
+	if (want_channel) {
+		const int ch = theremini_alsa_detect_channel(seq, 2000);
+		if (ch >= 0) {
+			printf("antennas stream on channel %d\n", ch);
+		} else {
+			printf("could not detect the antenna channel (move a hand near the "
+			       "antennas so the device streams)\n");
 		}
 	}
 

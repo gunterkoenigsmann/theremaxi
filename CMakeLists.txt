@@ -83,7 +83,8 @@ install(DIRECTORY src/protocol/include/ DESTINATION include)
 # device-name matching. The ALSA transport will be added on top, Linux-only.
 add_library(theremini-device
 	src/device/input.c
-	src/device/discover.c)
+	src/device/discover.c
+	src/device/probe.c)
 target_include_directories(theremini-device PUBLIC
 	$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src/device/include>
 	$<INSTALL_INTERFACE:include>)
