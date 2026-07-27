@@ -145,6 +145,15 @@ or with a malloc hook that aborts while the callback is on the stack.
 `aseqdump`, replay the same operation through the C stack, diff the byte streams. No unit test
 reaches the device layer; a captured stream does.
 
+Done once, on 2026-07-27, against a real Theremini (firmware 1.1.1): the identity request
+(`theremini_msg_identity_request`) drew the expected reply, and a full 32-preset dump requested
+from the device decoded identically through the perl reference and `theremini_sysex_decode` - 864
+values across 32 presets, no mismatch. That dump is Moog's factory content and is not committed; the
+one format lesson it taught (real presets are 190 packed bytes, not the 174 the first synthetic
+vectors assumed - the decoder takes the length from the body) is kept as a synthetic 190-byte vector
+in `protocol/golden.json`. It also showed the device streaming its antenna values as continuous
+control-change messages on channel 0, controllers 2 and 20.
+
 **Range discovery, with hardware** — the parameter ranges are faithful to the original, but the
 original only set minimums explicitly for the parameters that go negative; the rest inherited 0 as a
 default, so a floor of 0 is unverified for a few (Wavetable Scan Rate in Hz; Filter Cutoff, which

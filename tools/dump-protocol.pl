@@ -239,14 +239,15 @@ for ( 1 .. 96 )
 
 # Whole sysex dumps, framed the way the device sends them: an F0, a 22 byte
 # header whose third and fourth bytes select the layout, the 7-bit-packed body,
-# an F7. A preset is 174 packed bytes, which unpack to the 0x74 the decoder
-# reads. Built here by running random bodies through the real Preset->sysex, so
-# there is no need to invert the packing to make test data.
-my $preset_packed = 174;
+# an F7. Built from random bodies run through the real Preset->sysex, so there
+# is no need to invert the packing to make test data - and no copyrighted
+# factory content. The packed length per preset varies: 174 unpacks to exactly
+# the 0x74 the decoder reads, while a real device uses 190 (leaving trailing
+# bytes the decoder must skip), so both are exercised.
 my @messages;
-for my $spec ( [ '01', 32 ], [ '05', 1 ], [ '04', 1 ] )
+for my $spec ( [ '01', 32, 190 ], [ '05', 1, 174 ], [ '04', 1, 190 ] )
 {
-	my($type,$count) = @$spec;
+	my($type,$count,$preset_packed) = @$spec;
 	my $header = pack('C*', 0x00, 0x00, hex $type, 0x01) . ("\x00" x 18);
 	my $body   = pack 'C*', map { &rnd % 0x80 } 1 .. $preset_packed * $count;
 	my $msg    = "\xf0" . $header . $body . "\xf7";

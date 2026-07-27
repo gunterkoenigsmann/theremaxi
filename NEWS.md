@@ -8,6 +8,13 @@ the releases from 2017/2018 predate that and are listed under their original dat
 
 Work on the C rewrite. Nothing here changes the perl application.
 
+### Verified
+
+* The C read path was checked against a real Theremini (firmware 1.1.1): a 32-preset dump requested
+  from the device decoded identically through the perl reference and `theremini_sysex_decode` - 864
+  values, no mismatch. The factory dump is not committed, but the format lesson it taught (real
+  presets are 190 packed bytes, not 174) is kept as a synthetic vector.
+
 ### Added
 
 * The hardware-independent core of `libtheremini-device` (`src/device/`): `theremini_input_*`
