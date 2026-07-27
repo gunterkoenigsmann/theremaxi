@@ -93,6 +93,25 @@ set_target_properties(theremini-device PROPERTIES
 install(TARGETS theremini-device)
 install(DIRECTORY src/device/include/ DESTINATION include)
 
+# The ALSA transport and a probe tool - Linux only, needs the hardware to do
+# anything, but builds (and so is checked) wherever ALSA is present.
+find_package(PkgConfig QUIET)
+if(PkgConfig_FOUND)
+	pkg_check_modules(ALSA IMPORTED_TARGET alsa)
+endif()
+if(ALSA_FOUND)
+	target_sources(theremini-device PRIVATE src/device/alsa.c)
+	target_link_libraries(theremini-device PUBLIC PkgConfig::ALSA)
+	# ALSA's event macros do int/unsigned juggling we do not own, like the wx
+	# and lv2 headers - relax just the conversion warnings for this one file.
+	set_source_files_properties(src/device/alsa.c PROPERTIES
+		COMPILE_OPTIONS "-Wno-conversion;-Wno-sign-conversion")
+
+	add_executable(theremini-probe src/device/theremini-probe.c)
+	target_link_libraries(theremini-probe PRIVATE theremini-device theremini-protocol)
+	install(TARGETS theremini-probe)
+endif()
+
 # ------------------------------------------------------- preset library format
 
 # Reading and writing .theremaxi files. Pure C++, no wx, so it is tested on its

@@ -11,9 +11,12 @@ the same files. The target is four pieces with one shared core.
   `src/protocol/` and the tests under `tests/`.
 * **LV2 plugin (no UI)** — done: `src/lv2/`, ports generated from the parameter table, driven by a
   descriptor-level test and validated with `sord_validate`.
-* **`libtheremini-device`** — the hardware-independent core is done (`src/device/`): antenna input
-  reassembly and device-name matching, both tested against the perl. The ALSA transport that opens
-  ports and moves bytes is the remaining piece, and the part that needs hardware to verify.
+* **`libtheremini-device`** — done (`src/device/`): the portable core (antenna input reassembly,
+  device-name matching, tested against the perl) plus the ALSA transport (`alsa.c`) that opens
+  sequencer ports, finds and connects to the device, sends sysex and reads replies while dispatching
+  the antenna stream. Verified against a real Theremini: `theremini-probe` discovers it, reads its
+  identity (firmware 1.1.1), fetches and decodes the 32-preset dump, and prints the live antenna
+  values. The transport builds wherever ALSA is present and is build-checked in CI.
 * **wxWidgets application** — started (`src/gui/`). The parameter editor is built from the protocol
   library: a notebook whose pages and boxes come from each parameter's layout hints, numeric
   parameters as a slider paired with a `wxSpinCtrlDouble`, enums as a choice. No device or library
