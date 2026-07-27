@@ -35,3 +35,7 @@ ThereMaxi.pid
 /.vscode
 /.claude/*
 !/.claude/settings.json
+
+# Device backups - your device's presets, kept out of the repo
+/backup/
+*.syx

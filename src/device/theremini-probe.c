@@ -35,6 +35,7 @@ int main(int argc, char **argv)
 	const bool want_dump = argc > 1 && strcmp(argv[1], "--dump") == 0;
 	const bool want_antenna = argc > 1 && strcmp(argv[1], "--antenna") == 0;
 	const bool want_channel = argc > 1 && strcmp(argv[1], "--channel") == 0;
+	const char *backup_path = (argc > 2 && strcmp(argv[1], "--backup") == 0) ? argv[2] : NULL;
 
 	theremini_alsa *seq = theremini_alsa_open("ThereMaxi-probe");
 	if (!seq) {
@@ -79,6 +80,33 @@ int main(int argc, char **argv)
 				printf("preset dump: %ld bytes, decode failed (%d)\n", n, st);
 			}
 		}
+	}
+
+	if (backup_path) {
+		/* save the exact bytes the device sends, as a restore point taken before
+		 * anything writes to the device. Decode it too, only to confirm it is a
+		 * whole, valid dump. */
+		len = theremini_msg_request_all_presets(msg, sizeof msg);
+		theremini_alsa_send(seq, msg, len);
+		n = theremini_alsa_read_sysex(seq, reply, sizeof reply, 3000);
+
+		theremini_dump dump;
+		if (n <= 0 || theremini_sysex_decode(reply, (size_t)n, &dump) != THEREMINI_SYSEX_OK) {
+			printf("backup failed: did not get a valid dump (%ld)\n", n);
+			theremini_alsa_close(seq);
+			return 1;
+		}
+		FILE *f = fopen(backup_path, "wb");
+		if (!f || fwrite(reply, 1, (size_t)n, f) != (size_t)n) {
+			printf("backup failed: cannot write %s\n", backup_path);
+			if (f) {
+				fclose(f);
+			}
+			theremini_alsa_close(seq);
+			return 1;
+		}
+		fclose(f);
+		printf("backed up %zu presets (%ld bytes) to %s\n", dump.count, n, backup_path);
 	}
 
 	if (want_channel) {

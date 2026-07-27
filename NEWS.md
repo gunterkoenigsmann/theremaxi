@@ -32,6 +32,9 @@ Work on the C rewrite. Nothing here changes the perl application.
   and sends and receives MIDI. A `theremini-probe` tool exercises it: against a real Theremini it
   discovers the device, reads its identity, decodes the preset dump and shows the live antenna
   stream.
+* `theremini-probe --backup FILE` saves the device's preset dump verbatim, as a restore point to
+  take before anything writes to the device. The file holds the maker's factory content, so it is
+  git-ignored.
 * Auto-probing the MIDI channel: since the device streams its antennas continuously, the library can
   listen for a moment and report which channel they arrive on, so the channel need not be set by
   hand. `theremini_channel_probe_*` is the pure detector (tested), `theremini_alsa_detect_channel`
