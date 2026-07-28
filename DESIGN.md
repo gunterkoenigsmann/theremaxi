@@ -107,10 +107,12 @@ add/copy/remove helpers keep each preset's `_nr` in step with its position.
 
 Where ALSA is present it also links the device library and gains a Device menu: Connect (discover,
 and read the firmware), Sync Presets from Device (request the dump, decode it, fill the library),
-and Auto-detect Channel. A wxTimer pumps the antenna stream so the live values show in the status
-bar. This was run against a real Theremini - it syncs the 32 presets and shows the antennas moving.
-The read path is done; still to come are writing to the device (values and preset saves, which need
-confirming since they change the device) and the MidiFeedbackLoop tab.
+Send Preset to Device (push the editor's settings to a chosen slot, behind a confirmation, via the
+hardware-validated `theremini_write_preset`), and Auto-detect Channel. A wxTimer pumps the antenna
+stream so the live values show in the status bar. This was run against a real Theremini - it syncs
+the 32 presets and shows the antennas moving. Still to come: the MidiFeedbackLoop tab, and the small
+remaining gaps (the effect-name label the device will not store, and inherent 7-bit quantization on
+a few parameters).
 
 ## Testing
 

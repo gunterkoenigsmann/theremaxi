@@ -17,6 +17,10 @@
 
 #include <stdbool.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /**
  * @brief Write a preset into a device slot and save it.
  * @param seq     the connection.
@@ -27,5 +31,9 @@
  */
 bool theremini_write_preset(theremini_alsa *seq, int channel, int slot,
                             const theremini_preset *preset);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

@@ -5,6 +5,9 @@
 #ifdef THEREMINI_HAVE_ALSA
 #include "theremini/alsa.h"
 #include "theremini/device.h"
+#include "theremini/write.h"
+#include <wx/numdlg.h>
+#include <cstring>
 #endif
 
 #include <wx/button.h>
@@ -33,6 +36,7 @@ enum {
 	ID_CONNECT,
 	ID_DISCONNECT,
 	ID_SYNC_DEVICE,
+	ID_SEND_DEVICE,
 	ID_AUTODETECT
 };
 
@@ -100,11 +104,13 @@ MainFrame::MainFrame()
 	dev->Append(ID_DISCONNECT, "&Disconnect");
 	dev->AppendSeparator();
 	dev->Append(ID_SYNC_DEVICE, "&Sync Presets from Device");
+	dev->Append(ID_SEND_DEVICE, "S&end Preset to Device...");
 	dev->Append(ID_AUTODETECT, "&Auto-detect Channel");
 	bar->Append(dev, "&Device");
 	Bind(wxEVT_MENU, &MainFrame::OnConnect, this, ID_CONNECT);
 	Bind(wxEVT_MENU, &MainFrame::OnDisconnect, this, ID_DISCONNECT);
 	Bind(wxEVT_MENU, &MainFrame::OnSyncDevice, this, ID_SYNC_DEVICE);
+	Bind(wxEVT_MENU, &MainFrame::OnSendDevice, this, ID_SEND_DEVICE);
 	Bind(wxEVT_MENU, &MainFrame::OnAutoDetect, this, ID_AUTODETECT);
 	m_pump.SetOwner(this);
 	Bind(wxEVT_TIMER, &MainFrame::OnPump, this);
@@ -396,6 +402,7 @@ void MainFrame::UpdateDeviceMenu()
 	bar->Enable(ID_CONNECT, !on);
 	bar->Enable(ID_DISCONNECT, on);
 	bar->Enable(ID_SYNC_DEVICE, on);
+	bar->Enable(ID_SEND_DEVICE, on);
 	bar->Enable(ID_AUTODETECT, on);
 }
 
@@ -498,6 +505,51 @@ void MainFrame::OnSyncDevice(wxCommandEvent &)
 	}
 	SetStatusText(wxString::Format("Synced %zu presets from the device", m_library.presets.size()));
 	m_pump.Start(50);
+}
+
+void MainFrame::OnSendDevice(wxCommandEvent &)
+{
+	if (!m_seq) {
+		return;
+	}
+
+	// which slot? default to the selected preset's position
+	const long deflt = m_current >= 0 ? m_current + 1 : 1;
+	const long slot = wxGetNumberFromUser(
+		"Send the current settings to which slot on the device?\n"
+		"This overwrites that slot on the Theremini.",
+		"Slot (1-32):", "Send Preset to Device", deflt, 1, 32, this);
+	if (slot < 1) {
+		return; // cancelled
+	}
+	if (wxMessageBox(
+		    wxString::Format("Overwrite slot %ld on the Theremini with the current settings?", slot),
+		    "Send Preset to Device", wxYES_NO | wxICON_WARNING, this) != wxYES) {
+		return;
+	}
+
+	// build a device preset from the editor's controls
+	theremini_preset preset;
+	std::memset(&preset, 0, sizeof preset);
+	for (ParamControl *c : m_controls) {
+		const size_t idx = theremini_param_index(c->param());
+		theremini_value &v = preset.values[idx];
+		v.present = true;
+		if (c->param()->kind == THEREMINI_TEXT) {
+			const std::string t = c->GetText().ToStdString();
+			std::strncpy(v.text, t.c_str(), THEREMINI_TEXT_MAX - 1);
+		} else {
+			v.number = c->GetValue();
+		}
+	}
+
+	m_pump.Stop(); // do not compete for the port during the write
+	// the device receives on channel 0, as the reference implementation sends
+	const bool ok = theremini_write_preset(m_seq, 0, static_cast<int>(slot - 1), &preset);
+	m_pump.Start(50);
+
+	SetStatusText(ok ? wxString::Format("Sent current settings to slot %ld", slot)
+	                 : "Send failed");
 }
 
 void MainFrame::OnAutoDetect(wxCommandEvent &)

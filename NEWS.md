@@ -80,9 +80,10 @@ Work on the C rewrite. Nothing here changes the perl application.
   with its position. A Preferences dialog configures the MIDI input channels (which channel and
   controller each antenna arrives on, and 7- vs 14-bit), persisted with `wxConfig`.
 * Where ALSA is present, the application talks to the device: a Device menu connects (and reads the
-  firmware), syncs the preset dump into the library, and auto-detects the channel, while the live
-  antenna stream shows in the status bar. Run against a real Theremini, it syncs all 32 presets.
-  Writing to the device is not wired up yet.
+  firmware), syncs the preset dump into the library, sends the current settings to a chosen slot
+  (with a confirmation, since it overwrites), and auto-detects the channel, while the live antenna
+  stream shows in the status bar. Run against a real Theremini, it syncs all 32 presets; the send
+  uses the same `theremini_write_preset` proven against the hardware.
 * API documentation (Doxygen) for the protocol library, checked in CI.
 
 ## 1.0.1 — 2026-07-23

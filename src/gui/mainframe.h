@@ -66,6 +66,7 @@ private:
 	void OnConnect(wxCommandEvent &);
 	void OnDisconnect(wxCommandEvent &);
 	void OnSyncDevice(wxCommandEvent &);
+	void OnSendDevice(wxCommandEvent &);
 	void OnAutoDetect(wxCommandEvent &);
 	void OnPump(wxTimerEvent &);
 	void UpdateDeviceMenu();
