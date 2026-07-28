@@ -12,6 +12,8 @@
 
 #include <wx/dialog.h>
 
+class wxCheckBox;
+
 // One antenna's input. Defaults match a default-configured Theremini: the
 // antennas stream on channel 0, volume on controller 2, pitch on controller 20.
 struct AntennaInput {
@@ -23,6 +25,9 @@ struct AntennaInput {
 struct Settings {
 	AntennaInput volume{0, 2, false};
 	AntennaInput pitch{0, 20, false};
+	// Try to find and connect to a Theremini on startup (falling back silently
+	// to offline if none is present).
+	bool auto_connect{true};
 };
 
 // wxConfig-backed load and save.
@@ -40,6 +45,7 @@ private:
 	struct Row;
 	Row *m_volume;
 	Row *m_pitch;
+	wxCheckBox *m_auto_connect;
 };
 
 #endif

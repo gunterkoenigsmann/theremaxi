@@ -32,13 +32,24 @@ There are two implementations in this repository:
 
 ## Building the application
 
-On Ubuntu / Debian:
+Tested on Ubuntu 26.10 (also builds on earlier releases that carry wxWidgets 3.2).
+
+Install the dependencies:
 
 ```sh
 sudo apt install build-essential cmake perl \
-                 libasound2-dev libwxgtk3.2-dev lv2-dev sordi
-# optional: doxygen for the API docs
+                 libwxgtk3.2-dev \
+                 libasound2-dev \
+                 lv2-dev sordi \
+                 doxygen
 ```
+
+* `libwxgtk3.2-dev` — the wxWidgets application (required).
+* `libasound2-dev` — ALSA, for device I/O and the `theremini-ctl` / `theremini-probe` tools.
+* `lv2-dev`, `sordi` — the LV2 plugin and the validator its test uses.
+* `doxygen` — the API docs; optional.
+
+Then configure, build and test:
 
 ```sh
 cmake -S . -B build
@@ -46,10 +57,19 @@ cmake --build build
 ctest --test-dir build          # runs the test suite
 ```
 
-Everything optional builds only when its dependency is found: the wx application needs wxWidgets,
-the device transport and the probe tool need ALSA, the LV2 plugin needs `lv2` (and `sordi` to
-validate it). Perl is needed at build time — it generates the C tables from `protocol/tables.json` —
-but the built binaries do not depend on it.
+The binaries land in `build/`: `theremaxi-gui`, `theremini-ctl`, `theremini-probe`,
+`theremini.lv2/`. Install them system-wide (into `/usr/local` by default) with:
+
+```sh
+sudo cmake --install build       # also installs the theremini-ctl(1) man page
+```
+
+**Required vs optional.** wxWidgets is required for the application, which is built by default;
+configure with `-DTHEREMINI_BUILD_APP=OFF` to build only the libraries, the LV2 plugin and the
+command-line tools, and then wxWidgets is not needed. Everything else builds only when its
+dependency is found: the device transport and the `theremini-ctl` / `theremini-probe` tools need
+ALSA, and the LV2 plugin needs `lv2` (with `sordi` to validate it). Perl is needed at build time —
+it generates the C tables from `protocol/tables.json` — but the built binaries do not depend on it.
 
 ## Running
 
@@ -64,14 +84,23 @@ Use **File** to open and save libraries and manage presets, and **Device** to co
 from the Theremini, send the current settings to a slot, or auto-detect the channel. **Preferences**
 holds the MIDI input configuration.
 
-**The command-line tool** drives the device without the UI:
+**The command-line tool** `theremini-ctl` drives the device without the UI — everything the GUI
+does, over a documented argument grammar, so the Theremini can be scripted or driven over SSH. See
+`man theremini-ctl` (or `./doc/theremini-ctl.1`) for the full reference.
 
 ```sh
-./build/theremini-probe               # discover and identify
-./build/theremini-probe --dump        # fetch the presets and report the count
-./build/theremini-probe --channel     # auto-detect the antenna channel
-./build/theremini-probe --backup FILE # save the preset dump (see below)
+./build/theremini-ctl identify                 # connect and report the firmware
+./build/theremini-ctl detect                    # auto-detect the antenna channel
+./build/theremini-ctl params                    # list every parameter and its CC
+./build/theremini-ctl backup FILE.syx           # save the preset dump (see below)
+./build/theremini-ctl restore 5 FILE.syx        # put slot 5 back from a backup
+./build/theremini-ctl set 74 42                 # set CC 74 to 42% live
+./build/theremini-ctl send-preset lib.theremaxi 3 --slot 10  # library preset -> slot
+./build/theremini-ctl sync device.theremaxi     # pull all device presets into a library
 ```
+
+`theremini-probe` remains as a minimal, read-only prober (`--dump`, `--channel`, `--backup`, …) for
+quick checks.
 
 **The LV2 plugin:** copy `build/theremini.lv2` into `~/.lv2/` (or install with
 `cmake --install build`), and it appears in any LV2 host.
@@ -83,7 +112,7 @@ The Theremini shows up as an ALSA sequencer client named *Moog Theremini*; check
 Writing to the device changes its stored presets. Take a restore point first:
 
 ```sh
-./build/theremini-probe --backup ~/theremini-factory.syx
+./build/theremini-ctl backup ~/theremini-factory.syx
 ```
 
 ## Known device limitations (firmware 1.1.1)

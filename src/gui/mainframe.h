@@ -73,9 +73,19 @@ private:
 	void OnPump(wxTimerEvent &);
 	void UpdateDeviceMenu();
 
+	// Open the sequencer, discover a Theremini and start the pump. Returns true
+	// on success. When silent, a missing device leaves no status message - used
+	// for the auto-connect at startup, which falls back to offline quietly.
+	bool ConnectDevice(bool silent);
+
+	// The status-bar fields to the right of the message area, kept latched so
+	// both antennas stay visible instead of flickering between the two.
+	void ShowAntenna(int field, const char *which, int channel, int value);
+
 	theremini_alsa *m_seq = nullptr;
 	wxTimer m_pump;
-	int m_last_antenna = -1;
+	int m_last_volume = -1;
+	int m_last_pitch = -1;
 #endif
 };
 

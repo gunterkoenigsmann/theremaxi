@@ -1,0 +1,202 @@
+.\" Man page for theremini-ctl.
+.\" Copyright (C) 2017 Peter Niebling and contributors. GPL-3.0-or-later.
+.TH THEREMINI-CTL 1 "2026-07-28" "ThereMaxi" "ThereMaxi Manual"
+.SH NAME
+theremini-ctl \- control a Moog Theremini from the command line
+.SH SYNOPSIS
+.B theremini-ctl
+.RI [ --channel " N" ]
+.I command
+.RI [ arguments ]
+.SH DESCRIPTION
+.B theremini-ctl
+drives a Moog Theremini over ALSA MIDI without a graphical display, so the
+device can be operated from a script or over an SSH session. It exposes the same
+operations the ThereMaxi editor performs: identifying the device, detecting the
+antenna channel, backing up and restoring presets, renaming a slot, pushing a
+single parameter live, sending a preset from a
+.I .theremaxi
+library into a device slot, and pulling every device preset into a library file.
+.PP
+Unless a command says otherwise it first discovers the Theremini on the ALSA
+sequencer and connects to it, printing
+.B connected to:
+and the client name. If no device is present the command prints a message to
+standard error and exits non-zero.
+.PP
+Slots and preset numbers are 1-based, matching the numbers shown on the device
+(1 to 32).
+.SH OPTIONS
+.TP
+.BI --channel " N"
+The MIDI channel (0\(en15) used by the commands that write to the device
+.RB ( set ", " send-preset ", " restore ", " set-name ).
+Defaults to 0, which is correct for a factory-configured device. Must appear
+before the command.
+.SH COMMANDS
+.SS Device commands
+These need a connected Theremini.
+.TP
+.B identify
+Connect and print the firmware version. This is the default when no command is
+given.
+.TP
+.B detect
+Watch the antenna stream and print the MIDI channel it uses. Move a hand near
+the antennas so the device streams while this runs.
+.TP
+.B dump
+Fetch the preset dump and print how many presets it contains. Nothing is
+written to disk.
+.TP
+.BI backup " file.syx"
+Fetch the preset dump and save its raw bytes to
+.IR file.syx .
+Take one of these before any command that writes to the device, so a slot can
+be put back with
+.BR restore .
+.TP
+.BI restore " slot file.syx"
+Write the preset stored for
+.I slot
+in a backup made with
+.B backup
+back to that slot on the device. This overwrites the slot.
+.TP
+.BI set-name " slot name"
+Select
+.IR slot ,
+set its preset name to
+.IR name ,
+and save it on the device.
+.TP
+.BI set " cc value"
+Send one parameter live. If
+.I cc
+is a known parameter's controller number,
+.I value
+is interpreted in that parameter's display units (Hz, %, ms, semitones, an enum
+index) and converted to the wire form \(em including the two messages a 14-bit
+parameter needs. For an unknown
+.IR cc ,
+.I value
+is sent straight through, clamped to 0\(en127. See
+.B params
+for the controller numbers.
+.TP
+.BI send-preset " lib n " [ --slot " slot" ]
+Read preset number
+.I n
+from the
+.I .theremaxi
+library
+.I lib
+and write it to
+.I slot
+on the device. Without
+.BR --slot ,
+the preset goes to the slot with the same number as
+.IR n .
+This overwrites the target slot.
+.TP
+.BI sync " lib.theremaxi"
+Fetch every preset from the device and save them as the
+.I .theremaxi
+library
+.IR lib.theremaxi ,
+overwriting that file. This is the reverse of
+.BR send-preset :
+it pulls the device into a file the ThereMaxi editor can open.
+.SS Offline commands
+These do not touch the device.
+.TP
+.B params
+List every parameter: its id, controller number, name, and either its numeric
+range or that it is an enum or a text field.
+.TP
+.B help
+Print a usage summary. \fB--help\fR and \fB-h\fR do the same.
+.SH EXIT STATUS
+.TP
+.B 0
+Success.
+.TP
+.B 1
+The command ran but failed \(em no device, a bad reply, an unreadable file, an
+out-of-range slot.
+.TP
+.B 2
+The command line could not be parsed.
+.SH EXAMPLES
+Identify the connected device:
+.PP
+.RS
+.EX
+theremini-ctl identify
+.EE
+.RE
+.PP
+Find out which channel the antennas use:
+.PP
+.RS
+.EX
+theremini-ctl detect
+.EE
+.RE
+.PP
+Back up every preset before changing anything:
+.PP
+.RS
+.EX
+theremini-ctl backup ~/theremini-factory.syx
+.EE
+.RE
+.PP
+Put slot 5 back the way the backup has it:
+.PP
+.RS
+.EX
+theremini-ctl restore 5 ~/theremini-factory.syx
+.EE
+.RE
+.PP
+Set the filter cutoff (CC 74) to 42% live:
+.PP
+.RS
+.EX
+theremini-ctl set 74 42
+.EE
+.RE
+.PP
+Send the third preset of a library to device slot 10:
+.PP
+.RS
+.EX
+theremini-ctl send-preset mysounds.theremaxi 3 --slot 10
+.EE
+.RE
+.PP
+Pull the whole device into a library file:
+.PP
+.RS
+.EX
+theremini-ctl sync device-backup.theremaxi
+.EE
+.RE
+.SH FILES
+.TP
+.I *.theremaxi
+Preset libraries in the JSON format shared with the ThereMaxi editor and the
+original Perl application.
+.TP
+.I *.syx
+Raw sysex preset dumps written by
+.BR backup .
+.SH SEE ALSO
+.BR theremini-probe (1),
+the ThereMaxi editor, and
+.B DESIGN.md
+in the source tree for the protocol details.
+.SH AUTHORS
+Peter Niebling and contributors. Part of ThereMaxi, distributed under the
+GNU General Public License version 3 or later.

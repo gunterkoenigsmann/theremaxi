@@ -1,5 +1,6 @@
 #include "prefs.h"
 
+#include <wx/checkbox.h>
 #include <wx/choice.h>
 #include <wx/config.h>
 #include <wx/sizer.h>
@@ -31,6 +32,7 @@ Settings load_settings()
 	wxConfigBase *cfg = wxConfigBase::Get();
 	load_one(cfg, "midi_input/volume", s.volume);
 	load_one(cfg, "midi_input/pitch", s.pitch);
+	s.auto_connect = cfg->ReadBool("device/auto_connect", s.auto_connect);
 	return s;
 }
 
@@ -39,6 +41,7 @@ void save_settings(const Settings &s)
 	wxConfigBase *cfg = wxConfigBase::Get();
 	save_one(cfg, "midi_input/volume", s.volume);
 	save_one(cfg, "midi_input/pitch", s.pitch);
+	cfg->Write("device/auto_connect", s.auto_connect);
 	cfg->Flush();
 }
 
@@ -85,8 +88,12 @@ PrefsDialog::PrefsDialog(wxWindow *parent, const Settings &settings)
 	m_pitch = new Row(bp, grid, "Pitch", settings.pitch);
 	box->Add(grid, 0, wxALL, 8);
 
+	m_auto_connect = new wxCheckBox(this, wxID_ANY, "Connect to the Theremini on startup");
+	m_auto_connect->SetValue(settings.auto_connect);
+
 	auto *top = new wxBoxSizer(wxVERTICAL);
 	top->Add(box, 0, wxEXPAND | wxALL, 10);
+	top->Add(m_auto_connect, 0, wxLEFT | wxRIGHT | wxBOTTOM, 10);
 	top->Add(CreateButtonSizer(wxOK | wxCANCEL), 0, wxEXPAND | wxALL, 10);
 	SetSizerAndFit(top);
 }
@@ -96,5 +103,6 @@ Settings PrefsDialog::GetSettings() const
 	Settings s;
 	s.volume = m_volume->get();
 	s.pitch = m_pitch->get();
+	s.auto_connect = m_auto_connect->GetValue();
 	return s;
 }

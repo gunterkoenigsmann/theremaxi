@@ -13,10 +13,17 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
+include(GNUInstallDirs) # CMAKE_INSTALL_MANDIR and friends
+
 # Strict flags for our own C++ (the preset module), separate from the wx code.
 set(THEREMINI_CXX_STRICT -Wextra -Wpedantic -Wconversion -Wshadow)
 
 option(THEREMINI_BUILD_TESTS "Build the tests" ON)
+# The wxWidgets application is the project's main deliverable, so it is built by
+# default and wxWidgets is a hard requirement when it is. Turn this off to build
+# only the libraries, the LV2 plugin and the command-line tools (no wxWidgets
+# needed then).
+option(THEREMINI_BUILD_APP "Build the wxWidgets application (theremaxi-gui)" ON)
 
 if(CMAKE_C_COMPILER_ID MATCHES "GNU|Clang")
 	# Strict on our C. The wx C++ is kept to -Wall: wxWidgets' flag-combining
@@ -124,6 +131,17 @@ target_include_directories(theremaxi-preset PUBLIC src/preset)
 target_compile_options(theremaxi-preset PRIVATE ${THEREMINI_CXX_STRICT})
 set_target_properties(theremaxi-preset PROPERTIES POSITION_INDEPENDENT_CODE ON)
 
+# The headless control CLI: everything the GUI does to the device, over the
+# command line. Needs ALSA (for the transport) and the preset library (to read
+# and write .theremaxi files for send-preset/sync). Documented in its man page.
+if(ALSA_FOUND)
+	add_executable(theremini-ctl src/device/theremini-ctl.cpp)
+	target_compile_options(theremini-ctl PRIVATE ${THEREMINI_CXX_STRICT})
+	target_link_libraries(theremini-ctl PRIVATE theremini-device theremini-protocol theremaxi-preset)
+	install(TARGETS theremini-ctl)
+	install(FILES doc/theremini-ctl.1 DESTINATION ${CMAKE_INSTALL_MANDIR}/man1)
+endif()
+
 # Deep fuzzing of the .theremaxi parser: cmake -DTHEREMINI_FUZZ=ON with clang,
 # then run ./fuzz_theremaxi. The same source builds a plain corpus-replay driver
 # for the deterministic test below (see tests/), so this target is only the
@@ -191,11 +209,13 @@ endif()
 
 # ------------------------------------------------------------ wx application
 
-# Built where wxWidgets is present. It edits and manages libraries with no
-# hardware; where ALSA is also present it links the device library and gains the
-# Device menu (connect, sync, auto-detect channel).
-find_package(wxWidgets COMPONENTS core base)
-if(wxWidgets_FOUND)
+# The main deliverable. It edits and manages libraries with no hardware; where
+# ALSA is also present it links the device library and gains the Device menu
+# (connect, sync, auto-detect channel). Built unless THEREMINI_BUILD_APP is off,
+# in which case wxWidgets is not needed at all; when on, it is required, so a
+# missing wxWidgets is a clear error rather than a silently absent GUI.
+if(THEREMINI_BUILD_APP)
+	find_package(wxWidgets REQUIRED COMPONENTS core base)
 	include(${wxWidgets_USE_FILE})
 	add_executable(theremaxi-gui
 		src/gui/app.cpp

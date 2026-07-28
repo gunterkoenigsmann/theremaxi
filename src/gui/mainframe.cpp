@@ -12,11 +12,13 @@
 #endif
 
 #include <wx/button.h>
+#include <wx/display.h>
 #include <wx/filedlg.h>
 #include <wx/listbox.h>
 #include <wx/menu.h>
 #include <wx/msgdlg.h>
 #include <wx/notebook.h>
+#include <wx/scrolwin.h>
 #include <wx/sizer.h>
 #include <wx/statbox.h>
 #include <wx/stattext.h>
@@ -86,7 +88,7 @@ std::vector<std::string> tabs_in_order()
 } // namespace
 
 MainFrame::MainFrame()
-	: wxFrame(nullptr, wxID_ANY, "ThereMaxi", wxDefaultPosition, wxSize(920, 900))
+	: wxFrame(nullptr, wxID_ANY, "ThereMaxi", wxDefaultPosition, wxDefaultSize)
 {
 	auto *menu = new wxMenu();
 	menu->Append(wxID_NEW, "&New Library\tCtrl+N");
@@ -161,14 +163,39 @@ MainFrame::MainFrame()
 	top->Add(book, 1, wxEXPAND);
 	SetSizer(top);
 
+#ifdef THEREMINI_HAVE_ALSA
+	// message field plus one latched field per antenna
+	CreateStatusBar(3);
+	const int widths[] = {-1, 170, 170};
+	SetStatusWidths(3, widths);
+#else
 	CreateStatusBar();
+#endif
 	SetStatusText("No library open");
+
+	// A preferred size, but never taller or wider than the screen: on a short
+	// display the old fixed 920x900 overflowed and printed wx warnings instead
+	// of scrolling. The pages themselves are scrolled windows (see BuildPages),
+	// so any remaining overflow degrades to scrollbars.
+	const wxRect area = wxDisplay(static_cast<unsigned>(std::max(0, wxDisplay::GetFromWindow(this)))).GetClientArea();
+	SetClientSize(std::min(920, area.GetWidth()), std::min(900, area.GetHeight()));
+	Centre();
+
+#ifdef THEREMINI_HAVE_ALSA
+	// Try the device once the window is up; a missing one is not an error here.
+	if (m_settings.auto_connect) {
+		CallAfter([this] { ConnectDevice(true); });
+	}
+#endif
 }
 
 void MainFrame::BuildPages(wxNotebook *book)
 {
 	for (const std::string &tab : tabs_in_order()) {
-		auto *page = new wxPanel(book);
+		// a scrolled window so a page taller than the frame gets a scrollbar
+		// rather than being clipped
+		auto *page = new wxScrolledWindow(book);
+		page->SetScrollRate(0, 10);
 		auto *outer = new wxBoxSizer(wxVERTICAL);
 
 		std::string current_group;
@@ -197,6 +224,7 @@ void MainFrame::BuildPages(wxNotebook *book)
 		}
 
 		page->SetSizer(outer);
+		page->FitInside(); // set the virtual size so scrolling knows its bounds
 		book->AddPage(page, tab);
 	}
 
@@ -425,19 +453,23 @@ void MainFrame::UpdateDeviceMenu()
 	bar->Enable(ID_AUTODETECT, on);
 }
 
-void MainFrame::OnConnect(wxCommandEvent &)
+bool MainFrame::ConnectDevice(bool silent)
 {
 	m_seq = theremini_alsa_open("ThereMaxi");
 	if (!m_seq) {
-		SetStatusText("Cannot open the ALSA sequencer");
-		return;
+		if (!silent) {
+			SetStatusText("Cannot open the ALSA sequencer");
+		}
+		return false;
 	}
 	const char *name = theremini_alsa_discover(m_seq);
 	if (!name) {
 		theremini_alsa_close(m_seq);
 		m_seq = nullptr;
-		SetStatusText("No Theremini found");
-		return;
+		if (!silent) {
+			SetStatusText("No Theremini found");
+		}
+		return false;
 	}
 
 	theremini_alsa_on_cc(m_seq, antenna_trampoline, this);
@@ -456,6 +488,12 @@ void MainFrame::OnConnect(wxCommandEvent &)
 	SetStatusText(wxString::Format("Connected to %s%s", name, fw));
 	m_pump.Start(50); // keep up with the antenna stream
 	UpdateDeviceMenu();
+	return true;
+}
+
+void MainFrame::OnConnect(wxCommandEvent &)
+{
+	ConnectDevice(false);
 }
 
 void MainFrame::OnDisconnect(wxCommandEvent &)
@@ -597,14 +635,21 @@ void MainFrame::OnPump(wxTimerEvent &)
 	}
 }
 
+void MainFrame::ShowAntenna(int field, const char *which, int channel, int value)
+{
+	SetStatusText(wxString::Format("%s: ch %d  %d", which, channel, value), field);
+}
+
 void MainFrame::OnAntenna(int channel, int cc, int value)
 {
-	const char *which = cc == THEREMINI_VOLUME_CC ? "volume"
-	                    : cc == THEREMINI_PITCH_CC ? "pitch"
-	                                               : nullptr;
-	if (which && value != m_last_antenna) {
-		m_last_antenna = value;
-		SetStatusText(wxString::Format("antenna %s: channel %d value %d", which, channel, value), 0);
+	// Latch each antenna in its own field so both stay visible at once rather
+	// than one line flipping between volume and pitch.
+	if (cc == THEREMINI_VOLUME_CC && value != m_last_volume) {
+		m_last_volume = value;
+		ShowAntenna(1, "vol", channel, value);
+	} else if (cc == THEREMINI_PITCH_CC && value != m_last_pitch) {
+		m_last_pitch = value;
+		ShowAntenna(2, "pitch", channel, value);
 	}
 	if (m_feedback) {
 		m_feedback->ProcessAntenna(cc, value);
