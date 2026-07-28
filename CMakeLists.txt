@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.20)
 
 project(theremini
-	VERSION 0.1.0
+	VERSION 2.0.0
 	DESCRIPTION "Protocol and device libraries for the Moog Theremini"
 	LANGUAGES C CXX)
 
@@ -249,3 +249,93 @@ if(DOXYGEN_FOUND)
 		COMMENT "Generating API documentation with Doxygen"
 		VERBATIM)
 endif()
+
+# ---------------------------------------------------------- configuration summary
+#
+# The optional pieces build only when their dependency is found. Say plainly what
+# will and will not be built, and how to enable each missing piece, so a missing
+# dependency is never a silent surprise at the end of the build.
+
+message(STATUS "")
+message(STATUS "ThereMaxi ${PROJECT_VERSION} - build configuration")
+message(STATUS "  ----------------------------------------------------------")
+
+if(THEREMINI_BUILD_APP)
+	message(STATUS "  Application  theremaxi-gui .................. yes")
+else()
+	message(STATUS "  Application  theremaxi-gui .................. no   (-DTHEREMINI_BUILD_APP=OFF)")
+endif()
+
+if(ALSA_FOUND)
+	message(STATUS "  Device I/O   theremini-ctl, theremini-probe . yes")
+else()
+	message(STATUS "  Device I/O   theremini-ctl, theremini-probe . NO")
+endif()
+
+if(THEREMINI_HAVE_LV2)
+	message(STATUS "  Plugin       theremini.lv2 .................. yes")
+else()
+	message(STATUS "  Plugin       theremini.lv2 .................. NO")
+endif()
+
+if(DOXYGEN_FOUND)
+	message(STATUS "  API docs     make docs ...................... yes")
+else()
+	message(STATUS "  API docs     make docs ...................... no   (install doxygen)")
+endif()
+
+if(THEREMINI_BUILD_TESTS)
+	message(STATUS "  Tests        ctest .......................... yes")
+else()
+	message(STATUS "  Tests        ctest .......................... no   (-DTHEREMINI_BUILD_TESTS=OFF)")
+endif()
+message(STATUS "  ----------------------------------------------------------")
+
+# The two feature-bearing optionals warn loudly when absent: without them the
+# tools or the plugin the user probably came for silently do not appear.
+if(NOT ALSA_FOUND)
+	message(WARNING
+		"ALSA not found - theremini-ctl, theremini-probe, the device transport "
+		"and the GUI's Device menu will NOT be built. Install libasound2-dev to "
+		"enable talking to the Theremini.")
+endif()
+if(NOT THEREMINI_HAVE_LV2)
+	message(WARNING
+		"LV2 not found - the theremini.lv2 plugin will NOT be built. Install "
+		"lv2-dev (and sordi to validate the bundle) to enable it.")
+endif()
+message(STATUS "")
+
+# ------------------------------------------------------------------- packaging
+#
+# `cpack -G DEB` in the build directory produces a Debian package. It is meant to
+# be run inside the target Ubuntu release (the release workflow does this in a
+# container per release): with SHLIBDEPS on, dpkg-shlibdeps reads the actual
+# linked libraries and writes the exact runtime dependencies for that release, so
+# a package built on 24.04 depends on 24.04's wxWidgets/ALSA and so on.
+
+set(CPACK_PACKAGE_NAME "theremaxi")
+set(CPACK_PACKAGE_VENDOR "ThereMaxi contributors")
+set(CPACK_PACKAGE_DESCRIPTION_SUMMARY
+	"Editor, preset librarian and LV2 plugin for the Moog Theremini")
+set(CPACK_PACKAGE_HOMEPAGE_URL "https://github.com/gunterkoenigsmann/theremaxi")
+set(CPACK_PACKAGE_VERSION ${PROJECT_VERSION})
+set(CPACK_RESOURCE_FILE_LICENSE ${CMAKE_CURRENT_SOURCE_DIR}/LICENSE)
+
+set(CPACK_GENERATOR "DEB")
+# Maintainer (the Debian control file requires one). Override on the cpack/cmake
+# line with -DCPACK_DEBIAN_PACKAGE_MAINTAINER=... if a different one is wanted.
+if(NOT CPACK_DEBIAN_PACKAGE_MAINTAINER)
+	set(CPACK_DEBIAN_PACKAGE_MAINTAINER "Gunter Königsmann <gunter.koenigsmann@gmail.com>")
+endif()
+set(CPACK_DEBIAN_PACKAGE_SECTION "sound")
+set(CPACK_DEBIAN_PACKAGE_SHLIBDEPS ON) # compute runtime deps from the binaries
+set(CPACK_DEBIAN_FILE_NAME DEB-DEFAULT) # theremaxi_<version>_<arch>.deb
+set(CPACK_DEBIAN_PACKAGE_DESCRIPTION
+	"A Linux editor, preset librarian and LV2 plugin for the Moog Theremini.\n\
+ Edit every preset parameter, manage .theremaxi libraries, and talk to the\n\
+ device over ALSA MIDI - sync presets off it, send presets to it, and drive it\n\
+ headless with the theremini-ctl command-line tool. Ships an LV2 plugin that\n\
+ exposes the parameters as control ports.")
+
+include(CPack)

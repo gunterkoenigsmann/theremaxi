@@ -53,3 +53,73 @@ jobs:
             --title "ThereMaxi $GITHUB_REF_NAME" \
             --notes-file release-notes.md \
             $prerelease
+
+  # Build a .deb inside each supported Ubuntu release, so dpkg-shlibdeps writes
+  # dependencies against that release's own wxWidgets/ALSA. The packages are
+  # uploaded as artifacts and attached to the release by the job below.
+  deb:
+    name: deb (ubuntu ${{ matrix.release }})
+    needs: release
+    runs-on: ubuntu-latest
+    container: ubuntu:${{ matrix.release }}
+    strategy:
+      fail-fast: false
+      matrix:
+        release: ['24.04', '25.04', '25.10']
+
+    steps:
+      # A run step before checkout works without git; install everything the
+      # build and the packaging need, git included for checkout.
+      - name: Install build and packaging tools
+        run: |
+          apt-get update
+          DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
+            build-essential cmake perl pkg-config dpkg-dev file git ca-certificates \
+            libwxgtk3.2-dev libasound2-dev lv2-dev sordi
+
+      - uses: actions/checkout@v4
+
+      - name: Build and test
+        run: |
+          cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
+          cmake --build build
+          ctest --test-dir build --output-on-failure
+
+      - name: Package
+        run: |
+          cd build
+          cpack -G DEB
+          # tag the file with the Ubuntu release so the release page shows which
+          # package is which
+          for f in theremaxi_*_amd64.deb; do
+            mv "$f" "${f%_amd64.deb}_ubuntu${{ matrix.release }}_amd64.deb"
+          done
+          ls -l theremaxi_*.deb
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: deb-ubuntu-${{ matrix.release }}
+          path: build/theremaxi_*.deb
+          if-no-files-found: error
+
+  # Attach every built .deb to the release. Runs on the host (not a container),
+  # where gh is already installed.
+  attach-debs:
+    name: attach .deb packages
+    needs: [release, deb]
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          path: debs
+          pattern: deb-ubuntu-*
+          merge-multiple: true
+
+      - name: Upload to the release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        run: |
+          ls -l debs
+          gh release upload "$GITHUB_REF_NAME" debs/*.deb --clobber

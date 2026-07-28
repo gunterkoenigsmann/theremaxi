@@ -4,9 +4,27 @@ This file is the source for the release notes: the release workflow copies the s
 the pushed tag into the GitHub release. Versions follow [semantic versioning](https://semver.org);
 the releases from 2017/2018 predate that and are listed under their original dates.
 
-## Unreleased
+## 2.0.0 — 2026-07-28
 
-Work on the C rewrite. Nothing here changes the perl application.
+The first release of the C and wxWidgets rewrite, and the successor to the perl 1.0.x line: a native
+editor (`theremaxi-gui`), a headless control tool (`theremini-ctl`), an LV2 plugin, and the C
+protocol/device libraries underneath - all generated from and tested against the perl reference, and
+validated end to end against a real Theremini (firmware 1.1.1). The perl application is unchanged and
+remains the protocol reference. Prebuilt `.deb` packages for current Ubuntu releases are attached to
+this release on the GitHub releases page.
+
+### Changed
+
+* wxWidgets is now a required dependency of the application, which is built by default. A missing
+  wxWidgets is a clear configure-time error instead of a silently absent GUI; configure with
+  `-DTHEREMINI_BUILD_APP=OFF` to build only the libraries, the LV2 plugin and the command-line tools,
+  and then wxWidgets is not needed. The configure step now prints a summary of what will and will not
+  be built, and warns when a feature-bearing optional (ALSA, LV2) is missing and why.
+* GUI polish: the status bar shows both antennas at once in their own latched fields instead of one
+  line flipping between volume and pitch; the application tries to connect to the device on startup
+  (a new "Connect on startup" preference, on by default, falling back to offline silently); and the
+  window no longer opens larger than the screen - its size is clamped to the display and each
+  notebook page scrolls, so tall content degrades to a scrollbar instead of wx warnings.
 
 ### Fixed
 
@@ -100,7 +118,20 @@ Work on the C rewrite. Nothing here changes the perl application.
   antennas drive the parameters on the device in real time. The mapping (`theremini_feedback_feed`)
   is in the device library and unit-tested; the tab feeds it from the live stream and sends the
   results through the validated write path.
+* `theremini-ctl`: a headless command-line tool that does everything the GUI does to the device, over
+  a documented argument grammar, so the Theremini can be scripted or driven over SSH - identify,
+  detect the antenna channel, dump, backup, restore a slot from a backup, rename a slot, set a
+  parameter live, send a preset from a `.theremaxi` library into a slot, and sync the whole device
+  into a library, plus an offline parameter listing. All commands were validated against real
+  hardware (firmware 1.1.1); it ships with a `theremini-ctl(1)` man page. `theremini-probe` stays as
+  the minimal read-only prober.
 * API documentation (Doxygen) for the protocol library, checked in CI.
+
+### Packaging
+
+* `cpack -G DEB` builds a Debian package from the install rules, with runtime dependencies computed
+  by `dpkg-shlibdeps` so a package matches the Ubuntu release it is built on. The release workflow
+  builds one per supported release (24.04, 25.04, 25.10) in a container and attaches them here.
 
 ## 1.0.1 — 2026-07-23
 

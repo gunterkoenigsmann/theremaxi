@@ -30,6 +30,18 @@ There are two implementations in this repository:
 * **LV2 plugin** — exposes the parameters as control ports so a host such as Ardour can automate the
   device from its timeline; it emits the matching MIDI, with no UI of its own.
 
+## Installing a prebuilt package
+
+Each release attaches `.deb` packages for current Ubuntu releases (24.04, 25.04, 25.10) to its
+[releases page](https://github.com/gunterkoenigsmann/theremaxi/releases). Download the one matching
+your release and install it:
+
+```sh
+sudo apt install ./theremaxi_2.0.0_ubuntu24.04_amd64.deb
+```
+
+To build from source instead, read on.
+
 ## Building the application
 
 Tested on Ubuntu 26.10 (also builds on earlier releases that carry wxWidgets 3.2).
