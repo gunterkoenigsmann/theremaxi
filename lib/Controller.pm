@@ -21,7 +21,7 @@ our %CONTROLLER =
 	 86 => { name=>'Root Note'              ,show=>[ 4,'Basic'   ,'Notes'         ,'Root'            ],preset=>1,                                                        props=>{ MidiFeedbackLoop=>undef }},
 	 84 => { name=>'Pitch Correction Amount',show=>[ 5,'Basic'   ,'Notes'         ,'Pitch Correction'],preset=>1, typ=>'prozent'                                         },
 	 90 => { name=>'Wave Selection'         ,show=>[ 6,'Basic'   ,'Waves'         ,'Waveform'        ],preset=>1,                                                        props=>{ MidiFeedbackLoop=>undef }},
-	  9 => { name=>'Wavetable Scan Rate'    ,show=>[ 7,'Basic'   ,'Waves'         ,'Scan Rate'       ],preset=>1, typ=>'_090dep', max=>32, dig=>2, fmt=>'%2.2f Hz'       },
+	  9 => { name=>'Wavetable Scan Rate'    ,show=>[ 7,'Basic'   ,'Waves'         ,'Scan Rate'       ],preset=>1, typ=>'_090dep', min=>0.2, max=>32, dig=>2, fmt=>'%2.2f Hz' }, # min 0.2: the device's floor, confirmed on the wire (CC 0 -> 0.20 Hz)
 	 20 => { name=>'Scan Amount'            ,show=>[ 8,'Basic'   ,'Waves'         ,'Scan Amount'     ],preset=>1, typ=>'_090dep', max=>2,  dig=>2, fmt=>'%1.2f'          },
 	 21 => { name=>'Scan Position'          ,show=>[ 9,'Basic'   ,'Waves'         ,'Scan Position'   ],preset=>1, typ=>'_090dep', max=>2,  dig=>2, fmt=>'%1.2f'          },
 	 80 => { name=>'Filter Type'            ,show=>[10,'Basic'   ,'Filter'        ,'Filter Type'     ],preset=>1,                                                        props=>{ MidiFeedbackLoop=>undef }},

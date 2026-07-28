@@ -40,71 +40,42 @@ bool theremini_value_export(const theremini_param *param, double value,
 		break;
 	}
 
-	/* Unsigned 14-bit parameters go on the wire in storage units - the value
-	 * times its divisor - not scaled to the display maximum. Matches the perl
-	 * value_export; see protocol.h. */
-	if (param->wire_divisor > 0) {
-		if (value <= param->min) {
-			out->bytes[0] = 0;
-			out->count = 1;
-			return true;
-		}
-		unsigned wire = (unsigned)(value * param->wire_divisor);
-		if (wire > 0x3fff) {
-			wire = 0x3fff;
-		}
-		out->bytes[0] = (uint8_t)(wire >> 7);
-		out->bytes[1] = (uint8_t)(wire & 0x7f);
-		out->count = 2;
-		return true;
-	}
-
-	/* The three shortcuts below come straight from the perl. Note that they
-	 * return a single byte even for a 14-bit parameter, which leaves the low
-	 * controller at whatever the device had. */
-	if (value <= param->min) {
-		out->bytes[0] = 0;
-		out->count = 1;
-		return true;
-	}
-	if (value == 0 && param->min < 0) {
-		out->bytes[0] = 0x40;
-		out->count = 1;
-		return true;
-	}
-	if (value >= param->max) {
-		out->bytes[0] = 0x7f;
-		out->count = 1;
-		return true;
-	}
-
+	/* NUMERIC: scale to the wire. Unsigned 14-bit uses the storage divisor (see
+	 * protocol.h); everything else scales [min, max] onto the wire maximum.
+	 * Rounds to nearest - truncating reads back a step low on the device - and
+	 * carries the maximum and the signed centre at full width. Matches the perl
+	 * value_export. */
 	{
-		const double span = fabs(param->min) + fabs(param->max);
-		const int wide = param->bits == 14;
-		const double scale = wide ? 0x3fff : 0x7f;
+		const bool wide = param->bits == 14;
+		const int wire_max = wide ? 0x3fff : 0x7f;
 
-		double scaled = value;
-		if (param->min < 0) {
-			scaled += fabs(param->min);
+		double scaled;
+		if (param->wire_divisor > 0) {
+			if (value <= param->min) {
+				out->bytes[0] = 0;
+				out->count = 1;
+				return true;
+			}
+			scaled = value * param->wire_divisor + 0.5;
+		} else {
+			const double range = param->max - param->min;
+			scaled = (value - param->min) * wire_max / range + 0.5;
 		}
-		scaled *= scale / span;
 
-		if (scaled > scale) {
-			scaled = scale;
-		}
 		if (scaled < 0) {
 			scaled = 0;
 		}
-
-		/* perl's >> and & truncate towards zero on the way to an integer */
-		const unsigned raw = (unsigned)scaled;
+		unsigned wire = (unsigned)scaled;
+		if (wire > (unsigned)wire_max) {
+			wire = (unsigned)wire_max;
+		}
 
 		if (wide) {
-			out->bytes[0] = (uint8_t)(raw >> 7);
-			out->bytes[1] = (uint8_t)(raw & 0x7f);
+			out->bytes[0] = (uint8_t)(wire >> 7);
+			out->bytes[1] = (uint8_t)(wire & 0x7f);
 			out->count = 2;
 		} else {
-			out->bytes[0] = (uint8_t)(raw & 0x7f);
+			out->bytes[0] = (uint8_t)(wire & 0x7f);
 			out->count = 1;
 		}
 	}

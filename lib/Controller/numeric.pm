@@ -61,33 +61,39 @@ sub value_export
 	my($self,$value) = @_;
 	$value = $self->{VALUE} unless defined $value;
 
+	my $abs  = abs($self->{min}) + abs($self->{max});
+	my $wide = ( $self->{CC} < 32 && $abs > 0x7f );
+	my $wire_max = $wide ? 0x3fff : 0x7f;
+
+	my $wire;
+
 	# Unsigned 14-bit parameters go on the wire in their storage units - the
 	# value times its divisor - not scaled to the display maximum. For most that
 	# is the same number, but the delay time's range on the wire (about 1000 ms)
 	# is wider than the 836 ms shown, so only the divisor scaling reads back
 	# correctly from the device.
-	my $abs = abs($self->{min}) + abs($self->{max});
-	my $div = ( $self->{CC} < 32 && $abs > 0x7f && $self->{min} >= 0 )
+	my $div = ( $wide && $self->{min} >= 0 )
 		? $ThereMaxi::Preset::WIRE_DIVISOR{$self->{CC}} : undef;
 	if ( defined $div )
 	{
 		return 0 if $value <= $self->{min};
-		my $wire = int( $value * $div );
-		$wire = 0x3fff if $wire > 0x3fff;
-		return [ $wire >> 7, $wire & 0x7f ];
+		$wire = int( $value * $div + 0.5 );
+	}
+	else
+	{
+		# Scale [min, max] onto the wire: subtract the minimum so it sits at 0 -
+		# for a floored parameter like the scan rate that is not zero - and round
+		# to nearest, which truncating did not, reading back a step low. This also
+		# carries the maximum and the signed centre correctly at full 14-bit width.
+		my $span = $self->{max} - $self->{min};
+		$wire = int( ( $value - $self->{min} ) * $wire_max / $span + 0.5 );
 	}
 
-	return 0    if $value <= $self->{min};
-	return 0x40 if $value == 0 and $self->{min} < 0;
-	return 0x7f if $value >= $self->{max};
-	my $abs = abs($self->{min}) + abs($self->{max});
-	my $max = ( $self->{CC} < 32 && $abs > 0x7f ) ? 0x3fff : 0x7f;
-	$value += abs($self->{min}) if $self->{min} < 0;
-	$value *= $max / $abs;
-	$value = $max if $value > $max;
-	$value = 0    if $value < 0;
-	return [$value >> 7,$value & 0x7f] if $max > 0x7f;
-	$value & 0x7f;
+	$wire = $wire_max if $wire > $wire_max;
+	$wire = 0         if $wire < 0;
+
+	return [ $wire >> 7, $wire & 0x7f ] if $wide;
+	$wire & 0x7f;
 }
 
 

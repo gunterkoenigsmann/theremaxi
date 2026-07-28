@@ -827,7 +827,7 @@
          "import" : "numeric",
          "in_preset" : true,
          "max" : 32,
-         "min" : 0,
+         "min" : 0.2,
          "name" : "Wavetable Scan Rate",
          "properties" : [
             "MidiFeedbackLoop",

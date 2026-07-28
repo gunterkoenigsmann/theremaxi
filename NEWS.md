@@ -10,6 +10,14 @@ Work on the C rewrite. Nothing here changes the perl application.
 
 ### Fixed
 
+* Writing a value to the device read back a step low, and a couple of parameters were off more than
+  that. `value_export` now rounds to nearest instead of truncating, scales the whole `[min, max]`
+  range (so it handles a parameter whose minimum is not zero), and carries the maximum and the
+  signed centre at full 14-bit width - three things the transcribed-from-perl version got wrong.
+  Confirmed against the hardware: restoring a factory preset now matches it on all but the effect
+  name and one value that 7 bits cannot represent, down from eight. The wavetable scan rate's real
+  minimum, 0.2 Hz, is set from what the device actually does (its floor, measured on the wire) - the
+  "minimum greater than zero" this project wondered about early on.
 * Writing the delay time to the device put it out by about 20%: `value_export` scaled unsigned
   14-bit values to the display maximum, but the device reads them in storage units (the delay's
   wire range is ~1000 ms, wider than the 836 ms shown). It now scales by the storage divisor, which
@@ -43,7 +51,9 @@ Work on the C rewrite. Nothing here changes the perl application.
   `theremini-probe` gained `--set-name`, `--restore-slot` and `--backup`, used to test writing
   against the hardware. Two device findings came out of that: there are no hidden preset slots
   beyond the 32 (program change past 31 wraps into them), and the effect name is a stored string the
-  documented protocol does not let us set, so a written preset keeps its delay but loses that label.
+  documented protocol does not let us set - the effect-name sysex is a no-op on firmware 1.1.1, even
+  though the identically-framed preset-name sysex works - so a written preset keeps its delay but
+  loses that label.
 * `theremini-probe --backup FILE` saves the device's preset dump verbatim, as a restore point to
   take before anything writes to the device. The file holds the maker's factory content, so it is
   git-ignored.
