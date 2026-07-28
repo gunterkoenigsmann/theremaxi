@@ -84,6 +84,12 @@ Work on the C rewrite. Nothing here changes the perl application.
   (with a confirmation, since it overwrites), and auto-detects the channel, while the live antenna
   stream shows in the status bar. Run against a real Theremini, it syncs all 32 presets; the send
   uses the same `theremini_write_preset` proven against the hardware.
+* The MidiFeedbackLoop tab, the last feature carried over from the perl app: each antenna gets a
+  list of rows that map its live value onto a preset parameter - gated to a range, ignoring small
+  moves, optionally inverted, and scaled onto the target's range. When a section is running, the
+  antennas drive the parameters on the device in real time. The mapping (`theremini_feedback_feed`)
+  is in the device library and unit-tested; the tab feeds it from the live stream and sends the
+  results through the validated write path.
 * API documentation (Doxygen) for the protocol library, checked in CI.
 
 ## 1.0.1 — 2026-07-23

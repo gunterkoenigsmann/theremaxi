@@ -79,6 +79,33 @@ void theremini_input_init(theremini_input *in, theremini_input_config config);
 bool theremini_input_feed(theremini_input *in, int channel, int cc, int value, int *out);
 
 /**
+ * One MidiFeedbackLoop row: map an antenna's live value onto a target
+ * parameter. The antenna value (0..input_max) is gated to [low, high], ignored
+ * unless it moved by at least sens, optionally reversed, and scaled onto
+ * [out_min, out_max] in the target parameter's display units.
+ */
+typedef struct {
+	bool enabled;
+	int low;         /**< ignore antenna values below this */
+	int high;        /**< ignore antenna values above this */
+	int sens;        /**< ignore changes smaller than this */
+	bool revert;     /**< map the antenna the other way round */
+	double out_min;  /**< target value at the low end */
+	double out_max;  /**< target value at the high end */
+	int input_max;   /**< the antenna's resolution: 0x7f or 0x3fff */
+	int last;        /**< running state; set to 0 to start */
+} theremini_feedback;
+
+/**
+ * @brief Feed one antenna value through a feedback row.
+ * @param fb    the row (its @c last is updated).
+ * @param value the antenna value.
+ * @param out   receives the target value, in display units, on a true return.
+ * @return true if the row produces a value to send.
+ */
+bool theremini_feedback_feed(theremini_feedback *fb, int value, double *out);
+
+/**
  * @brief Whether an ALSA client name is a Theremini.
  *
  * A case-insensitive search for "theremini" anywhere in the name, matching how

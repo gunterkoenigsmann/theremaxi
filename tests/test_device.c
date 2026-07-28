@@ -4,10 +4,19 @@
 #include "golden.h"
 #include "theremini/device.h"
 
+#include <stdbool.h>
 #include <stdio.h>
 #include <string.h>
 
 static int failures;
+
+static void ok(bool cond, const char *what)
+{
+	if (!cond) {
+		printf("FAIL - %s\n", what);
+		failures++;
+	}
+}
 
 // Replay each recorded input sequence and check the values it produces.
 static void check_input(void)
@@ -95,11 +104,45 @@ static void check_channel_probe(void)
 	printf("channel probe: detect, ignore noise, and stay unsure on too little\n");
 }
 
+static void check_feedback(void)
+{
+	// 7-bit antenna, map 0..127 onto 0..100, gate [10,120], sensitivity 5
+	theremini_feedback fb = {
+		.enabled = true, .low = 10, .high = 120, .sens = 5, .revert = false,
+		.out_min = 0, .out_max = 100, .input_max = 0x7f, .last = 0,
+	};
+	double out = -1;
+
+	ok(!theremini_feedback_feed(&fb, 40, &out), "first value only primes 'last'");
+	ok(theremini_feedback_feed(&fb, 60, &out) && out > 46 && out < 48,
+	   "a big move emits: 60/127*100 ~= 47");
+	ok(!theremini_feedback_feed(&fb, 62, &out), "a small move (2 < 5) is ignored");
+	ok(theremini_feedback_feed(&fb, 90, &out) && out > 70 && out < 72,
+	   "another big move emits: 90/127*100 ~= 71");
+	ok(!theremini_feedback_feed(&fb, 5, &out), "below the gate is ignored");
+	ok(!theremini_feedback_feed(&fb, 200, &out), "above the gate is ignored");
+
+	// disabled row never emits
+	fb.enabled = false;
+	ok(!theremini_feedback_feed(&fb, 60, &out), "a disabled row is silent");
+
+	// revert maps the antenna the other way
+	theremini_feedback rev = {
+		.enabled = true, .low = 0, .high = 127, .sens = 1, .revert = true,
+		.out_min = 0, .out_max = 100, .input_max = 0x7f, .last = 0,
+	};
+	theremini_feedback_feed(&rev, 10, &out); // prime
+	ok(theremini_feedback_feed(&rev, 100, &out) && out > 20 && out < 22,
+	   "revert: value 100 maps near (127-100)/127*100 ~= 21");
+	printf("feedback: gate, sensitivity, scale, revert, enable\n");
+}
+
 int main(void)
 {
 	check_input();
 	check_discovery();
 	check_channel_probe();
+	check_feedback();
 
 	if (failures) {
 		printf("\n%d check(s) failed\n", failures);

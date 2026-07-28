@@ -15,6 +15,7 @@
 #include <vector>
 
 class ParamControl;
+class FeedbackTab;
 class wxListBox;
 class wxNotebook;
 
@@ -56,6 +57,7 @@ private:
 	theremaxi::Preset CollectPreset(int number) const;
 
 	std::vector<ParamControl *> m_controls;
+	FeedbackTab *m_feedback = nullptr;
 	wxListBox *m_presetList = nullptr;
 
 	theremaxi::Library m_library;

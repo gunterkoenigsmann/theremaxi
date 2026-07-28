@@ -110,9 +110,12 @@ and read the firmware), Sync Presets from Device (request the dump, decode it, f
 Send Preset to Device (push the editor's settings to a chosen slot, behind a confirmation, via the
 hardware-validated `theremini_write_preset`), and Auto-detect Channel. A wxTimer pumps the antenna
 stream so the live values show in the status bar. This was run against a real Theremini - it syncs
-the 32 presets and shows the antennas moving. Still to come: the MidiFeedbackLoop tab, and the small
-remaining gaps (the effect-name label the device will not store, and inherent 7-bit quantization on
-a few parameters).
+the 32 presets and shows the antennas moving. The MidiFeedbackLoop tab is there too: each antenna
+holds rows that map its live value onto a parameter (gate, sensitivity, invert, output range), and a
+running section drives the device in real time through `theremini_feedback_feed` (device library,
+unit-tested) and the write path. The last carried-over feature is done; the remaining gaps are small
+(the effect-name label the device will not store, and inherent 7-bit quantization on a few
+parameters), plus the future command-line control mode.
 
 ## Testing
 

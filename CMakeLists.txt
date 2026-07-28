@@ -84,7 +84,8 @@ install(DIRECTORY src/protocol/include/ DESTINATION include)
 add_library(theremini-device
 	src/device/input.c
 	src/device/discover.c
-	src/device/probe.c)
+	src/device/probe.c
+	src/device/feedback.c)
 target_include_directories(theremini-device PUBLIC
 	$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src/device/include>
 	$<INSTALL_INTERFACE:include>)
@@ -204,6 +205,8 @@ if(wxWidgets_FOUND)
 	target_link_libraries(theremaxi-gui PRIVATE
 		theremini-protocol theremaxi-preset ${wxWidgets_LIBRARIES})
 	if(ALSA_FOUND)
+		# the MidiFeedbackLoop tab drives the device, so it is built with ALSA
+		target_sources(theremaxi-gui PRIVATE src/gui/feedback_tab.cpp)
 		target_link_libraries(theremaxi-gui PRIVATE theremini-device)
 		target_compile_definitions(theremaxi-gui PRIVATE THEREMINI_HAVE_ALSA)
 	endif()

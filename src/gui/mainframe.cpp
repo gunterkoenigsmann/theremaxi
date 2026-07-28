@@ -3,6 +3,7 @@
 
 #include "theremini/protocol.h"
 #ifdef THEREMINI_HAVE_ALSA
+#include "feedback_tab.h"
 #include "theremini/alsa.h"
 #include "theremini/device.h"
 #include "theremini/write.h"
@@ -198,6 +199,24 @@ void MainFrame::BuildPages(wxNotebook *book)
 		page->SetSizer(outer);
 		book->AddPage(page, tab);
 	}
+
+#ifdef THEREMINI_HAVE_ALSA
+	// the MidiFeedbackLoop tab drives parameters from the live antennas; sending
+	// needs a device, so a row's output goes out as a control-change on channel 0
+	m_feedback = new FeedbackTab(book, [this](const theremini_param *p, double v) {
+		if (!m_seq) {
+			return;
+		}
+		theremini_wire w;
+		if (theremini_value_export(p, v, &w)) {
+			theremini_alsa_send_cc(m_seq, 0, p->cc, w.bytes[0]);
+			if (w.count == 2) {
+				theremini_alsa_send_cc(m_seq, 0, p->lsb_cc, w.bytes[1]);
+			}
+		}
+	});
+	book->AddPage(m_feedback, "MidiFeedbackLoop");
+#endif
 }
 
 void MainFrame::RefreshPresetList()
@@ -586,6 +605,9 @@ void MainFrame::OnAntenna(int channel, int cc, int value)
 	if (which && value != m_last_antenna) {
 		m_last_antenna = value;
 		SetStatusText(wxString::Format("antenna %s: channel %d value %d", which, channel, value), 0);
+	}
+	if (m_feedback) {
+		m_feedback->ProcessAntenna(cc, value);
 	}
 }
 
