@@ -1,170 +1,170 @@
 # ThereMaxi
 
-Linux editor and preset librarian for the Moog Theremini, written in Perl 5 with GTK2.
-Original code © 2017 Peter Niebling, GPL-3.0 (see `LICENSE`).
+Editor, preset librarian and LV2 plugin for the Moog Theremini, on Linux.
 
 *Moog is a registered trademark of Moog Music Inc. Theremini is a trademark of Moog Music Inc.
 This project is not affiliated with Moog Music Inc.*
 
-![ThereMaxi main window](screenshot.png)
+![ThereMaxi](screenshot.png)
 
-It connects to the Theremini over ALSA MIDI and lets you
+There are two implementations in this repository:
 
-* edit every preset parameter from a desktop UI, optionally live (**sync on change** — edits are pushed to the device as you move a slider),
-* pull all presets off the device (**Sync**) and keep them in local libraries as JSON,
-* import Moog's `.theremini` library files,
-* map the pitch/volume antennas onto arbitrary parameters (**MidiFeedbackLoop** tab) — play the filter with your hand.
+* **The application** — a **wxWidgets** editor and librarian (`theremaxi-gui`), built on two small C
+  libraries (`libtheremini-protocol` and `libtheremini-device`), with a UI-less **LV2 plugin** and a
+  command-line tool (`theremini-probe`) alongside. This is the active rebuild, in C and C++, and it
+  has been validated against a real Theremini (firmware 1.1.1).
+* **The reference** — the original **Perl / GTK2** program (`ThereMaxi.pl`) by Peter Niebling, 2017,
+  kept running as the reference implementation of the device's protocol. The C code is generated
+  from and tested against it. GPL-3.0-or-later (see `LICENSE`).
 
-## Status
+## What it does
 
-The code is from 2017/2018 and was written for perl 5.22. It has been made to run again on
-current Ubuntu (tested on **Ubuntu 26.10, perl 5.40.1, GTK 2.24.33**); see
-[Changes for modern perl](#changes-for-modern-perl) below. The GUI comes up and all non-MIDI code
-paths (preset decode, library round-trip, value export) run warning-free. Device communication
-itself has *not* been re-tested against real hardware since the port — if you have a Theremini,
-reports are welcome.
+* Edit every preset parameter — a slider paired with a spin control for numbers, a dropdown for the
+  enumerated ones, laid out from the parameter table.
+* Manage `.theremaxi` preset libraries — open and save, and create, copy and delete presets. The
+  file format is interchangeable with the Perl app.
+* Talk to the device — connect and read the firmware, sync all 32 presets off it, send the current
+  settings to a slot, auto-detect the MIDI channel, and watch the antennas live in the status bar.
+* **MidiFeedbackLoop** — drive preset parameters from the live antenna movement (play the filter
+  with your hand).
+* **LV2 plugin** — exposes the parameters as control ports so a host such as Ardour can automate the
+  device from its timeline; it emits the matching MIDI, with no UI of its own.
 
-## Installing the dependencies (Ubuntu / Debian)
+## Building the application
 
-ThereMaxi needs `File::Pid`, `Getopt::Long`, `Gtk2`, `JSON::PP`, `MIDI::ALSA`, `MIME::Base64` and
-`sigtrap`. Everything except `Gtk2` is either core perl or packaged:
+On Ubuntu / Debian:
+
+```sh
+sudo apt install build-essential cmake perl \
+                 libasound2-dev libwxgtk3.2-dev lv2-dev sordi
+# optional: doxygen for the API docs
+```
+
+```sh
+cmake -S . -B build
+cmake --build build
+ctest --test-dir build          # runs the test suite
+```
+
+Everything optional builds only when its dependency is found: the wx application needs wxWidgets,
+the device transport and the probe tool need ALSA, the LV2 plugin needs `lv2` (and `sordi` to
+validate it). Perl is needed at build time — it generates the C tables from `protocol/tables.json` —
+but the built binaries do not depend on it.
+
+## Running
+
+**The editor:**
+
+```sh
+./build/theremaxi-gui                       # offline
+./build/theremaxi-gui my-library.theremaxi  # open a library
+```
+
+Use **File** to open and save libraries and manage presets, and **Device** to connect, sync presets
+from the Theremini, send the current settings to a slot, or auto-detect the channel. **Preferences**
+holds the MIDI input configuration.
+
+**The command-line tool** drives the device without the UI:
+
+```sh
+./build/theremini-probe               # discover and identify
+./build/theremini-probe --dump        # fetch the presets and report the count
+./build/theremini-probe --channel     # auto-detect the antenna channel
+./build/theremini-probe --backup FILE # save the preset dump (see below)
+```
+
+**The LV2 plugin:** copy `build/theremini.lv2` into `~/.lv2/` (or install with
+`cmake --install build`), and it appears in any LV2 host.
+
+The Theremini shows up as an ALSA sequencer client named *Moog Theremini*; check with `aconnect -l`.
+
+## Back up before you write
+
+Writing to the device changes its stored presets. Take a restore point first:
+
+```sh
+./build/theremini-probe --backup ~/theremini-factory.syx
+```
+
+## Known device limitations (firmware 1.1.1)
+
+Found while validating against the hardware:
+
+* The **effect name** (the "Long Delay" label) is a stored string the documented protocol does not
+  let us set — the effect-name sysex is a no-op, though the identical preset-name sysex works. A
+  written preset keeps its delay behaviour but loses that label.
+* A couple of parameters round-trip within about one 7-bit step; that is the resolution of a MIDI
+  control-change and cannot be helped.
+* There are no hidden preset slots beyond the 32 — a program change past 31 wraps back into them.
+
+## How it is built and tested
+
+Everything derives from one source of truth: `protocol/tables.json`, generated from the Perl tables.
+From it, the build generates the C parameter table, the LV2 port description and a set of golden
+vectors — the values the Perl produces for decoding dumps and putting values on the wire. The C code
+is tested by replaying those vectors, so it cannot drift from the reference. On top of that the
+`.theremaxi` parser is fuzzed, everything runs clean under AddressSanitizer and UBSan, the public
+API is documented with Doxygen, and CI checks it all on every push.
+
+`DESIGN.md` explains the architecture and the test strategy; `CLAUDE.md` is an overview of the Perl
+reference.
+
+## The Perl reference implementation
+
+`ThereMaxi.pl` is the original 2017 application. It still runs, and remains the reference for the
+protocol. It needs `File::Pid`, `Getopt::Long`, `Gtk2`, `JSON::PP`, `MIDI::ALSA`, `MIME::Base64` and
+`sigtrap`.
 
 ```sh
 sudo apt install build-essential pkg-config libcrypt-dev \
                  libgtk2.0-dev libglib-perl libcairo-perl libpango-perl \
                  libextutils-depends-perl libextutils-pkgconfig-perl \
                  libfile-pid-perl libmidi-alsa-perl
+./ThereMaxi.pl
 ```
 
-`libcrypt-dev` is easy to miss: without `crypt.h` every perl XS build fails with
+`libcrypt-dev` is easy to miss: without `crypt.h` every Perl XS build fails with
 `fatal error: crypt.h: No such file or directory`.
 
 ### Gtk2
 
-The perl GTK2 bindings have been dropped from recent Ubuntu releases. Check first:
-
-```sh
-apt-cache policy libgtk2-perl
-```
-
-If that prints a candidate version, `sudo apt install libgtk2-perl` and you are done. If it prints
-`Candidate: (none)` — as on Ubuntu 26.10 — build the module from CPAN. The GTK2 *C* library is still
-packaged (`libgtk2.0-dev` above), so only the bindings need compiling:
+The Perl GTK2 bindings have been dropped from recent Ubuntu releases (`apt-cache policy
+libgtk2-perl`). Where there is no candidate, build the module from CPAN — the GTK2 *C* library is
+still packaged, so only the bindings compile:
 
 ```sh
 curl -LO https://cpan.metacpan.org/authors/id/X/XA/XAOC/Gtk2-1.24993.tar.gz
-tar xzf Gtk2-1.24993.tar.gz
-cd Gtk2-1.24993
+tar xzf Gtk2-1.24993.tar.gz && cd Gtk2-1.24993
 perl Makefile.PL
 make CCFLAGS="$(perl -MConfig -e 'print $Config{ccflags}') \
               -Wno-incompatible-pointer-types -Wno-implicit-function-declaration"
 sudo make install
 ```
 
-The two `-Wno-` flags are the whole trick: GCC 14 turns incompatible pointer types into an error, and
-`xs/GtkItemFactory.xs` assigns a typed callback to `GtkItemFactoryCallback` (`void (*)(void)`).
-That is legal for this API, so downgrading it back to a warning is safe. Plain `cpan Gtk2` fails
-without them.
+The two `-Wno-` flags are the trick: GCC 14 turns incompatible pointer types into an error, and
+`xs/GtkItemFactory.xs` assigns a typed callback to `GtkItemFactoryCallback`, which is legal for that
+API. Install into `INSTALL_BASE=$HOME/perl5` and set `PERL5LIB` to keep it out of the system tree.
 
-To keep it out of the system perl directories, install into a prefix instead:
+`t/check.sh` runs the reference's checks — a smoke test of the non-GUI code, syntax checks, and the
+drift check on the generated tables — with nothing but core Perl.
 
-```sh
-perl Makefile.PL INSTALL_BASE=$HOME/perl5
-make CCFLAGS="$(perl -MConfig -e 'print $Config{ccflags}') \
-              -Wno-incompatible-pointer-types -Wno-implicit-function-declaration"
-make install
-export PERL5LIB=$HOME/perl5/lib/perl5
-```
+### Running notes
 
-## Running
+The shebang is `#!/usr/bin/perl -w`; adjust it if your Perl lives elsewhere. Options: `--statefile`,
+`--pidfile`, `--cleanstate`. Preset libraries are the same `.theremaxi` JSON files the C application
+uses. A stale `$XDG_RUNTIME_DIR/ThereMaxi.pid` after a crash gives *"ThereMaxi is running"* — delete
+it. The GTK accessibility-module warnings on start are harmless (`NO_AT_BRIDGE=1` silences them).
 
-```sh
-./ThereMaxi.pl
-```
+### Fixes for modern Perl
 
-The shebang is `#!/usr/bin/perl -w`; adjust it if your perl lives elsewhere. Options:
-
-| Option | Meaning |
-| --- | --- |
-| `--statefile=<file>` | where window geometry, preferences and the selected preset are stored (default `./ThereMaxi.state`) |
-| `--pidfile=<file>` | default `$XDG_RUNTIME_DIR/ThereMaxi.pid`, else next to the script |
-| `--cleanstate` | start from defaults, ignoring the state file |
-
-Preset libraries are JSON files (`*.theremaxi`) in the library directory, `./data` by default,
-changeable under **Preferences → General**. The presets read off the device live in the hidden
-`.theremaxi` file there and show up as *Theremini Presets*.
-
-Plug in the Theremini over USB before or after starting — the toolbar button on the left shows
-`not discovered` until an ALSA client whose name matches `theremini` appears. Check with:
-
-```sh
-aconnect -l
-```
-
-If discovery finds nothing although the device is listed, disable **Preferences → Device →
-Automatic Discovery** and use the connect button in the toolbar.
-
-## Hacking
-
-`t/check.sh` runs everything that can be checked without a Theremini, a display or non-core perl
-modules — a smoke test that loads the whole non-GUI tree and exercises preset decoding, value
-export and the library round-trip, syntax checks, and a drift check on the generated protocol
-data. CI runs it on every push, and again before publishing a release.
-
-`protocol/tables.json` and `protocol/golden.json` are generated by `tools/dump-protocol.pl` from
-the tables in `lib/`: what the parameters are, and what this code does with them. They are the
-contract a reimplementation is tested against — see `DESIGN.md`. `CLAUDE.md` has an architecture
-overview of the perl code.
-
-## Troubleshooting
-
-**`Gtk-Message: Failed to load module "atk-bridge"` / `"appmenu-gtk-module"`** — harmless noise from
-GTK2 accessibility modules that no longer match the installed GTK. Silence with `NO_AT_BRIDGE=1`.
-
-**`Can't locate Gtk2.pm`** although you installed it into a prefix — set `PERL5LIB` (see above).
-
-**`ThereMaxi is running`** — a stale pidfile from a crash; delete
-`$XDG_RUNTIME_DIR/ThereMaxi.pid`.
-
-**Numbers show a comma instead of a dot** — a known locale issue the original author worked around
-in several places (`tr/,/./`). If a value refuses to convert, start with `LC_NUMERIC=C`.
-
-## Changes for modern perl
-
-Two changes were needed to run on perl ≥ 5.36; both are in the repository:
-
-* `ThereMaxi.pl` — `File::Pid->running` calls `kill(0, undef)` when no pidfile exists yet, which
-  became a fatal error (*"Can't kill a non-numeric process ID"*). The call is now wrapped in `eval`:
-  no pidfile means not running.
-* `lib/Controller.pm` — `bless {}, "$base::$self"` interpolated as the variable `${base::}` followed
-  by `$self`, so every controller was blessed into a bogus package (*"Can't locate object method
-  "define" via package "\_085""*). Now built by concatenation.
-
-## Roadmap
-
-A rewrite in Rust with wxWidgets has been floated. Recommended order:
-
-1. **Keep the Perl version running** (done) — it is the reference implementation and the only
-   documentation of the sysex format.
-2. **Capture the protocol as data.** The valuable, hard-to-recreate parts are the CC table in
-   `lib/Controller.pm`, the sysex offset table `%IMPORT` in `lib/Preset.pm`, the 7-bit unpacking in
-   `Preset::_sx_`, and the per-parameter scaling in the `value_import`/`value_export` methods. Port
-   those first, with tests against real `.theremini` files and captured dumps.
-3. **Then the GUI.** The Perl side is thin: an event bus (`lib/Event.pm`), a widget per controller
-   type, and a layout that is mostly a list of CC numbers. Note that `wxWidgets` bindings for Rust
-   are less mature than `gtk-rs`; if wx is a hard requirement, a wxPerl intermediate step is possible
-   since `libwx-perl` is packaged in Ubuntu — but it doubles the work.
-
-See `CLAUDE.md` for an architecture overview of the existing code.
+Two changes let it run on Perl ≥ 5.36: `File::Pid->running` called `kill(0, undef)` on a missing
+pidfile (now guarded), and `bless {}, "$base::$self"` interpolated as `${base::}` (now concatenated).
 
 ## History
 
-The original release notes (`README`):
-
-* **17/10/19** — first release.
-* **17/10/23** — workaround for the locale problem in numeric controllers; better MIDI handling;
-  `MidiFeedbackLoop` feature added (use input from the antennas to manipulate preset controllers);
-  fixed import routine.
-* **17/10/27** — fixed low/high note range; 14-bit support for controller input.
-* **18/04/13** — fixed comma in numeric values; fixed some undefs.
-* **26/07/23** — runs on current perl/Ubuntu again (see above).
+* **2017-10-19** — first release of ThereMaxi by Peter Niebling.
+* **2017-10-23** — locale workaround; better MIDI handling; the MidiFeedbackLoop feature; import fix.
+* **2017-10-27** — low/high note range fixed; 14-bit controller input.
+* **2018-04-13** — comma in numeric values fixed; some undefs fixed.
+* **2026-07** — runs on current Perl/Ubuntu again; the C/wxWidgets rebuild, the LV2 plugin and the
+  device libraries, all validated against real hardware.
