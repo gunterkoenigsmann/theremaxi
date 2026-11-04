@@ -13,7 +13,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - name: Run the perl checks
         run: t/check.sh
@@ -77,7 +77,7 @@ jobs:
             build-essential cmake perl pkg-config dpkg-dev file git ca-certificates \
             libwxgtk3.2-dev libasound2-dev lv2-dev sordi
 
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - name: Build and test
         run: |
@@ -96,7 +96,7 @@ jobs:
           done
           ls -l theremaxi_*.deb
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: deb-ubuntu-${{ matrix.release }}
           path: build/theremaxi_*.deb
@@ -110,7 +110,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v8
         with:
           path: debs
           pattern: deb-ubuntu-*
