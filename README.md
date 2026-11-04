@@ -32,7 +32,7 @@ There are two implementations in this repository:
 
 ## Installing a prebuilt package
 
-Each release attaches `.deb` packages for current Ubuntu releases (24.04, 25.04, 25.10) to its
+Each release attaches `.deb` packages for current Ubuntu releases (24.04 LTS, 26.04 LTS, 26.10) to its
 [releases page](https://github.com/gunterkoenigsmann/theremaxi/releases). Download the one matching
 your release and install it:
 

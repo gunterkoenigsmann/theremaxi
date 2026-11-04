@@ -65,7 +65,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        release: ['24.04', '25.04', '25.10']
+        release: ['24.04', '26.04', '26.10']
 
     steps:
       # A run step before checkout works without git; install everything the
