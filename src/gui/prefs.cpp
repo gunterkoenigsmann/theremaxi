@@ -12,8 +12,9 @@ namespace {
 
 void load_one(wxConfigBase *cfg, const wxString &key, AntennaInput &in)
 {
-	in.channel = cfg->ReadLong(key + "/channel", in.channel);
-	in.cc = cfg->ReadLong(key + "/cc", in.cc);
+	// stored by save_one from these very ints, so they fit back into one
+	in.channel = static_cast<int>(cfg->ReadLong(key + "/channel", in.channel));
+	in.cc = static_cast<int>(cfg->ReadLong(key + "/cc", in.cc));
 	in.wide = cfg->ReadBool(key + "/wide", in.wide);
 }
 

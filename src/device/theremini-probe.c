@@ -116,7 +116,8 @@ int main(int argc, char **argv)
 	}
 
 	if (want_set_name) {
-		const int slot = atoi(argv[2]);
+		/* argc > 3 was checked above; the analyzer cannot see argv[2] is set */
+		const int slot = atoi(argv[2]); // NOLINT(clang-analyzer-core.NonNullParamChecker)
 		theremini_alsa_send_cc(seq, 0, 0, 0);
 		theremini_alsa_send_program(seq, 0, slot);
 		uint8_t name_msg[THEREMINI_MESSAGE_MAX];
@@ -127,7 +128,8 @@ int main(int argc, char **argv)
 	}
 
 	if (want_restore) {
-		const int slot = atoi(argv[2]);
+		/* argc > 3 was checked above; the analyzer cannot see argv[2] is set */
+		const int slot = atoi(argv[2]); // NOLINT(clang-analyzer-core.NonNullParamChecker)
 		FILE *f = fopen(argv[3], "rb");
 		if (!f) {
 			printf("cannot read %s\n", argv[3]);

@@ -25,7 +25,7 @@ static void parse_one(const uint8_t *data, size_t size)
 		// touch the result so nothing is optimised away
 		volatile size_t n = lib.presets.size();
 		(void)n;
-	} catch (const theremaxi::ParseError &) {
+	} catch (const theremaxi::ParseError &) { // NOLINT(bugprone-empty-catch)
 		// the one allowed failure mode
 	}
 }

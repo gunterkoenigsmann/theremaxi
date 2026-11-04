@@ -40,7 +40,7 @@ struct theremini_alsa {
 static void handle_cc(theremini_alsa *self, const snd_seq_event_t *ev)
 {
 	const int channel = ev->data.control.channel;
-	const int param = ev->data.control.param;
+	const int param = (int)ev->data.control.param; /* 0..127, fits */
 	if (self->active_probe) {
 		theremini_channel_probe_feed(self->active_probe, channel, param);
 	}

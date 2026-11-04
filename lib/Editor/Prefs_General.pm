@@ -5,14 +5,17 @@ use strict;
 use warnings;
 
 
+# Stack the given widgets in a VBox.
+sub box
+{
+	my $vbox = Gtk2::VBox->new(0);
+	$vbox->add($_) for @_;
+	$vbox;
+}
+
+
 sub new
 {
-	sub box
-	{
-		my $vbox = Gtk2::VBox->new(0);
-		$vbox->add($_) for @_;
-		$vbox;
-	}
 	my $grp = Gtk2::SizeGroup->new('both');
 	my $vbox = Gtk2::VBox->new(0);
 	$vbox->pack_start(Gtk2::Frame->new_with_object(&box(&_editor_($grp)),'Editor'),0,0,10);

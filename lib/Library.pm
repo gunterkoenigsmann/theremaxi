@@ -144,7 +144,7 @@ sub import_xml
 		local $SIG{__DIE__};
 		ThereMaxi::Editor->status("Import: $src");
 		my $lib = &_name_($src);
-		open my$I, "<$src" or die "$src: $!";
+		open my$I, '<', $src or die "$src: $!";
 		my @data;
 		while (<$I>)
 		{

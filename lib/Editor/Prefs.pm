@@ -24,12 +24,6 @@ sub window
 	$window->move(@{$main::STATE{prefs}->{window}->{position}}) if $main::STATE{prefs}->{window}->{position};
 	$window->resize(@{$main::STATE{prefs}->{window}->{size}}) if $main::STATE{prefs}->{window}->{size};
 	{
-		sub align
-		{
-			$_[0] = Gtk2::Alignment->new_with_object($_[0],0.5,0.5,1,1);
-			$_[0]->set_padding(5,5,5,5);
-			@_;
-		}
 		my $tabs = Gtk2::Notebook->new;
 		$tabs->append_page(align(ThereMaxi::Editor::Prefs::Controller->new));
 		$tabs->append_page(align(ThereMaxi::Editor::Prefs::General->new));
@@ -40,6 +34,15 @@ sub window
 	}
 	$window->show_all;
 	$window->set_focus;
+}
+
+
+# Wrap a widget in a padded alignment, in place, for the notebook and its tabs.
+sub align
+{
+	$_[0] = Gtk2::Alignment->new_with_object($_[0],0.5,0.5,1,1);
+	$_[0]->set_padding(5,5,5,5);
+	@_;
 }
 
 
