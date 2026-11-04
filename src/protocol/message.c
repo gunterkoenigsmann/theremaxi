@@ -33,7 +33,8 @@ void theremini_name_encode(const char *name, uint8_t out[THEREMINI_NAME_BYTES])
 		len = THEREMINI_NAME_BYTES;
 	}
 
-	memcpy(out, start, len);
+	/* the device field is fixed-width and space-padded, never NUL-terminated */
+	memcpy(out, start, len); // NOLINT(bugprone-not-null-terminated-result)
 }
 
 /* F0 + payload + F7 into out, or 0 if it will not fit. */

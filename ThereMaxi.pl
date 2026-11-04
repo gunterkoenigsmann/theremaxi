@@ -7,7 +7,9 @@ our $NAME = 'ThereMaxi';
 
 BEGIN
 {
-	my @need = grep {!eval"require $_"} qw( File::Pid FindBin Getopt::Long Gtk2 JSON::PP MIDI::ALSA MIME::Base64 sigtrap );
+	# require with a file name, not a string eval: Some::Module -> Some/Module.pm
+	my @need = grep { (my $pm = "$_.pm") =~ s{::}{/}g; !eval { require $pm; 1 } }
+		qw( File::Pid FindBin Getopt::Long Gtk2 JSON::PP MIDI::ALSA MIME::Base64 sigtrap );
 	die "Modules not found:\n\t",join("\n\t",@need),"\n\n" if @need;
 }
 
