@@ -1,0 +1,35 @@
+# clang-tidy configuration for the C libraries, the tools and the wx GUI.
+# CI runs it through t/lint.sh, which fails on any warning (WarningsAsErrors).
+#
+# Enabled: the bug-finding families. Style families (readability-*, modernize-*,
+# cppcoreguidelines-*) are deliberately left off - the code follows its own
+# documented style and churning it buys nothing.
+#
+# Disabled, and why:
+#   bugprone-easily-swappable-parameters
+#       fires on nearly every (buf, len) / (channel, cc) signature; the protocol
+#       API is made of exactly those.
+#   bugprone-reserved-identifier
+#       flags #define _GNU_SOURCE / _POSIX_C_SOURCE, which are feature-test
+#       macros we are *meant* to define.
+#   bugprone-suspicious-enum-usage
+#       wxWidgets builds style flags by OR-ing values of different enums
+#       (wxALL | wxEXPAND, wxALIGN_CENTRE | wxRIGHT); that is its API.
+#   performance-enum-size
+#       suggests shrinking the wx event-id enum; ids are passed as int anyway.
+#   clang-analyzer-security.insecureAPI.DeprecatedOrUnsafeBufferHandling
+#       wants C11 Annex K (memcpy_s, snprintf_s), which glibc does not provide.
+Checks: >
+  -*,
+  bugprone-*,
+  clang-analyzer-*,
+  performance-*,
+  portability-*,
+  -bugprone-easily-swappable-parameters,
+  -bugprone-reserved-identifier,
+  -bugprone-suspicious-enum-usage,
+  -performance-enum-size,
+  -clang-analyzer-security.insecureAPI.DeprecatedOrUnsafeBufferHandling
+WarningsAsErrors: '*'
+# Our own headers only - not wxWidgets', ALSA's or the generated tables.
+HeaderFilterRegex: '/(src|tests|fuzz)/'

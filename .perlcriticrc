@@ -1,0 +1,15 @@
+# perlcritic configuration for the perl reference implementation.
+# CI runs it through t/lint.sh, which fails on any violation.
+#
+# Severity 5 ("gentle") only: the most likely-to-be-a-bug policies. The code
+# predates perlcritic's taste in many ways (see the Style section of
+# CLAUDE.md) and is meant to be matched, not modernised, so the stricter
+# levels would mostly report style. Raise this once the code is clean at 4.
+severity = 5
+verbose  = %f:%l:%c: %m [%p]\n
+
+# Modules are loaded with require "$main::LIB/Some/File.pm", and package names
+# deliberately do not map onto file paths (ThereMaxi::Controller::numeric lives
+# in lib/Controller/numeric.pm). Both policies object to exactly that design.
+[-Modules::RequireBarewordIncludes]
+[-Modules::RequireFilenameMatchesPackage]
