@@ -39,3 +39,5 @@ ThereMaxi.pid
 # Device backups - your device's presets, kept out of the repo
 /backup/
 *.syx
+# Compile database and build for t/lint.sh
+/build-lint/

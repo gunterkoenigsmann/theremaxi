@@ -1,0 +1,22 @@
+# Dependabot: weekly pull requests that bump the versions this repo pins.
+#
+# The only pinned dependencies are the GitHub Actions the workflows use
+# (actions/checkout@v4 and friends), so that is the only ecosystem listed.
+# Everything else comes unpinned from the distribution, and Dependabot has
+# nothing to update there:
+#   - the C/C++ libraries (wxWidgets, ALSA, LV2) are Ubuntu packages, built
+#     against whatever the release ships - that is what the .deb depends on;
+#   - the perl modules (Gtk2, MIDI::ALSA, ...) are distro packages or CPAN,
+#     with no cpanfile or lock file to bump (Dependabot has no CPAN support).
+version: 2
+updates:
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+    # one PR for all action bumps instead of one per action
+    groups:
+      actions:
+        patterns: ['*']
+    commit-message:
+      prefix: ci

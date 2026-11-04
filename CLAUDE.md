@@ -8,7 +8,7 @@ ThereMaxi is a Linux GTK2 editor/librarian for the Moog Theremini, written entir
 
 ## Running / checking
 
-There is no build system, no test suite, and no lint config. The program is run directly:
+The perl reference has no build system of its own (the C side uses CMake). The program is run directly:
 
 ```sh
 ./ThereMaxi.pl                       # needs /usr/bin/perl; edit the shebang otherwise
@@ -29,6 +29,8 @@ Run `t/check.sh` instead — it is everything that works without a Theremini, a 
 * `perl -c` on the handful of modules that do stand alone.
 
 Add new non-GUI behaviour to `t/smoke.pl`; it is the only thing that compiles the `Controller` subclasses.
+
+`t/lint.sh` is the static analysis CI runs in its `lint` job: perlcritic at severity 5 (`.perlcriticrc`) and clang-tidy's bug-finding checks with warnings as errors (`.clang-tidy`). Both config files list every disabled policy/check with its reason; prefer a fix, then a `## no critic (Policy)` / `// NOLINT(check)` with a comment saying why, and only then a new global exclusion. Dependabot (`.github/dependabot.yml`) bumps the pinned GitHub Actions; `dependency-review.yml` checks PRs for vulnerable or GPL-incompatible dependencies.
 
 Only one instance may run at a time (pidfile in `$XDG_RUNTIME_DIR`, else the source dir).
 

@@ -1,0 +1,33 @@
+# The cargo-deny equivalent: on every pull request, look at the dependencies
+# the PR adds or changes (as seen by GitHub's dependency graph) and fail if one
+# has a known vulnerability or a licence that cannot be combined with GPL-3.0.
+#
+# Today the dependency graph only holds the GitHub Actions the workflows use -
+# the C libraries and perl modules come from the distribution (see
+# .github/dependabot.yml), where security updates are the distribution's job.
+# The check costs nothing, though, and starts covering more the moment a
+# manifest GitHub understands is added.
+name: Dependency review
+
+on:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  dependency-review:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/dependency-review-action@v4
+        with:
+          fail-on-severity: moderate
+          # licences that may be combined with GPL-3.0 code
+          allow-licenses: >-
+            GPL-2.0-or-later, GPL-3.0-only, GPL-3.0-or-later,
+            LGPL-2.1-only, LGPL-2.1-or-later, LGPL-3.0-only, LGPL-3.0-or-later,
+            MIT, ISC, BSD-2-Clause, BSD-3-Clause, Apache-2.0, MPL-2.0,
+            Zlib, Unlicense, CC0-1.0, 0BSD

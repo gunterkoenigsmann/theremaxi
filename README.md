@@ -189,6 +189,10 @@ API. Install into `INSTALL_BASE=$HOME/perl5` and set `PERL5LIB` to keep it out o
 `t/check.sh` runs the reference's checks — a smoke test of the non-GUI code, syntax checks, and the
 drift check on the generated tables — with nothing but core Perl.
 
+`t/lint.sh` runs the static analysis CI runs: perlcritic over the perl (configured in
+`.perlcriticrc`) and clang-tidy over the C/C++ (configured in `.clang-tidy`, from a compile database
+it builds in `build-lint/`). It needs `libperl-critic-perl`, `clang-tidy` and the build dependencies.
+
 ### Running notes
 
 The shebang is `#!/usr/bin/perl -w`; adjust it if your Perl lives elsewhere. Options: `--statefile`,
