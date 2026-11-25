@@ -11,7 +11,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - run: t/check.sh
 
   # perlcritic on the perl, clang-tidy on the C/C++ - the clippy equivalent.
@@ -22,7 +22,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       # clang-tidy needs the compile database, so it needs everything the build
       # needs - including wxWidgets, or the GUI sources would go unchecked.
@@ -39,7 +39,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       # Before configuring, so find_package sees them: doxygen for the docs
       # target, lv2 for the plugin, sordi for validating its TTL.
